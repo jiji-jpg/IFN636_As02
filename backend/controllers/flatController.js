@@ -29,7 +29,7 @@ try {
     flat.title = title || flat.title;
     flat.description = description || flat.description;
     flat.vacant = vacant ?? flat.vacant;
-    task.inspectionDate = inspectionDate || flat.inspectionDate;
+    flat.inspectionDate = inspectionDate || flat.inspectionDate;
     const updatedFlat = await flat.save();
     res.json(updatedFlat);
 } catch (error) {
