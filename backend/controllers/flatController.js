@@ -1,3 +1,4 @@
+//view
 const Task = require('../models/Task');
 const getTasks = async (req,res) => {
     try {
@@ -8,7 +9,8 @@ const getTasks = async (req,res) => {
     }
 };
 
-const addTask = async (req,res) => {
+//add
+const addFlat = async (req,res) => {
     const { title, description, deadline } = req.body;
         try {
             const task = await Task.create({ userId: req.user.id, title, description, deadline });
@@ -18,6 +20,7 @@ const addTask = async (req,res) => {
     }
 };
 
+//update
 const updateTask = async (req,res) => {
 const { title, description, completed, deadline } = req.body;
 try {
@@ -34,7 +37,7 @@ res.status(500).json({ message: error.message });
 }
 };
 
-
+//delete
 const deleteTask = async (req,res) => {
 try {
     const task = await Task.findById(req.params.id);
