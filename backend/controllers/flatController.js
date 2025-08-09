@@ -1,9 +1,9 @@
 //view
-const Task = require('../models/Task');
-const getTasks = async (req,res) => {
+const Flat = require('../models/Flat');
+const getFlats = async (req,res) => {
     try {
-        const tasks = await Task.find({ userId: req.user.id });
-        res.json(tasks);
+        const flats = await Flat.find({ userId: req.user.id });
+        res.json(flats);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -13,8 +13,8 @@ const getTasks = async (req,res) => {
 const addFlat = async (req,res) => {
     const { title, description, deadline } = req.body;
         try {
-            const task = await Task.create({ userId: req.user.id, title, description, deadline });
-            res.status(201).json(task);
+            const flat = await Flat.create({ userId: req.user.id, title, description, deadline });
+            res.status(201).json(flat);
         } catch (error) {
     res.status(500).json({ message: error.message });
     }
