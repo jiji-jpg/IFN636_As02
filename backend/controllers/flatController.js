@@ -40,7 +40,7 @@ res.status(500).json({ message: error.message });
 //delete
 const deleteFlat = async (req,res) => {
 try {
-    const task = await Task.findById(req.params.id);
+    const flat = await Flat.findById(req.params.id);
     if (!flat) return res.status(404).json({ message: 'Flat not found' });
     
     await flat.remove();
