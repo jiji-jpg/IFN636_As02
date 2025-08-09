@@ -2,46 +2,46 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import axiosInstance from '../axiosConfig';
 
-const TaskForm = ({ tasks, setTasks, editingTask, setEditingTask }) => {
+const FlatForm = ({ flats, setFlats, editingFlat, setEditingFlat }) => {
   const { user } = useAuth();
   const [formData, setFormData] = useState({ title: '', description: '', deadline: '' });
 
   useEffect(() => {
-    if (editingTask) {
+    if (editingFlat) {
       setFormData({
-        title: editingTask.title,
-        description: editingTask.description,
-        deadline: editingTask.deadline,
+        title: editingFlat.title,
+        description: editingFlat.description,
+        deadline: editingFlat.deadline,
       });
     } else {
       setFormData({ title: '', description: '', deadline: '' });
     }
-  }, [editingTask]);
+  }, [editingFlat]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      if (editingTask) {
-        const response = await axiosInstance.put(`/api/tasks/${editingTask._id}`, formData, {
+      if (editingFlat) {
+        const response = await axiosInstance.put(`/api/flats/${editingFlat._id}`, formData, {
           headers: { Authorization: `Bearer ${user.token}` },
         });
-        setTasks(tasks.map((task) => (task._id === response.data._id ? response.data : task)));
+        setFlats(flats.map((flat) => (flat._id === response.data._id ? response.data : flat)));
       } else {
-        const response = await axiosInstance.post('/api/tasks', formData, {
+        const response = await axiosInstance.post('/api/flats', formData, {
           headers: { Authorization: `Bearer ${user.token}` },
         });
-        setTasks([...tasks, response.data]);
+        setFlats([...flats, response.data]);
       }
-      setEditingTask(null);
+      setEditingFlat(null);
       setFormData({ title: '', description: '', deadline: '' });
     } catch (error) {
-      alert('Failed to save task.');
+      alert('Failed to save flat.');
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="bg-white p-6 shadow-md rounded mb-6">
-      <h1 className="text-2xl font-bold mb-4">{editingTask ? 'Your Form Name: Edit Operation' : 'Your Form Name: Create Operation'}</h1>
+      <h1 className="text-2xl font-bold mb-4">{editingFlat ? 'Your Form Name: Edit Operation' : 'Your Form Name: Create Operation'}</h1>
       <input
         type="text"
         placeholder="Title"
@@ -63,10 +63,10 @@ const TaskForm = ({ tasks, setTasks, editingTask, setEditingTask }) => {
         className="w-full mb-4 p-2 border rounded"
       />
       <button type="submit" className="w-full bg-blue-600 text-white p-2 rounded">
-        {editingTask ? 'Update Button' : 'Create Button'}
+        {editingFlat ? 'Update Button' : 'Create Button'}
       </button>
     </form>
   );
 };
 
-export default TaskForm;
+export default FlatForm;
