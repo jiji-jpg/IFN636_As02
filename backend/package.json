@@ -1,7 +1,7 @@
 {
-  "name": "task-manager-backend",
+  "name": "flat-manager-backend",
   "version": "1.0.0",
-  "description": "Backend for Task Manager App",
+  "description": "Backend for Flat Manager App",
   "main": "server.js",
   "scripts": {
     "test": "mocha",
@@ -19,7 +19,7 @@
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.0.14",
     "request": "^2.88.2",
-    "task-manager": "file:.."
+    "flat-manager": "file:.."
   },
   "devDependencies": {
     "esm": "^3.2.25",
@@ -27,6 +27,6 @@
     "nodemon": "^2.0.15",
     "sinon": "^19.0.2"
   },
-  "author": "Task Manager Team",
+  "author": "Flat Manager Team",
   "license": "ISC"
 }
