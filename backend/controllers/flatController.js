@@ -13,8 +13,8 @@ const getTasks = async (req,res) => {
 const addFlat = async (req,res) => {
     const { title, description, deadline } = req.body;
         try {
-            const task = await Task.create({ userId: req.user.id, title, description, deadline });
-            res.status(201).json(task);
+            const flat = await Flat.create({ userId: req.user.id, title, description, deadline });
+            res.status(201).json(flat);
         } catch (error) {
     res.status(500).json({ message: error.message });
     }
