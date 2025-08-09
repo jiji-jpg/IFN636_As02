@@ -21,17 +21,17 @@ const addFlat = async (req,res) => {
 };
 
 //update
-const updateTask = async (req,res) => {
-const { title, description, completed, deadline } = req.body;
+const updateFlat = async (req,res) => {
+const { title, description, vacant, inspectionDate } = req.body;
 try {
-    const task = await Task.findById(req.params.id);
-    if (!task) return res.status(404).json({ message: 'Task not found' });
-    task.title = title || task.title;
-    task.description = description || task.description;
-    task.completed = completed ?? task.completed;
-    task.deadline = deadline || task.deadline;
-    const updatedTask = await task.save();
-    res.json(updatedTask);
+    const flat = await Flat.findById(req.params.id);
+    if (!flat) return res.status(404).json({ message: 'Flat not found' });
+    flat.title = title || flat.title;
+    flat.description = description || flat.description;
+    flat.vacant = vacant ?? flat.vacant;
+    task.inspectionDate = inspectionDate || flat.inspectionDate;
+    const updatedFlat = await flat.save();
+    res.json(updatedFlat);
 } catch (error) {
 res.status(500).json({ message: error.message });
 }
