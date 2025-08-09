@@ -1,9 +1,9 @@
 //view
-const Task = require('../models/Task');
-const getTasks = async (req,res) => {
+const Flat = require('../models/Flat');
+const getFlats = async (req,res) => {
     try {
-        const tasks = await Task.find({ userId: req.user.id });
-        res.json(tasks);
+        const flats = await Flat.find({ userId: req.user.id });
+        res.json(flats);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
