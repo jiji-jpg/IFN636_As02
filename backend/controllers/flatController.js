@@ -11,9 +11,9 @@ const getFlats = async (req,res) => {
 
 //add
 const addFlat = async (req,res) => {
-    const { title, description, deadline } = req.body;
+    const { address, description, inspectionDate } = req.body;
         try {
-            const flat = await Flat.create({ userId: req.user.id, title, description, deadline });
+            const flat = await Flat.create({ userId: req.user.id, address, description, inspectionDate });
             res.status(201).json(flat);
         } catch (error) {
     res.status(500).json({ message: error.message });
@@ -22,19 +22,19 @@ const addFlat = async (req,res) => {
 
 //update
 const updateFlat = async (req,res) => {
-const { title, description, vacant, inspectionDate } = req.body;
-try {
-    const flat = await Flat.findById(req.params.id);
-    if (!flat) return res.status(404).json({ message: 'Flat not found' });
-    flat.title = title || flat.title;
-    flat.description = description || flat.description;
-    flat.vacant = vacant ?? flat.vacant;
-    flat.inspectionDate = inspectionDate || flat.inspectionDate;
-    const updatedFlat = await flat.save();
-    res.json(updatedFlat);
-} catch (error) {
-res.status(500).json({ message: error.message });
-}
+    const { address, description, vacant, inspectionDate } = req.body;
+    try {
+        const flat = await Flat.findById(req.params.id);
+        if (!flat) return res.status(404).json({ message: 'Flat not found' });
+        flat.address = address || flat.address;
+        flat.description = description || flat.description;
+        flat.vacant = vacant ?? flat.vacant;
+        flat.inspectionDate = inspectionDate || flat.inspectionDate;
+        const updatedFlat = await flat.save();
+        res.json(updatedFlat);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
 };
 
 //delete

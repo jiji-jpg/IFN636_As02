@@ -16,12 +16,13 @@ let port;
 
 
 describe('AddFlat Function Test', () => {
+  afterEach(() => sinon.restore());
 
-  it('should create a new flat successfully', async () => {
+  it('should create a new address successfully', async () => {
     // Mock request data
     const req = {
       user: { id: new mongoose.Types.ObjectId() },
-      body: { title: "New Flat", description: "Flat description", deadline: "2025-12-31" }
+      body: { address: "New Address", description: "Flat description", inspectionDate: "2025-12-31" }
     };
 
     // Mock flat that would be created
@@ -55,7 +56,7 @@ describe('AddFlat Function Test', () => {
     // Mock request data
     const req = {
       user: { id: new mongoose.Types.ObjectId() },
-      body: { title: "New Flat", description: "Flat description", deadline: "2025-12-31" }
+      body: { address: "New Address", description: "Flat description", inspectionDate: "2025-12-31" }
     };
 
     // Mock response object
@@ -79,16 +80,17 @@ describe('AddFlat Function Test', () => {
 
 
 describe('Update Function Test', () => {
+  afterEach(() => sinon.restore());
 
   it('should update flat successfully', async () => {
     // Mock flat data
     const flatId = new mongoose.Types.ObjectId();
     const existingFlat = {
       _id: flatId,
-      title: "Old Flat",
+      address: "Old Address",
       description: "Old Description",
-      completed: false,
-      deadline: new Date(),
+      vacant: false,
+      inspectionDate: new Date(),
       save: sinon.stub().resolvesThis(), // Mock save method
     };
     // Stub Flat.findById to return mock flat
@@ -97,7 +99,7 @@ describe('Update Function Test', () => {
     // Mock request & response
     const req = {
       params: { id: flatId },
-      body: { title: "New Flat", completed: true }
+      body: { address: "New Address", vacant: true }
     };
     const res = {
       json: sinon.spy(), 
@@ -108,8 +110,8 @@ describe('Update Function Test', () => {
     await updateFlat(req, res);
 
     // Assertions
-    expect(existingFlat.title).to.equal("New Flat");
-    expect(existingFlat.completed).to.equal(true);
+    expect(existingFlat.address).to.equal("New Address");
+    expect(existingFlat.vacant).to.equal(true);
     expect(res.status.called).to.be.false; // No error status should be set
     expect(res.json.calledOnce).to.be.true;
 
@@ -160,6 +162,7 @@ describe('Update Function Test', () => {
 
 
 describe('GetFlat Function Test', () => {
+  afterEach(() => sinon.restore());
 
   it('should return flats for the given user', async () => {
     // Mock user ID
@@ -167,8 +170,8 @@ describe('GetFlat Function Test', () => {
 
     // Mock flat data
     const flats = [
-      { _id: new mongoose.Types.ObjectId(), title: "Flat 1", userId },
-      { _id: new mongoose.Types.ObjectId(), title: "Flat 2", userId }
+      { _id: new mongoose.Types.ObjectId(), flat: "Flat 1", userId },
+      { _id: new mongoose.Types.ObjectId(), flat: "Flat 2", userId }
     ];
 
     // Stub Flat.find to return mock flats
@@ -211,6 +214,8 @@ describe('GetFlat Function Test', () => {
     expect(res.status.calledWith(500)).to.be.true;
     expect(res.json.calledWithMatch({ message: 'DB Error' })).to.be.true;
 
+    
+
     // Restore stubbed methods
     findStub.restore();
   });
@@ -220,6 +225,7 @@ describe('GetFlat Function Test', () => {
 
 
 describe('DeleteFlat Function Test', () => {
+  afterEach(() => sinon.restore());
 
   it('should delete a flat successfully', async () => {
     // Mock request data
