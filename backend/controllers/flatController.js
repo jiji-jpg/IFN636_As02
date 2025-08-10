@@ -42,8 +42,8 @@ const addFlat = async (req, res) => {
 
 //update
 const updateFlat = async (req,res) => {
-  const { title, description, vacant, inspectionDate } = req.body;
-  console.log('Update Flat called with:', { title, description, vacant, inspectionDate });
+  const { title, description, vacant, inspectionDate, tenantDetails } = req.body;
+  console.log('Update Flat called with:', { title, description, vacant, inspectionDate, tenantDetails });
   console.log('Files received for update:', req.files); // Debug log
   
   try {
@@ -55,6 +55,11 @@ const updateFlat = async (req,res) => {
     flat.description = description || flat.description;
     flat.vacant = vacant ?? flat.vacant;
     flat.inspectionDate = inspectionDate || flat.inspectionDate;
+    
+    // Handle tenant details
+    if (tenantDetails !== undefined) {
+      flat.tenantDetails = tenantDetails;
+    }
     
     // Handle images
     if (req.files && req.files.length > 0) {
