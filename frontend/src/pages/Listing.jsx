@@ -1,34 +1,43 @@
 import { useState, useEffect } from 'react';
 import axiosInstance from '../axiosConfig';
+import { useAuth } from '../context/AuthContext';
 
 const Listing = () => {
+  const { user } = useAuth();
   const [flats, setFlats] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchPublicFlats = async () => {
+    const fetchFlats = async () => {
+      if (!user || !user.token) {
+        setError('Please log in to view listings.');
+        setLoading(false);
+        return;
+      }
+
       try {
         setLoading(true);
-        const apiUrl = `${process.env.REACT_APP_API_URL || 'http://localhost:5001'}/api/flats/public`;
-        console.log('Calling API URL:', apiUrl); // Debug log
+        console.log('Fetching flats...'); // Debug log
         
-        const response = await axiosInstance.get('/api/flats/public');
-        console.log('Public flats response:', response.data); // Debug log
+        const response = await axiosInstance.get('/api/flats', {
+          headers: { Authorization: `Bearer ${user.token}` },
+        });
+        
+        console.log('Flats response:', response.data); // Debug log
         setFlats(response.data);
         setError(null);
       } catch (error) {
-        console.error('Error fetching public flats:', error);
-        console.error('Error details:', error.response?.data); // More detailed error
-        console.error('Error status:', error.response?.status); // HTTP status
+        console.error('Error fetching flats:', error);
+        console.error('Error details:', error.response?.data);
         setError(`Failed to fetch property listings: ${error.response?.status || error.message}`);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchPublicFlats();
-  }, []);
+    fetchFlats();
+  }, [user]);
 
   // Function to get image URL
   const getImageUrl = (imagePath) => {
@@ -50,12 +59,23 @@ const Listing = () => {
       <div className="container mx-auto p-6">
         <div className="text-center py-8">
           <p className="text-red-500 text-lg">{error}</p>
-          <button 
-            onClick={() => window.location.reload()} 
-            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          >
-            Try Again
-          </button>
+          {error.includes('log in') ? (
+            <div className="mt-4">
+              <a 
+                href="/login" 
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              >
+                Go to Login
+              </a>
+            </div>
+          ) : (
+            <button 
+              onClick={() => window.location.reload()} 
+              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            >
+              Try Again
+            </button>
+          )}
         </div>
       </div>
     );
@@ -64,13 +84,19 @@ const Listing = () => {
   return (
     <div className="container mx-auto p-6">
       <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold mb-2">Property Listings</h1>
-        <p className="text-gray-600">Discover available properties for rent</p>
+        <h1 className="text-3xl font-bold mb-2">My Property Listings</h1>
+        <p className="text-gray-600">View your property listings</p>
       </div>
       
       {flats.length === 0 ? (
         <div className="text-center py-8">
-          <p className="text-gray-500 text-lg">No property listings available at the moment.</p>
+          <p className="text-gray-500 text-lg">You haven't created any property listings yet.</p>
+          <a 
+            href="/flats" 
+            className="mt-4 inline-block px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Create Your First Listing
+          </a>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -113,22 +139,6 @@ const Listing = () => {
                     <span className="text-sm font-medium text-blue-600">
                       Inspection: {new Date(flat.inspectionDate).toLocaleDateString()}
                     </span>
-                  </div>
-                )}
-                
-                {/* Contact Information */}
-                {flat.userId && (
-                  <div className="border-t pt-3">
-                    <p className="text-sm text-gray-500">Listed by:</p>
-                    <p className="font-medium">{flat.userId.name || 'Property Owner'}</p>
-                    {flat.userId.email && (
-                      <a 
-                        href={`mailto:${flat.userId.email}?subject=Inquiry about ${flat.title}`}
-                        className="text-blue-500 hover:text-blue-700 text-sm"
-                      >
-                        Contact Owner
-                      </a>
-                    )}
                   </div>
                 )}
                 

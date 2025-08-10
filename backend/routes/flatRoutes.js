@@ -18,7 +18,6 @@ const storage = multer.diskStorage({
     cb(null, 'uploads/flats/');
   },
   filename: (req, file, cb) => {
-    // Create unique filename: timestamp-randomnumber.extension
     const uniqueName = Date.now() + '-' + Math.round(Math.random() * 1E9) + path.extname(file.originalname);
     cb(null, uniqueName);
   }
@@ -27,11 +26,10 @@ const storage = multer.diskStorage({
 const upload = multer({ 
   storage,
   limits: { 
-    fileSize: 5 * 1024 * 1024, // 5MB limit per file
-    files: 10 // Max 10 files
+    fileSize: 5 * 1024 * 1024,
+    files: 10
   },
   fileFilter: (req, file, cb) => {
-    // Only allow image files
     if (file.mimetype.startsWith('image/')) {
       cb(null, true);
     } else {
@@ -43,6 +41,9 @@ const upload = multer({
 // Routes with multer middleware
 router.route('/').get(protect, getFlats).post(protect, upload.array('images', 10), addFlat);
 router.route('/:id').put(protect, upload.array('images', 10), updateFlat).delete(protect, deleteFlat);
-router.route('/:id/images/:imageName').delete(protect, deleteImage); // New route for deleting individual images
+router.route('/:id/images/:imageName').delete(protect, deleteImage);
+
+// Public listings route (no authentication required) - ADD THIS LINE
+router.get('/public', getPublicFlats);
 
 module.exports = router;
