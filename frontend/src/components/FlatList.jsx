@@ -15,12 +15,44 @@ const FlatList = ({ flats, setFlats, setEditingFlat }) => {
     }
   };
 
+  const handleImageDelete = async (flatId, imageToDelete) => {
+    if (!window.confirm('Are you sure you want to delete this image?')) {
+      return;
+    }
+
+    console.log('Deleting image:', imageToDelete, 'from flat:', flatId); // Debug log
+
+    try {
+      const response = await axiosInstance.delete(`/api/flats/${flatId}/images/${imageToDelete}`, {
+        headers: { Authorization: `Bearer ${user.token}` },
+      });
+      
+      console.log('Delete response:', response.data); // Debug log
+      
+      // Update the flats state to remove the deleted image
+      setFlats(flats.map(flat => 
+        flat._id === flatId 
+          ? { ...flat, images: flat.images.filter(img => img !== imageToDelete) }
+          : flat
+      ));
+      
+      alert('Image deleted successfully!');
+    } catch (error) {
+      console.error('Error deleting image:', error);
+      console.error('Error response:', error.response?.data); // More detailed error
+      console.error('Error status:', error.response?.status); // HTTP status
+      alert(`Failed to delete image: ${error.response?.data?.message || error.message}`);
+    }
+  };
+
   // Function to get image URL - adjust this based on your backend setup
   const getImageUrl = (imagePath) => {
     // If your backend serves images from /uploads route
-    return `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/uploads/flats/${imagePath}`;
+    const url = `${process.env.REACT_APP_API_URL || 'http://localhost:5001'}/uploads/flats/${imagePath}`;
+    console.log('Generated image URL:', url); // Debug log
+    return url;
     // Alternative if images are served from /api/images route:
-    // return `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/images/${imagePath}`;
+    // return `${process.env.REACT_APP_API_URL || 'http://localhost:5001'}/api/images/${imagePath}`;
   };
 
   return (
@@ -58,10 +90,21 @@ const FlatList = ({ flats, setFlats, setEditingFlat }) => {
                         window.open(getImageUrl(image), '_blank');
                       }}
                     />
-                    {/* Optional: Image overlay with index */}
+                    {/* Image overlay with index */}
                     <div className="absolute top-1 left-1 bg-black bg-opacity-50 text-white text-xs px-1 rounded">
                       {index + 1}
                     </div>
+                    {/* Delete button - only show on hover */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent image click
+                        handleImageDelete(flat._id, image);
+                      }}
+                      className="absolute top-1 right-1 bg-red-500 hover:bg-red-700 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                      title="Delete image"
+                    >
+                      ×
+                    </button>
                   </div>
                 ))}
               </div>

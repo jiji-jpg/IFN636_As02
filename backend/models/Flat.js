@@ -6,6 +6,7 @@ const flatSchema = new mongoose.Schema({
     description: { type: String },
     vacant: { type: Boolean, default: false },
     inspectionDate: { type: Date },
+    images: [String],
 });
 
 module.exports = mongoose.model('Flat', flatSchema);

@@ -161,7 +161,7 @@ const FlatForm = ({ flats, setFlats, editingFlat, setEditingFlat }) => {
       <button 
         type="submit" 
         disabled={uploading}
-        className="w-full bg-gray-300 hover:bg-green-600 text-white p-2 rounded transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed"
+        className="w-full bg-gray-600 hover:bg-green-600 text-white p-2 rounded transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed"
       >
         {uploading ? 'Saving...' : (editingFlat ? 'Update Flat' : 'Add Flat')}
       </button>
