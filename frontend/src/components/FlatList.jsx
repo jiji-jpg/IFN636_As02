@@ -17,11 +17,12 @@ const FlatList = ({ flats, setFlats, setEditingFlat }) => {
 
   return (
     <div>
+      <h1 className="text-2xl font-bold mb-4">Flat Listings</h1>
       {flats.map((flat) => (
         <div key={flat._id} className="bg-gray-100 p-4 mb-4 rounded shadow">
           <h2 className="font-bold">{flat.title}</h2>
           <p>{flat.description}</p>
-          <p className="text-sm text-gray-500">Deadline: {new Date(flat.deadline).toLocaleDateString()}</p>
+          <p className="text-sm text-gray-500">InspectionDate: {new Date(flat.inspectionDate).toLocaleDateString()}</p>
           <div className="mt-2">
             <button
               onClick={() => setEditingFlat(flat)}

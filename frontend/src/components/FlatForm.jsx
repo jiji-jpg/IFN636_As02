@@ -4,17 +4,17 @@ import axiosInstance from '../axiosConfig';
 
 const FlatForm = ({ flats, setFlats, editingFlat, setEditingFlat }) => {
   const { user } = useAuth();
-  const [formData, setFormData] = useState({ title: '', description: '', deadline: '' });
+  const [formData, setFormData] = useState({ flatNo: '', description: '', inspectionDate: '' });
 
   useEffect(() => {
     if (editingFlat) {
       setFormData({
-        title: editingFlat.title,
+        flatNo: editingFlat.flatNo,
         description: editingFlat.description,
-        deadline: editingFlat.deadline,
+        inspectionDate: editingFlat.inspectionDate,
       });
     } else {
-      setFormData({ title: '', description: '', deadline: '' });
+      setFormData({ flatNo: '', description: '', inspectionDate: '' });
     }
   }, [editingFlat]);
 
@@ -33,7 +33,7 @@ const FlatForm = ({ flats, setFlats, editingFlat, setEditingFlat }) => {
         setFlats([...flats, response.data]);
       }
       setEditingFlat(null);
-      setFormData({ title: '', description: '', deadline: '' });
+      setFormData({ flatNo: '', description: '', inspectionDate: '' });
     } catch (error) {
       alert('Failed to save flat.');
     }
@@ -41,29 +41,32 @@ const FlatForm = ({ flats, setFlats, editingFlat, setEditingFlat }) => {
 
   return (
     <form onSubmit={handleSubmit} className="bg-white p-6 shadow-md rounded mb-6">
-      <h1 className="text-2xl font-bold mb-4">{editingFlat ? 'Your Form Name: Edit Operation' : 'Your Form Name: Create Operation'}</h1>
+      <h1 className="text-2xl font-bold mb-4">{editingFlat ? 'Edit Flat Listing' : 'Create Flat Listing'}</h1>
+      <label className="block mb-1 font-semibold">Address</label>
       <input
         type="text"
-        placeholder="Title"
-        value={formData.title}
-        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+        placeholder="Enter valid address"
+        value={formData.flatNo}
+        onChange={(e) => setFormData({ ...formData, flatNo: e.target.value })}
         className="w-full mb-4 p-2 border rounded"
       />
+      <label className="block mb-1 font-semibold">Description</label>
       <input
         type="text"
-        placeholder="Description"
+        placeholder="Enter description"
         value={formData.description}
         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
         className="w-full mb-4 p-2 border rounded"
       />
+      <label className="block mb-1 font-semibold">Inspection Date</label>
       <input
         type="date"
-        value={formData.deadline}
-        onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
+        value={formData.inspectionDate}
+        onChange={(e) => setFormData({ ...formData, inspectionDate: e.target.value })}
         className="w-full mb-4 p-2 border rounded"
       />
-      <button type="submit" className="w-full bg-blue-600 text-white p-2 rounded">
-        {editingFlat ? 'Update Button' : 'Create Button'}
+      <button type="submit" className="w-full bg-gray-500 hover:bg-green-600 text-white p-2 rounded transition-colors duration-200">
+        {editingFlat ? 'Update Flat' : 'Add Flat'}
       </button>
     </form>
   );
