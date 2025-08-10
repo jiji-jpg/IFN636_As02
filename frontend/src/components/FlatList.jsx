@@ -17,7 +17,7 @@ const FlatList = ({ flats, setFlats, setEditingFlat }) => {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-4">Flat Listings</h1>
+      <h1 className="text-2xl font-bold mb-4">My Flat Listings</h1>
       {flats.map((flat) => (
         <div key={flat._id} className="bg-gray-100 p-4 mb-4 rounded shadow">
           <h2 className="font-bold">{flat.title}</h2>

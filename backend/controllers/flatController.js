@@ -10,31 +10,39 @@ const getFlats = async (req,res) => {
 };
 
 //add
-const addFlat = async (req,res) => {
-    const { address, description, inspectionDate } = req.body;
-        try {
-            const flat = await Flat.create({ userId: req.user.id, address, description, inspectionDate });
-            res.status(201).json(flat);
-        } catch (error) {
+const addFlat = async (req, res) => {
+  const { title, description, inspectionDate } = req.body;
+  console.log('Add Flat called with:', { title, description, inspectionDate, userId: req.user?.id });
+
+  if (!title) {
+    return res.status(400).json({ message: 'Title is required' });
+  }
+
+  try {
+    const flat = await Flat.create({ userId: req.user.id, title, description, inspectionDate });
+    console.log('Flat created:', flat);
+    res.status(201).json(flat);
+  } catch (error) {
+    console.error('Error creating flat:', error);
     res.status(500).json({ message: error.message });
-    }
+  }
 };
 
 //update
 const updateFlat = async (req,res) => {
-    const { address, description, vacant, inspectionDate } = req.body;
-    try {
-        const flat = await Flat.findById(req.params.id);
-        if (!flat) return res.status(404).json({ message: 'Flat not found' });
-        flat.address = address || flat.address;
-        flat.description = description || flat.description;
-        flat.vacant = vacant ?? flat.vacant;
-        flat.inspectionDate = inspectionDate || flat.inspectionDate;
-        const updatedFlat = await flat.save();
-        res.json(updatedFlat);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
+const { title, description, vacant, inspectionDate } = req.body;
+try {
+    const flat = await Flat.findById(req.params.id);
+    if (!flat) return res.status(404).json({ message: 'Flat not found' });
+    flat.title = title || flat.title;
+    flat.description = description || flat.description;
+    flat.vacant = vacant ?? flat.vacant;
+    flat.inspectionDate = inspectionDate || flat.inspectionDate;
+    const updatedFlat = await flat.save();
+    res.json(updatedFlat);
+} catch (error) {
+res.status(500).json({ message: error.message });
+}
 };
 
 //delete

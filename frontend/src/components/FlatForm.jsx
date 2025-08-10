@@ -4,22 +4,28 @@ import axiosInstance from '../axiosConfig';
 
 const FlatForm = ({ flats, setFlats, editingFlat, setEditingFlat }) => {
   const { user } = useAuth();
-  const [formData, setFormData] = useState({ flatNo: '', description: '', inspectionDate: '' });
+  const [formData, setFormData] = useState({ title: '', description: '', inspectionDate: '' });
 
   useEffect(() => {
     if (editingFlat) {
       setFormData({
-        flatNo: editingFlat.flatNo,
+        title: editingFlat.title,
         description: editingFlat.description,
         inspectionDate: editingFlat.inspectionDate,
       });
     } else {
-      setFormData({ flatNo: '', description: '', inspectionDate: '' });
+      setFormData({ title: '', description: '', inspectionDate: '' });
     }
   }, [editingFlat]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!formData.title.trim()) {
+      alert('Please enter a valid address.');
+      return;
+    }
+
     try {
       if (editingFlat) {
         const response = await axiosInstance.put(`/api/flats/${editingFlat._id}`, formData, {
@@ -33,7 +39,7 @@ const FlatForm = ({ flats, setFlats, editingFlat, setEditingFlat }) => {
         setFlats([...flats, response.data]);
       }
       setEditingFlat(null);
-      setFormData({ flatNo: '', description: '', inspectionDate: '' });
+      setFormData({ title: '', description: '', inspectionDate: '' });
     } catch (error) {
       alert('Failed to save flat.');
     }
@@ -46,8 +52,8 @@ const FlatForm = ({ flats, setFlats, editingFlat, setEditingFlat }) => {
       <input
         type="text"
         placeholder="Enter valid address"
-        value={formData.flatNo}
-        onChange={(e) => setFormData({ ...formData, flatNo: e.target.value })}
+        value={formData.title}
+        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
         className="w-full mb-4 p-2 border rounded"
       />
       <label className="block mb-1 font-semibold">Description</label>
@@ -65,7 +71,7 @@ const FlatForm = ({ flats, setFlats, editingFlat, setEditingFlat }) => {
         onChange={(e) => setFormData({ ...formData, inspectionDate: e.target.value })}
         className="w-full mb-4 p-2 border rounded"
       />
-      <button type="submit" className="w-full bg-gray-500 hover:bg-green-600 text-white p-2 rounded transition-colors duration-200">
+      <button type="submit" className="w-full bg-gray-300 hover:bg-green-600 text-white p-2 rounded transition-colors duration-200">
         {editingFlat ? 'Update Flat' : 'Add Flat'}
       </button>
     </form>

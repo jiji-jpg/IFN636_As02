@@ -18,11 +18,11 @@ let port;
 describe('AddFlat Function Test', () => {
   afterEach(() => sinon.restore());
 
-  it('should create a new address successfully', async () => {
+  it('should create a new flat successfully', async () => {
     // Mock request data
     const req = {
       user: { id: new mongoose.Types.ObjectId() },
-      body: { address: "New Address", description: "Flat description", inspectionDate: "2025-12-31" }
+      body: { title: "New Flat", description: "Flat description", inspectionDate: "2025-12-31" }
     };
 
     // Mock flat that would be created
@@ -56,7 +56,7 @@ describe('AddFlat Function Test', () => {
     // Mock request data
     const req = {
       user: { id: new mongoose.Types.ObjectId() },
-      body: { address: "New Address", description: "Flat description", inspectionDate: "2025-12-31" }
+      body: { title: "New Flat", description: "Flat description", inspectionDate: "2025-12-31" }
     };
 
     // Mock response object
@@ -87,7 +87,7 @@ describe('Update Function Test', () => {
     const flatId = new mongoose.Types.ObjectId();
     const existingFlat = {
       _id: flatId,
-      address: "Old Address",
+      title: "Old Flat",
       description: "Old Description",
       vacant: false,
       inspectionDate: new Date(),
@@ -99,7 +99,7 @@ describe('Update Function Test', () => {
     // Mock request & response
     const req = {
       params: { id: flatId },
-      body: { address: "New Address", vacant: true }
+      body: { title: "New Flat", vacant: true }
     };
     const res = {
       json: sinon.spy(), 
@@ -110,7 +110,7 @@ describe('Update Function Test', () => {
     await updateFlat(req, res);
 
     // Assertions
-    expect(existingFlat.address).to.equal("New Address");
+    expect(existingFlat.title).to.equal("New Flat");
     expect(existingFlat.vacant).to.equal(true);
     expect(res.status.called).to.be.false; // No error status should be set
     expect(res.json.calledOnce).to.be.true;
@@ -170,8 +170,8 @@ describe('GetFlat Function Test', () => {
 
     // Mock flat data
     const flats = [
-      { _id: new mongoose.Types.ObjectId(), flat: "Flat 1", userId },
-      { _id: new mongoose.Types.ObjectId(), flat: "Flat 2", userId }
+      { _id: new mongoose.Types.ObjectId(), title: "Flat 1", userId },
+      { _id: new mongoose.Types.ObjectId(), title: "Flat 2", userId }
     ];
 
     // Stub Flat.find to return mock flats
