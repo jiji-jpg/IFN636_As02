@@ -65,12 +65,9 @@ const updateFlat = async (req,res) => {
     if (req.files && req.files.length > 0) {
       const newImages = req.files.map(file => file.filename);
       console.log('New images to add:', newImages); // Debug log
-      
-      // Option 1: Add new images to existing ones
+    
       flat.images = [...(flat.images || []), ...newImages];
-      
-      // Option 2: Replace all images (uncomment if you prefer this)
-      // flat.images = newImages;
+    
     }
     
     const updatedFlat = await flat.save();
@@ -87,18 +84,6 @@ const deleteFlat = async (req,res) => {
   try {
     const flat = await Flat.findById(req.params.id);
     if (!flat) return res.status(404).json({ message: 'Flat not found' });
-    
-    // Optional: Delete associated image files
-    // const fs = require('fs');
-    // const path = require('path');
-    // if (flat.images && flat.images.length > 0) {
-    //   flat.images.forEach(image => {
-    //     const imagePath = path.join(__dirname, '../uploads/flats', image);
-    //     fs.unlink(imagePath, (err) => {
-    //       if (err) console.error('Error deleting image:', err);
-    //     });
-    //   });
-    // }
     
     await flat.remove();
     res.json({ message: 'Flat deleted' });
@@ -126,8 +111,7 @@ const deleteImage = async (req, res) => {
     // Remove image from flat's images array
     flat.images = flat.images.filter(img => img !== imageName);
     await flat.save();
-    
-    // Optional: Delete the actual file from server
+
     const fs = require('fs');
     const path = require('path');
     const imagePath = path.join(__dirname, '../uploads/flats', imageName);
@@ -150,10 +134,9 @@ const deleteImage = async (req, res) => {
 //view all public listings (no authentication required)
 const getPublicFlats = async (req, res) => {
     try {
-        // Get all flats with basic user info (without sensitive data)
         const flats = await Flat.find()
-            .populate('userId', 'name email') // Include user name and email only
-            .sort({ createdAt: -1 }); // Show newest first
+            .populate('userId', 'name email') /
+            .sort({ createdAt: -1 });
         res.json(flats);
     } catch (error) {
         res.status(500).json({ message: error.message });
