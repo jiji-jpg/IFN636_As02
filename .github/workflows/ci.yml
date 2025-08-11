@@ -2,13 +2,16 @@ name: Backend CI
 
 on:
   push:
+
     branches: [main]
   pull_request:
     branches: [main]
 
+
 jobs:
   test:
     name: Run Tests
+
     runs-on: ubuntu-latest 
     
     steps:
@@ -27,3 +30,6 @@ jobs:
     - name: Run Backend Tests
       working-directory: ./backend
       run: npm test
+
+    
+

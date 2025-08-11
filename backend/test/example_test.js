@@ -1,4 +1,3 @@
-
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const http = require('http');
@@ -14,14 +13,15 @@ chai.use(chaiHttp);
 let server;
 let port;
 
-
 describe('AddFlat Function Test', () => {
+  afterEach(() => sinon.restore());
 
   it('should create a new flat successfully', async () => {
     // Mock request data
     const req = {
       user: { id: new mongoose.Types.ObjectId() },
-      body: { title: "New Flat", description: "Flat description", deadline: "2025-12-31" }
+      body: { title: "New Flat", description: "Flat description", inspectionDate: "2025-12-31" },
+      files: [] // Add files array for image uploads
     };
 
     // Mock flat that would be created
@@ -40,7 +40,7 @@ describe('AddFlat Function Test', () => {
     await addFlat(req, res);
 
     // Assertions
-    expect(createStub.calledOnceWith({ userId: req.user.id, ...req.body })).to.be.true;
+    expect(createStub.calledOnceWith({ userId: req.user.id, ...req.body, images: [] })).to.be.true;
     expect(res.status.calledWith(201)).to.be.true;
     expect(res.json.calledWith(createdFlat)).to.be.true;
 
@@ -55,7 +55,8 @@ describe('AddFlat Function Test', () => {
     // Mock request data
     const req = {
       user: { id: new mongoose.Types.ObjectId() },
-      body: { title: "New Flat", description: "Flat description", deadline: "2025-12-31" }
+      body: { title: "New Flat", description: "Flat description", inspectionDate: "2025-12-31" },
+      files: []
     };
 
     // Mock response object
@@ -74,11 +75,10 @@ describe('AddFlat Function Test', () => {
     // Restore stubbed methods
     createStub.restore();
   });
-
 });
 
-
 describe('Update Function Test', () => {
+  afterEach(() => sinon.restore());
 
   it('should update flat successfully', async () => {
     // Mock flat data
@@ -87,17 +87,20 @@ describe('Update Function Test', () => {
       _id: flatId,
       title: "Old Flat",
       description: "Old Description",
-      completed: false,
-      deadline: new Date(),
+      vacant: false,
+      inspectionDate: new Date(),
+      images: [],
       save: sinon.stub().resolvesThis(), // Mock save method
     };
+    
     // Stub Flat.findById to return mock flat
     const findByIdStub = sinon.stub(Flat, 'findById').resolves(existingFlat);
 
     // Mock request & response
     const req = {
       params: { id: flatId },
-      body: { title: "New Flat", completed: true }
+      body: { title: "New Flat", vacant: true },
+      files: [] // Add files array
     };
     const res = {
       json: sinon.spy(), 
@@ -109,7 +112,7 @@ describe('Update Function Test', () => {
 
     // Assertions
     expect(existingFlat.title).to.equal("New Flat");
-    expect(existingFlat.completed).to.equal(true);
+    expect(existingFlat.vacant).to.equal(true);
     expect(res.status.called).to.be.false; // No error status should be set
     expect(res.json.calledOnce).to.be.true;
 
@@ -117,12 +120,14 @@ describe('Update Function Test', () => {
     findByIdStub.restore();
   });
 
-
-
   it('should return 404 if flat is not found', async () => {
     const findByIdStub = sinon.stub(Flat, 'findById').resolves(null);
 
-    const req = { params: { id: new mongoose.Types.ObjectId() }, body: {} };
+    const req = { 
+      params: { id: new mongoose.Types.ObjectId() }, 
+      body: { title: "Test Flat" }, // Add some body data
+      files: [] // Add files array
+    };
     const res = {
       status: sinon.stub().returnsThis(),
       json: sinon.spy()
@@ -137,9 +142,20 @@ describe('Update Function Test', () => {
   });
 
   it('should return 500 on error', async () => {
+    // Make sure findById throws the error BEFORE any processing
     const findByIdStub = sinon.stub(Flat, 'findById').throws(new Error('DB Error'));
 
-    const req = { params: { id: new mongoose.Types.ObjectId() }, body: {} };
+    const req = { 
+      params: { id: new mongoose.Types.ObjectId() }, 
+      body: { 
+        title: "Test Flat",           // ✅ Add proper body data
+        description: "Test Desc",     // ✅ Add description  
+        vacant: true,                 // ✅ Add vacant status
+        inspectionDate: "2025-12-31", // ✅ Add inspection date
+        tenantDetails: null           // ✅ Add tenant details
+      },
+      files: [] // ✅ Add files array
+    };
     const res = {
       status: sinon.stub().returnsThis(),
       json: sinon.spy()
@@ -152,14 +168,10 @@ describe('Update Function Test', () => {
 
     findByIdStub.restore();
   });
-
-
-
 });
 
-
-
 describe('GetFlat Function Test', () => {
+  afterEach(() => sinon.restore());
 
   it('should return flats for the given user', async () => {
     // Mock user ID
@@ -214,12 +226,10 @@ describe('GetFlat Function Test', () => {
     // Restore stubbed methods
     findStub.restore();
   });
-
 });
 
-
-
 describe('DeleteFlat Function Test', () => {
+  afterEach(() => sinon.restore());
 
   it('should delete a flat successfully', async () => {
     // Mock request data
@@ -297,5 +307,4 @@ describe('DeleteFlat Function Test', () => {
     // Restore stubbed methods
     findByIdStub.restore();
   });
-
 });
