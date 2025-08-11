@@ -11,28 +11,31 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-blue-600 text-white p-4 flex justify-between items-center">
-      <Link to="/" className="text-2xl font-bold">Flat Management</Link>
+    <nav 
+      className="text-white p-4 flex justify-between items-center"
+      style={{ backgroundColor: '#E7E6E3' }}
+    >
+      <Link to="/" className="text-2xl font-bold text-gray-800">Flat Management</Link>
       <div>
         {user ? (
           <>
-            <Link to="/flats" className="mr-4">Flat Details</Link>
-            <Link to="/listing" className="mr-4">Listing</Link>
-            <Link to="/profile" className="mr-4">Profile</Link>
+            <Link to="/flats" className="mr-4 text-gray-800 hover:text-gray-600">Flat Details</Link>
+            <Link to="/listing" className="mr-4 text-gray-800 hover:text-gray-600">Listing</Link>
+            <Link to="/profile" className="mr-4 text-gray-800 hover:text-gray-600">Account Settings</Link>
             
             <button
               onClick={handleLogout}
-              className="bg-red-500 px-4 py-2 rounded hover:bg-red-700"
+              className="bg-red-500 px-4 py-2 rounded hover:bg-red-600 text-white transition-colors"
             >
               Logout
             </button>
           </>
         ) : (
           <>
-            <Link to="/login" className="mr-4">Login</Link>
+            <Link to="/login" className="mr-4 text-gray-800 hover:text-gray-600">Login</Link>
             <Link
               to="/register"
-              className="bg-green-500 px-4 py-2 rounded hover:bg-green-700"
+              className="bg-green-600 px-4 py-2 rounded hover:bg-green-700 text-white transition-colors"
             >
               Register
             </Link>
