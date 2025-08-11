@@ -1,340 +1,163 @@
-const chai = require('chai');
-const chaiHttp = require('chai-http');
-const http = require('http');
-const app = require('../server'); 
-const connectDB = require('../config/db');
-const mongoose = require('mongoose');
-const sinon = require('sinon');
+//view
 const Flat = require('../models/Flat');
-const { addFlat, updateFlat, getFlats, deleteFlat } = require('../controllers/flatController');
-const { expect } = chai;
 
-chai.use(chaiHttp);
-let server;
-let port;
+const getFlats = async (req,res) => {
+    try {
+        const flats = await Flat.find({ userId: req.user.id });
+        res.json(flats);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
 
-describe('AddFlat Function Test', () => {
+//add
+const addFlat = async (req, res) => {
+  const { title, description, inspectionDate } = req.body;
+  console.log('Add Flat called with:', { title, description, inspectionDate, userId: req.user?.id });
+  console.log('Files received:', req.files); // Debug log
 
-  it('should create a new flat successfully', async () => {
-    // Mock request data
-    const req = {
-      user: { id: new mongoose.Types.ObjectId() },
-      body: { title: "Beautiful 2BR Apartment", description: "Spacious apartment with great view", inspectionDate: "2024-08-15" },
-      files: [{ filename: 'image1.jpg' }, { filename: 'image2.jpg' }]
-    };
+  if (!title) {
+    return res.status(400).json({ message: 'Title is required' });
+  }
 
-    // Mock flat that would be created
-    const createdFlat = { 
-      _id: new mongoose.Types.ObjectId(), 
-      userId: req.user.id,
-      title: req.body.title,
-      description: req.body.description,
-      inspectionDate: req.body.inspectionDate,
-      images: ['image1.jpg', 'image2.jpg']
-    };
-
-    // Stub Flat.create to return the createdFlat
-    const createStub = sinon.stub(Flat, 'create').resolves(createdFlat);
-
-    // Mock response object
-    const res = {
-      status: sinon.stub().returnsThis(),
-      json: sinon.spy()
-    };
-
-    // Call function
-    await addFlat(req, res);
-
-    // Assertions
-    expect(createStub.calledOnceWith({ 
+  try {
+    // Handle uploaded images
+    const images = req.files ? req.files.map(file => file.filename) : [];
+    console.log('Images to save:', images); // Debug log
+    
+    const flat = await Flat.create({ 
       userId: req.user.id, 
-      title: req.body.title,
-      description: req.body.description,
-      inspectionDate: req.body.inspectionDate,
-      images: ['image1.jpg', 'image2.jpg']
-    })).to.be.true;
-    expect(res.status.calledWith(201)).to.be.true;
-    expect(res.json.calledWith(createdFlat)).to.be.true;
-
-    // Restore stubbed methods
-    createStub.restore();
-  });
-
-  it('should return 400 if title is missing', async () => {
-    // Mock request data without title
-    const req = {
-      user: { id: new mongoose.Types.ObjectId() },
-      body: { description: "Apartment without title" },
-      files: []
-    };
-
-    // Mock response object
-    const res = {
-      status: sinon.stub().returnsThis(),
-      json: sinon.spy()
-    };
-
-    // Call function
-    await addFlat(req, res);
-
-    // Assertions
-    expect(res.status.calledWith(400)).to.be.true;
-    expect(res.json.calledWith({ message: 'Title is required' })).to.be.true;
-
-    // No stub needed since function returns early
-  });
-
-});
-
-describe('UpdateFlat Function Test', () => {
-
-  it('should update flat successfully', async () => {
-    // Mock flat data
-    const flatId = new mongoose.Types.ObjectId();
-    const existingFlat = {
-      _id: flatId,
-      title: "Old Title",
-      description: "Old Description",
-      vacant: false,
-      inspectionDate: "2024-01-01",
-      tenantDetails: "Old tenant",
-      images: ['old1.jpg'],
-      save: sinon.stub().resolvesThis(), // Mock save method
-    };
-
-    // Stub Flat.findById to return mock flat
-    const findByIdStub = sinon.stub(Flat, 'findById').resolves(existingFlat);
-
-    // Mock request & response
-    const req = {
-      params: { id: flatId },
-      body: { title: "Updated Title", description: "Updated Description", vacant: true },
-      files: []
-    };
-    const res = {
-      json: sinon.spy(), 
-      status: sinon.stub().returnsThis()
-    };
-
-    // Call function
-    await updateFlat(req, res);
-
-    // Assertions
-    expect(existingFlat.title).to.equal("Updated Title");
-    expect(existingFlat.description).to.equal("Updated Description");
-    expect(existingFlat.vacant).to.equal(true);
-    expect(res.status.called).to.be.false; // No error status should be set
-    expect(res.json.calledOnce).to.be.true;
-
-    // Restore stubbed methods
-    findByIdStub.restore();
-  });
-
-  it('should return 404 if flat is not found', async () => {
-    const findByIdStub = sinon.stub(Flat, 'findById').resolves(null);
-
-    const req = { 
-      params: { id: new mongoose.Types.ObjectId() }, 
-      body: { title: "Updated Title" },
-      files: []
-    };
-    const res = {
-      status: sinon.stub().returnsThis(),
-      json: sinon.spy()
-    };
-
-    await updateFlat(req, res);
-
-    expect(res.status.calledWith(404)).to.be.true;
-    expect(res.json.calledWith({ message: 'Flat not found' })).to.be.true;
-
-    findByIdStub.restore();
-  });
-
-  it('should return 500 on error', async () => {
-    const findByIdStub = sinon.stub(Flat, 'findById').throws(new Error('DB Error'));
-
-    const req = { 
-      params: { id: new mongoose.Types.ObjectId() }, 
-      body: { title: "Updated Title" },
-      files: []
-    };
-    const res = {
-      status: sinon.stub().returnsThis(),
-      json: sinon.spy()
-    };
-
-    await updateFlat(req, res);
-
-    expect(res.status.calledWith(500)).to.be.true;
-    expect(res.json.called).to.be.true;
-
-    findByIdStub.restore();
-  });
-
-});
-
-describe('GetFlats Function Test', () => {
-
-  it('should return flats for the given user', async () => {
-    // Mock user ID
-    const userId = new mongoose.Types.ObjectId();
-
-    // Mock flat data
-    const flats = [
-      { _id: new mongoose.Types.ObjectId(), title: "Flat 1", userId },
-      { _id: new mongoose.Types.ObjectId(), title: "Flat 2", userId }
-    ];
-
-    // Stub Flat.find to return mock flats
-    const findStub = sinon.stub(Flat, 'find').resolves(flats);
-
-    // Mock request & response
-    const req = { user: { id: userId } };
-    const res = {
-      json: sinon.spy(),
-      status: sinon.stub().returnsThis()
-    };
-
-    // Call function
-    await getFlats(req, res);
-
-    // Assertions
-    expect(findStub.calledOnceWith({ userId })).to.be.true;
-    expect(res.json.calledWith(flats)).to.be.true;
-    expect(res.status.called).to.be.false; // No error status should be set
-
-    // Restore stubbed methods
-    findStub.restore();
-  });
-
-  it('should return empty array when user has no flats', async () => {
-    // Mock user ID
-    const userId = new mongoose.Types.ObjectId();
-
-    // Stub Flat.find to return empty array
-    const findStub = sinon.stub(Flat, 'find').resolves([]);
-
-    // Mock request & response
-    const req = { user: { id: userId } };
-    const res = {
-      json: sinon.spy(),
-      status: sinon.stub().returnsThis()
-    };
-
-    // Call function
-    await getFlats(req, res);
-
-    // Assertions
-    expect(findStub.calledOnceWith({ userId })).to.be.true;
-    expect(res.json.calledWith([])).to.be.true;
-    expect(res.status.called).to.be.false; // No error status should be set
-
-    // Restore stubbed methods
-    findStub.restore();
-  });
-
-  it('should return 500 on error', async () => {
-    // Stub Flat.find to throw an error
-    const findStub = sinon.stub(Flat, 'find').throws(new Error('DB Error'));
-
-    // Mock request & response
-    const req = { user: { id: new mongoose.Types.ObjectId() } };
-    const res = {
-      json: sinon.spy(),
-      status: sinon.stub().returnsThis()
-    };
-
-    // Call function
-    await getFlats(req, res);
-
-    // Assertions
-    expect(res.status.calledWith(500)).to.be.true;
-    expect(res.json.calledWithMatch({ message: 'DB Error' })).to.be.true;
-
-    // Restore stubbed methods
-    findStub.restore();
-  });
-
-});
-
-describe('DeleteFlat Function Test', () => {
-
-  it('should delete a flat successfully', async () => {
-    // Mock request data
-    const req = { params: { id: new mongoose.Types.ObjectId().toString() } };
-
-    // Mock flat found in the database
-    const flat = { remove: sinon.stub().resolves() };
-
-    // Stub Flat.findById to return the mock flat
-    const findByIdStub = sinon.stub(Flat, 'findById').resolves(flat);
-
-    // Mock response object
-    const res = {
-      status: sinon.stub().returnsThis(),
-      json: sinon.spy()
-    };
-
-    // Call function
-    await deleteFlat(req, res);
-
-    // Assertions
-    expect(findByIdStub.calledOnceWith(req.params.id)).to.be.true;
-    expect(flat.remove.calledOnce).to.be.true;
-    expect(res.json.calledWith({ message: 'Flat deleted' })).to.be.true;
-
-    // Restore stubbed methods
-    findByIdStub.restore();
-  });
-
-  it('should return 404 if flat is not found', async () => {
-    // Stub Flat.findById to return null
-    const findByIdStub = sinon.stub(Flat, 'findById').resolves(null);
-
-    // Mock request data
-    const req = { params: { id: new mongoose.Types.ObjectId().toString() } };
-
-    // Mock response object
-    const res = {
-      status: sinon.stub().returnsThis(),
-      json: sinon.spy()
-    };
-
-    // Call function
-    await deleteFlat(req, res);
-
-    // Assertions
-    expect(findByIdStub.calledOnceWith(req.params.id)).to.be.true;
-    expect(res.status.calledWith(404)).to.be.true;
-    expect(res.json.calledWith({ message: 'Flat not found' })).to.be.true;
-
-    // Restore stubbed methods
-    findByIdStub.restore();
-  });
-
-  it('should return 500 if an error occurs', async () => {
-    // Stub Flat.findById to throw an error
-    const findByIdStub = sinon.stub(Flat, 'findById').throws(new Error('DB Error'));
-
-    // Mock request data
-    const req = { params: { id: new mongoose.Types.ObjectId().toString() } };
-
-    // Mock response object
-    const res = {
-      status: sinon.stub().returnsThis(),
-      json: sinon.spy()
-    };
-
-    // Call function
-    await deleteFlat(req, res);
-
-    // Assertions
-    expect(res.status.calledWith(500)).to.be.true;
-    expect(res.json.calledWithMatch({ message: 'DB Error' })).to.be.true;
-
-    // Restore stubbed methods
-    findByIdStub.restore();
-  });
-
-});
+      title, 
+      description, 
+      inspectionDate,
+      images // Add images to the flat
+    });
+    console.log('Flat created:', flat);
+    res.status(201).json(flat);
+  } catch (error) {
+    console.error('Error creating flat:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+//update
+const updateFlat = async (req,res) => {
+  const { title, description, vacant, inspectionDate, tenantDetails } = req.body;
+  console.log('Update Flat called with:', { title, description, vacant, inspectionDate, tenantDetails });
+  console.log('Files received for update:', req.files); // Debug log
+  
+  try {
+    const flat = await Flat.findById(req.params.id);
+    if (!flat) return res.status(404).json({ message: 'Flat not found' });
+    
+    // Update text fields
+    flat.title = title || flat.title;
+    flat.description = description || flat.description;
+    flat.vacant = vacant ?? flat.vacant;
+    flat.inspectionDate = inspectionDate || flat.inspectionDate;
+    
+    // Handle tenant details
+    if (tenantDetails !== undefined) {
+      flat.tenantDetails = tenantDetails;
+    }
+    
+    // Handle images
+    if (req.files && req.files.length > 0) {
+      const newImages = req.files.map(file => file.filename);
+      console.log('New images to add:', newImages); // Debug log
+      
+      // Option 1: Add new images to existing ones
+      flat.images = [...(flat.images || []), ...newImages];
+      
+      // Option 2: Replace all images (uncomment if you prefer this)
+      // flat.images = newImages;
+    }
+    
+    const updatedFlat = await flat.save();
+    console.log('Flat updated:', updatedFlat);
+    res.json(updatedFlat);
+  } catch (error) {
+    console.error('Error updating flat:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+//delete
+const deleteFlat = async (req,res) => {
+  try {
+    const flat = await Flat.findById(req.params.id);
+    if (!flat) return res.status(404).json({ message: 'Flat not found' });
+    
+    // Optional: Delete associated image files
+    // const fs = require('fs');
+    // const path = require('path');
+    // if (flat.images && flat.images.length > 0) {
+    //   flat.images.forEach(image => {
+    //     const imagePath = path.join(__dirname, '../uploads/flats', image);
+    //     fs.unlink(imagePath, (err) => {
+    //       if (err) console.error('Error deleting image:', err);
+    //     });
+    //   });
+    // }
+    
+    await flat.remove();
+    res.json({ message: 'Flat deleted' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+//delete image
+const deleteImage = async (req, res) => {
+  try {
+    const { id, imageName } = req.params;
+    console.log('Deleting image:', imageName, 'from flat:', id);
+    
+    const flat = await Flat.findById(id);
+    if (!flat) {
+      return res.status(404).json({ message: 'Flat not found' });
+    }
+    
+    // Check if user owns this flat
+    if (flat.userId.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Not authorized to delete this image' });
+    }
+    
+    // Remove image from flat's images array
+    flat.images = flat.images.filter(img => img !== imageName);
+    await flat.save();
+    
+    // Optional: Delete the actual file from server
+    const fs = require('fs');
+    const path = require('path');
+    const imagePath = path.join(__dirname, '../uploads/flats', imageName);
+    
+    fs.unlink(imagePath, (err) => {
+      if (err) {
+        console.error('Error deleting image file:', err);
+      } else {
+        console.log('Image file deleted successfully:', imagePath);
+      }
+    });
+    
+    res.json({ message: 'Image deleted successfully', flat });
+  } catch (error) {
+    console.error('Error deleting image:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+//view all public listings (no authentication required)
+const getPublicFlats = async (req, res) => {
+    try {
+        // Get all flats with basic user info (without sensitive data)
+        const flats = await Flat.find()
+            .populate('userId', 'name email') // Include user name and email only
+            .sort({ createdAt: -1 }); // Show newest first
+        res.json(flats);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+module.exports = { getFlats, addFlat, updateFlat, deleteFlat, deleteImage, getPublicFlats };
