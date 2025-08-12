@@ -7,8 +7,7 @@ const Profile = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    university: '',
-    address: '',
+    
   });
   const [loading, setLoading] = useState(false);
 
@@ -23,8 +22,7 @@ const Profile = () => {
         setFormData({
           name: response.data.name,
           email: response.data.email,
-          university: response.data.university || '',
-          address: response.data.address || '',
+
         });
       } catch (error) {
         alert('Failed to fetch profile. Please try again.');
@@ -58,7 +56,7 @@ const Profile = () => {
   return (
     <div className="max-w-md mx-auto mt-20">
       <form onSubmit={handleSubmit} className="bg-white p-6 shadow-md rounded">
-        <h1 className="text-2xl font-bold mb-4 text-center">Your Profile</h1>
+        <h1 className="text-2xl font-bold mb-4 text-center">Account Details</h1>
         <input
           type="text"
           placeholder="Name"
@@ -73,21 +71,9 @@ const Profile = () => {
           onChange={(e) => setFormData({ ...formData, email: e.target.value })}
           className="w-full mb-4 p-2 border rounded"
         />
-        <input
-          type="text"
-          placeholder="University"
-          value={formData.university}
-          onChange={(e) => setFormData({ ...formData, university: e.target.value })}
-          className="w-full mb-4 p-2 border rounded"
-        />
-        <input
-          type="text"
-          placeholder="Address"
-          value={formData.address}
-          onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-          className="w-full mb-4 p-2 border rounded"
-        />
-        <button type="submit" className="w-full bg-blue-600 text-white p-2 rounded">
+        
+        
+        <button type="submit" className="w-full bg-gray-600 hover:bg-green-600 text-white p-2 rounded transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed">
           {loading ? 'Updating...' : 'Update Profile'}
         </button>
       </form>
