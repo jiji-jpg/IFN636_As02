@@ -4,7 +4,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
 import Flats from './pages/Flats';
-import Listing from './pages/Listing';  // <-- Import Listing here
+import Listing from './pages/Listing';  
 
 function App() {
   return (
@@ -15,7 +15,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/flats" element={<Flats />} />
-        <Route path="/listing" element={<Listing />} />  {/* <-- Add Listing route */}
+        <Route path="/listing" element={<Listing />} />  
       </Routes>
     </Router>
   );
