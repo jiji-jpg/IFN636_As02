@@ -21,7 +21,8 @@ const Navbar = () => {
           <>
             <Link to="/flats" className="mr-4 text-gray-800 hover:text-gray-600">Flat Details</Link>
             <Link to="/listing" className="mr-4 text-gray-800 hover:text-gray-600">Listing</Link>
-            <Link to="/profile" className="mr-4 text-gray-800 hover:text-gray-600">Accounts</Link>
+            <Link to="/tenants" className="mr-4 text-gray-800 hover:text-gray-600">Tenants</Link>
+            <Link to="/profile" className="mr-4 text-gray-800 hover:text-gray-600">Account</Link>
             
             <button
               onClick={handleLogout}
