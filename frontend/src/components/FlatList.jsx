@@ -29,7 +29,6 @@ const FlatList = ({ flats, setFlats, setEditingFlat }) => {
       
       console.log('Delete response:', response.data); // Debug log
       
-      // Update the flats state to remove the deleted image
       setFlats(flats.map(flat => 
         flat._id === flatId 
           ? { ...flat, images: flat.images.filter(img => img !== imageToDelete) }
@@ -39,20 +38,17 @@ const FlatList = ({ flats, setFlats, setEditingFlat }) => {
       alert('Image deleted successfully!');
     } catch (error) {
       console.error('Error deleting image:', error);
-      console.error('Error response:', error.response?.data); // More detailed error
-      console.error('Error status:', error.response?.status); // HTTP status
+      console.error('Error response:', error.response?.data); 
+      console.error('Error status:', error.response?.status); 
       alert(`Failed to delete image: ${error.response?.data?.message || error.message}`);
     }
   };
 
   // Function to get image URL - adjust this based on your backend setup
   const getImageUrl = (imagePath) => {
-    // If your backend serves images from /uploads route
     const url = `${process.env.REACT_APP_API_URL || 'http://localhost:5001'}/uploads/flats/${imagePath}`;
     console.log('Generated image URL:', url); // Debug log
     return url;
-    // Alternative if images are served from /api/images route:
-    // return `${process.env.REACT_APP_API_URL || 'http://localhost:5001'}/api/images/${imagePath}`;
   };
 
   return (
@@ -84,10 +80,6 @@ const FlatList = ({ flats, setFlats, setEditingFlat }) => {
                         e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTIxIDlWN0MxOSA1IDEyIDUgMTIgNUM5IDUgMyA1IDMgN1Y5QzMgMTEgMyAxNyAzIDE5QzMgMjEgOSAyMSAxMiAyMUMxNSAyMSAyMSAyMSAyMSAxOUMyMSAxNyAyMSAxMSAyMSA5WiIgc3Ryb2tlPSIjY2NjIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBkPSJNOSA5SDE1IiBzdHJva2U9IiNjY2MiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjwvcGF0aD4KPC9zdmc+';
                         e.target.alt = 'Image not found';
                         e.target.className += ' opacity-50';
-                      }}
-                      onClick={() => {
-                        // Optional: Open image in modal or new tab
-                        window.open(getImageUrl(image), '_blank');
                       }}
                     />
                     {/* Image overlay with index */}

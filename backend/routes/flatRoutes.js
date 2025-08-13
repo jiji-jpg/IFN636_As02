@@ -6,7 +6,7 @@ const { getFlats, addFlat, updateFlat, deleteFlat, deleteImage, getPublicFlats }
 const { protect } = require('../middleware/authMiddleware');
 const router = express.Router();
 
-// Create uploads directory if it doesn't exist
+// Create uploads directory
 const uploadsDir = path.join(__dirname, '../uploads/flats');
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
@@ -42,8 +42,6 @@ const upload = multer({
 router.route('/').get(protect, getFlats).post(protect, upload.array('images', 10), addFlat);
 router.route('/:id').put(protect, upload.array('images', 10), updateFlat).delete(protect, deleteFlat);
 router.route('/:id/images/:imageName').delete(protect, deleteImage);
-
-// Public listings route (no authentication required) - ADD THIS LINE
 router.get('/public', getPublicFlats);
 
 module.exports = router;
