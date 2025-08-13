@@ -66,6 +66,7 @@ jobs:
         JWT_SECRET: ${{ secrets.JWT_SECRET }}
         PORT: ${{ secrets.PORT }}
       working-directory: ./backend
+
       run: npm test
 
 
@@ -79,4 +80,5 @@ jobs:
 
     - run: pm2 restart all
     
+
 
