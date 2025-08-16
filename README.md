@@ -48,7 +48,7 @@
 2.	Created .yml file to connect to repository, runner, mongodb and AWS. 
 3.	Updated .env file for the connection string to mongodb.
 
-# Phase 2: EC2 terminal
+### Phase 2: EC2 terminal
 1.	Created an instance named FMA_JC0 on AWS to start EC2 terminal 
 2.	Created www folder to deploy web application – the folder will contain static assets. 
 3.	Connected to nginx to use to start nginx from the live link.
@@ -60,10 +60,10 @@
 9.	Check pm2 logs to make sure everything is successful in the background. 
 10.	Configure nginx server within the EC2 terminal. 
 
-# Phase 3: VScode
+### Phase 3: VScode
 1.	Changed the baseURL in axiosConfig to a public link given from EC2. 
 
-# If Website doesn't work: 
+### If Website doesn't work: 
 1. If page shows 502 bad gateway – make sure runner is active and not idle.
 2. Ensure EC2 terminal is online: 
 3. re-run the most recent job to have it active again. 
