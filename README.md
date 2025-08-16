@@ -1,94 +1,73 @@
+### Flat Management Appllication 
+- This web application focuses on supporting property managers by allowing them create, read, update and delete list of property details. After property details is created, tenant details can be added in. 
 
-**Assessment 1 (Total Marks **20**)**
+--- 
 
-Assignment: **Software requirements analysis and design (**Full-Stack CRUD Application Development with DevOps Practices**)**
+## App Access
+- Local link: http://localhost:5001 
+- Live link: http://13.236.93.10 
 
+- Email: flatadmin@ifn636.com
+- Password: flatadmin
 
----
+# Project links: 
+- Jira board: https://connect-team-d4muww5l.atlassian.net/jira/software/projects/TASK/boards/2/timeline?atlOrigin=eyJpIjoiN2I2NTJjZjIwMDRjNGIwZjhmOWIwYWU0OTMzZmIwYjUiLCJwIjoiaiJ9
 
-**Objective**
+- EC2 Instance Name + ID: FMA_JC0 [i-0f089ddb0fbe5a343]
+- EC2 Instance link: https://ap-southeast-2.console.aws.amazon.com/ec2/home?region=ap-southeast-2#InstanceDetails:instanceId=i-0f089ddb0fbe5a343 
 
-You have been provided with a starter project that includes user authentication using Node.js, React.js, and MongoDB. Your task is to extend this application by implementing CRUD (Create, Read, Update, Delete) operations of different featuresfor a real-world application of your choice, while following industry best practices such as: 
+--- 
 
-* **Project Management with JIRA**
-* **Requirement Diagram**, **Block Definition Diagram (**BDD), Parametric Diagram using**SysML**
-* **Version Control using GitHub**
-* **CI/CD Integration for Automated Deployment**
+##  Flat Features
 
----
+# Flat Details page 
+- User can create, read, update and delete flat details. 
 
-**GitHub link of the starter project: **[https://github.com/rajuiit/sdlapps](https://github.com/rajuiit/sdlapps)
-
----
-
-**Requirement**
-
-1. **Choose a Real-World Application**
-
-We will send you an email to choose a Real-World project. If you face any difficulties in choosing your project, please contact your tutor.
-
-2. **Project Design with SysML and Project Management with JIRA**
-
-* Draw a requirements diagram, Block Definition Diagram (BDD), and Parametric Diagram based on your project (Connect all functional features).
-* Create a JIRA project and define:
-  * Epic
-  * User Stories (features required in your app)
-  * Child issues or Subtasks (breaking down development work)
-  * Sprint Implementation (organizing work into milestones)
-* Provide your JIRA board URL in the project README.
-
-**3. Backend Development (Node.js + Express + MongoDB)**
-
-* Set up and configure the MongoDB database connection.
-* Implement various backend functions for handling application data.Ensure that all functions are compatible with an Application Programming Interface (API) structure(Follow existing patterns used in the Task Manager App where applicable).
-* Implement CRUD operations forcreating, reading, updating, and deleting records for each functionality.
-
-4. **Frontend Development (React.js)**
-
-* Create a user-friendly interface to interact with your API endpoint (Follow task manager app).
-* Implement different forms for adding, updating, and deleting records.
-* Display data using tables, cards, or lists (Follow how we showed data in task manager app, try to implement better visualization for the frontend.)
-
-**5. Authentication & Authorization** (Prerequisite Task)
-
-* Ensure only authenticated users can access and perform CRUD operations. (Already developed in your project)
-* Use JWT (JSON Web Tokens) for user authentication (Use the task manager one from .env file).
-
-**6. GitHub Version Control & Branching Strategy**
-
-* Use GitHub for version control and maintain:
-* main branch (stable production-ready code)
-* Feature branches for each new feature
-* Follow proper commit messages and pull request (PR) for code reviews.
-
-**7. CI/CD Pipeline Setup**
-
-* Implement a CI/CD pipeline using GitHub Actions to:
-* Automatically run tests on every commit/pull request (Optional).
-* Deploy the backend to AWS. (Use the QUT provided EC2 instance)
-* Deploy the frontend to AWS.
-* Document your CI/CD workflow in the README.
+# Listing page 
+- Presents a list of flat details. 
+- User is able to mark vacant or occupied. 
+- When marked occupied, user is able to create, read, update and delete tenant details. 
 
 ---
 
-**Submission Requirements**
+##  Project Prerequisites
 
-**A report **contains** the following (Provide screenshots as evidence for each implemented task. **The screenshot should **contain** your username** from JIRA, GITHUB, and AWS**):
+- [Node.js]
+- [GitHub]
+- [VSCode]
+- [MongoDB]
+- [AWS]
+- [PuTTy]
 
-* **JIRA Project **Management**(Provide screenshots in the **report o**f at least two epics**, **including user story, sub**t**a**sks**. **Please **don’t** provide **the **U**ser Authentication** epic**.**Provide your JIRA Board URL in the report and README file as well.**Through the JIRA Board, we will systematically review the completeness of the project features, organised under Epics, User Stories, and Sub-tasks.**
-* Requirement diagram, Block Definition Diagram (BDD), Parametric Diagram (Using project features).
-* **GitHub Repository (backend/ and frontend/)** link. We will **review** your code implementation, which you followed from the task description. We will also **review** your commits, main branch, feature branches, and pull requests. **(**Please note that the authorisation** (Log In, Registration)** is the prerequisite for backend development.**)**
-* CI/CD pipeline details step by step screenshot.
-* README.md with:
-* Project setup instructions.
-* Public URL of your project.
-* Provide a project-specific username and password if we need to access your dashboard.
+--- 
 
----
+## CI/CD Workflows 
+# Phase 1: Github and VScode 
+1.	Adjusted test file to check all CRUD operations for both features.
+	    Created 28 tests covering add flat, get flat, update flat, delete flat, delete image, get public flat, add tenant, get tenant, update     tenant, remove tenant. 
+2.	Created .yml file to connect to repository, runner, mongodb and AWS. 
+3.	Updated .env file for the connection string to mongodb.
 
-**Assessment Criteria:**
+# Phase 2: EC2 terminal
+1.	Created an instance named FMA_JC0 on AWS to start EC2 terminal 
+2.	Created www folder to deploy web application – the folder will contain static assets. 
+3.	Connected to nginx to use to start nginx from the live link.
+4.	Connected to GitHub to run website’s content from it. 
+5.	Created a github environment to connect to MongoDB for its database. 
+6.	Created a github runner to start the website. Once done, start the runner from the terminal. 
+7.	For the runner to start properly, run one of the workflow jobs to trigger active. 
+8.	After connected, I can see the rest of the directories to start backend and frontend though pm2 commands. 
+9.	Check pm2 logs to make sure everything is successful in the background. 
+10.	Configure nginx server within the EC2 terminal. 
 
-* Clarity and completeness of Jira board and SysML models.
-* Adherence to Git best practices and practical contributions.
-* Successful implementation, deploymentand CI/CD pipeline.
-* Problem-solving skills and the ability to go beyond basic requirements.
+# Phase 3: VScode
+1.	Changed the baseURL in axiosConfig to a public link given from EC2. 
+
+# If Website doesn't work: 
+1. If page shows 502 bad gateway – make sure runner is active and not idle.
+2. Ensure EC2 terminal is online: 
+3. re-run the most recent job to have it active again. 
+4. If page is connected to MongoDB – ensure that GitHub repository repository’s AxiosConfig.js has the port :5001 defined behind the ip address. However, in local repository, ensure link address is shown without :5001 port listed. Therefore, in AxiosConfig.js it should show http://enter-public-ip instead of http://enter-public-ip:5001. 
+5. Every time EC2 address changes, restart and ensure public link is changed accordingly on axiosConfig.jsx. Ensure link is pushed to github. Check that runner is active. Redo and restart pm2 in EC2 terminal. 
+
+--- 
