@@ -1,16 +1,16 @@
-### Flat Management Appllication 
+## Flat Management Appllication 
 - This web application focuses on supporting property managers by allowing them create, read, update and delete list of property details. After property details is created, tenant details can be added in. 
 
 --- 
 
-## App Access
+### App Access
 - Local link: http://localhost:5001 
 - Live link: http://13.236.93.10 
 
 - Email: flatadmin@ifn636.com
 - Password: flatadmin
 
-# Project links: 
+### Project links: 
 - Jira board: https://connect-team-d4muww5l.atlassian.net/jira/software/projects/TASK/boards/2/timeline?atlOrigin=eyJpIjoiN2I2NTJjZjIwMDRjNGIwZjhmOWIwYWU0OTMzZmIwYjUiLCJwIjoiaiJ9
 
 - EC2 Instance Name + ID: FMA_JC0 [i-0f089ddb0fbe5a343]
@@ -20,10 +20,10 @@
 
 ##  Flat Features
 
-# Flat Details page 
+### Flat Details page 
 - User can create, read, update and delete flat details. 
 
-# Listing page 
+### Listing page 
 - Presents a list of flat details. 
 - User is able to mark vacant or occupied. 
 - When marked occupied, user is able to create, read, update and delete tenant details. 
@@ -42,7 +42,7 @@
 --- 
 
 ## CI/CD Workflows 
-# Phase 1: Github and VScode 
+### Phase 1: Github and VScode 
 1.	Adjusted test file to check all CRUD operations for both features.
 	    Created 28 tests covering add flat, get flat, update flat, delete flat, delete image, get public flat, add tenant, get tenant, update     tenant, remove tenant. 
 2.	Created .yml file to connect to repository, runner, mongodb and AWS. 
