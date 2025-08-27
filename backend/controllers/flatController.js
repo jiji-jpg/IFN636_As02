@@ -173,7 +173,7 @@ const addTenant = async (req, res) => {
         if (!flat.vacant && flat.tenantDetails) {
             return res.status(400).json({ message: 'Flat already has a tenant. Update existing tenant or mark flat as vacant first.' });
         }
-        
+        //
         const tenantData = {
             name,
             email,
