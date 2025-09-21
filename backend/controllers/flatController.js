@@ -1,26 +1,201 @@
 const Flat = require('../models/Flat');
+const fs = require('fs');
+const path = require('path');
 
-// Existing flat operations
-const getFlats = async (req, res) => {
-    try {
+// ================== DESIGN PATTERNS START HERE ==================
+
+// ================== FACTORY PATTERN ==================
+class ResponseFactory {
+    static createSuccessResponse(res, data, message, statusCode = 200) {
+        return res.status(statusCode).json(data);
+    }
+
+    static createErrorResponse(res, message, statusCode = 500) {
+        return res.status(statusCode).json({ message });
+    }
+}
+
+// ================== STRATEGY PATTERN ==================
+class ValidationStrategy {
+    validate(data) {
+        throw new Error('Must implement validate method');
+    }
+}
+
+class FlatValidationStrategy extends ValidationStrategy {
+    validate(data) {
+        return !data.title ? 'Title is required' : null;
+    }
+}
+
+class TenantValidationStrategy extends ValidationStrategy {
+    validate(data) {
+        if (!data.name) return 'Tenant name is required';
+        if (!data.email) return 'Email is required';
+        if (!data.phone) return 'Phone number is required';
+        if (!data.moveInDate) return 'Move-in date is required';
+        if (!data.rentAmount) return 'Monthly rent is required';
+        return null;
+    }
+}
+
+// ================== OBSERVER PATTERN ==================
+class EventNotifier {
+    notifyFlatCreated(flatData) {
+        console.log('Flat created:', flatData);
+    }
+
+    notifyFlatUpdated(flatData) {
+        console.log('Flat updated:', flatData);
+    }
+
+    notifyTenantAdded(tenantData) {
+        console.log('Tenant added to flat:', tenantData);
+    }
+
+    notifyTenantUpdated(tenantData) {
+        console.log('Tenant updated:', tenantData);
+    }
+
+    notifyTenantRemoved(tenantData) {
+        console.log('Tenant removed from flat:', tenantData);
+    }
+}
+
+// ================== FACADE PATTERN ==================
+class FileManager {
+    processUploadedImages(files) {
+        return files ? files.map(file => file.filename) : [];
+    }
+
+    deleteImageFile(imageName) {
+        const imagePath = path.join(__dirname, '../uploads/flats', imageName);
+        fs.unlink(imagePath, (err) => {
+            if (err) {
+                console.error('Error deleting image file:', err);
+            } else {
+                console.log('Image file deleted successfully:', imagePath);
+            }
+        });
+    }
+}
+
+// ================== ADAPTER PATTERN ==================
+class TenantDataAdapter {
+    static adaptTenantData(rawData) {
+        return {
+            name: rawData.name,
+            email: rawData.email,
+            phone: rawData.phone,
+            moveInDate: rawData.moveInDate,
+            rentAmount: rawData.rentAmount ? Number(rawData.rentAmount) : null
+        };
+    }
+}
+
+// ================== PROTOTYPE PATTERN ==================
+class TenantPrototype {
+    constructor(data) {
+        this.name = data.name;
+        this.email = data.email;
+        this.phone = data.phone;
+        this.moveInDate = data.moveInDate;
+        this.rentAmount = data.rentAmount;
+    }
+
+    clone() {
+        return new TenantPrototype(this);
+    }
+
+    updateFields(newData) {
+        if (newData.name !== undefined) this.name = newData.name;
+        if (newData.email !== undefined) this.email = newData.email;
+        if (newData.phone !== undefined) this.phone = newData.phone;
+        if (newData.moveInDate !== undefined) this.moveInDate = newData.moveInDate;
+        if (newData.rentAmount !== undefined) this.rentAmount = newData.rentAmount ? Number(newData.rentAmount) : null;
+    }
+}
+
+// ================== PROXY PATTERN ==================
+class AuthorizationProxy {
+    static async validateFlatOwnership(flatId, userId) {
+        const flat = await Flat.findById(flatId);
+        if (!flat) {
+            return { authorized: false, flat: null, error: 'Flat not found', statusCode: 404 };
+        }
+        
+        if (flat.userId.toString() !== userId) {
+            return { authorized: false, flat: null, error: 'Not authorized', statusCode: 403 };
+        }
+        
+        return { authorized: true, flat, error: null };
+    }
+}
+
+// ================== BASE CONTROLLER CLASS (INHERITANCE) ==================
+class BaseController {
+    constructor() {
+        this.fileManager = new FileManager();
+        this.eventNotifier = new EventNotifier();
+        this.flatValidator = new FlatValidationStrategy();
+        this.tenantValidator = new TenantValidationStrategy();
+    }
+
+    // Polymorphism - can be overridden in derived classes
+    validateInput(data, type = 'flat') {
+        if (type === 'tenant') {
+            return this.tenantValidator.validate(data);
+        }
+        return this.flatValidator.validate(data);
+    }
+
+    // Template method for common error handling
+    handleError(res, error, operation) {
+        console.error(`Error in ${operation}:`, error);
+        return ResponseFactory.createErrorResponse(res, error.message);
+    }
+}
+
+// ================== FLAT CONTROLLER (INHERITANCE + ENCAPSULATION) ==================
+class FlatController extends BaseController {
+    constructor() {
+        super();
+    }
+
+    // Polymorphism - method overriding
+    validateInput(data, type = 'flat') {
+        const error = super.validateInput(data, type);
+        if (error) {
+            console.log(`Validation failed for ${type}:`, error);
+        }
+        return error;
+    }
+
+    // Encapsulated method for flat operations
+    async executeFlatOperation(req, res, operation) {
+        try {
+            await operation();
+        } catch (error) {
+            this.handleError(res, error, 'flat operation');
+        }
+    }
+
+    async executeGetFlats(req, res) {
         const flats = await Flat.find({ userId: req.user.id });
         res.json(flats);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};
-
-const addFlat = async (req, res) => {
-    const { title, description, inspectionDate } = req.body;
-    console.log('Add Flat called with:', { title, description, inspectionDate, userId: req.user?.id });
-    console.log('Files received:', req.files);
-
-    if (!title) {
-        return res.status(400).json({ message: 'Title is required' });
     }
 
-    try {
-        const images = req.files ? req.files.map(file => file.filename) : [];
+    async executeAddFlat(req, res) {
+        const { title, description, inspectionDate } = req.body;
+        console.log('Add Flat called with:', { title, description, inspectionDate, userId: req.user?.id });
+        console.log('Files received:', req.files);
+
+        const validationError = this.validateInput(req.body);
+        if (validationError) {
+            return ResponseFactory.createErrorResponse(res, validationError, 400);
+        }
+
+        const images = this.fileManager.processUploadedImages(req.files);
         console.log('Images to save:', images);
         
         const flat = await Flat.create({ 
@@ -30,27 +205,22 @@ const addFlat = async (req, res) => {
             inspectionDate,
             images 
         });
-        console.log('Flat created:', flat);
-        res.status(201).json(flat);
-    } catch (error) {
-        console.error('Error creating flat:', error);
-        res.status(500).json({ message: error.message });
-    }
-};
-
-const updateFlat = async (req, res) => {
-    const { title, description, vacant, inspectionDate, tenantDetails } = req.body;
-    console.log('Update Flat called with:', { title, description, vacant, inspectionDate, tenantDetails });
-    console.log('Files received for update:', req.files);
-    
-    try {
-        const flat = await Flat.findById(req.params.id);
-        if (!flat) return res.status(404).json({ message: 'Flat not found' });
         
-        // Check if user owns this flat
-        if (flat.userId.toString() !== req.user.id) {
-            return res.status(403).json({ message: 'Not authorized to update this flat' });
+        this.eventNotifier.notifyFlatCreated(flat);
+        res.status(201).json(flat);
+    }
+
+    async executeUpdateFlat(req, res) {
+        const { title, description, vacant, inspectionDate, tenantDetails } = req.body;
+        console.log('Update Flat called with:', { title, description, vacant, inspectionDate, tenantDetails });
+        console.log('Files received for update:', req.files);
+        
+        const authResult = await AuthorizationProxy.validateFlatOwnership(req.params.id, req.user.id);
+        if (!authResult.authorized) {
+            return ResponseFactory.createErrorResponse(res, authResult.error, authResult.statusCode);
         }
+
+        const flat = authResult.flat;
         
         // Update text fields
         flat.title = title || flat.title;
@@ -65,115 +235,77 @@ const updateFlat = async (req, res) => {
         
         // Handle images
         if (req.files && req.files.length > 0) {
-            const newImages = req.files.map(file => file.filename);
+            const newImages = this.fileManager.processUploadedImages(req.files);
             console.log('New images to add:', newImages);
             flat.images = [...(flat.images || []), ...newImages];
         }
         
         const updatedFlat = await flat.save();
-        console.log('Flat updated:', updatedFlat);
+        this.eventNotifier.notifyFlatUpdated(updatedFlat);
         res.json(updatedFlat);
-    } catch (error) {
-        console.error('Error updating flat:', error);
-        res.status(500).json({ message: error.message });
     }
-};
 
-const deleteFlat = async (req, res) => {
-    try {
-        const flat = await Flat.findById(req.params.id);
-        if (!flat) return res.status(404).json({ message: 'Flat not found' });
-        
-        // Check if user owns this flat
-        if (flat.userId.toString() !== req.user.id) {
-            return res.status(403).json({ message: 'Not authorized to delete this flat' });
+    async executeDeleteFlat(req, res) {
+        const authResult = await AuthorizationProxy.validateFlatOwnership(req.params.id, req.user.id);
+        if (!authResult.authorized) {
+            return ResponseFactory.createErrorResponse(res, authResult.error, authResult.statusCode);
         }
         
-        await flat.remove();
+        await authResult.flat.remove();
         res.json({ message: 'Flat deleted' });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
     }
-};
 
-const deleteImage = async (req, res) => {
-    try {
+    async executeDeleteImage(req, res) {
         const { id, imageName } = req.params;
         console.log('Deleting image:', imageName, 'from flat:', id);
         
-        const flat = await Flat.findById(id);
-        if (!flat) {
-            return res.status(404).json({ message: 'Flat not found' });
+        const authResult = await AuthorizationProxy.validateFlatOwnership(id, req.user.id);
+        if (!authResult.authorized) {
+            return ResponseFactory.createErrorResponse(res, authResult.error, authResult.statusCode);
         }
-        
-        // Check if user owns this flat
-        if (flat.userId.toString() !== req.user.id) {
-            return res.status(403).json({ message: 'Not authorized to delete this image' });
-        }
+
+        const flat = authResult.flat;
         
         // Remove image from flat's images array
         flat.images = flat.images.filter(img => img !== imageName);
         await flat.save();
         
-        const fs = require('fs');
-        const path = require('path');
-        const imagePath = path.join(__dirname, '../uploads/flats', imageName);
-        
-        fs.unlink(imagePath, (err) => {
-            if (err) {
-                console.error('Error deleting image file:', err);
-            } else {
-                console.log('Image file deleted successfully:', imagePath);
-            }
-        });
+        this.fileManager.deleteImageFile(imageName);
         
         res.json({ message: 'Image deleted successfully', flat });
-    } catch (error) {
-        console.error('Error deleting image:', error);
-        res.status(500).json({ message: error.message });
     }
-};
 
-const getPublicFlats = async (req, res) => {
-    try {
+    async executeGetPublicFlats(req, res) {
         const flats = await Flat.find()
             .populate('userId', 'name email') 
             .sort({ createdAt: -1 }); 
         res.json(flats);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
     }
-};
 
-// tenant crud
-
-// Add tenant 
-const addTenant = async (req, res) => {
-    const { flatId } = req.params;
-    const { name, email, phone, moveInDate, rentAmount } = req.body;
-    
-    console.log('Add Tenant called with:', { flatId, name, email, phone, moveInDate, rentAmount });
-    
-    if (!name) {
-        return res.status(400).json({ message: 'Tenant name is required' });
-    }
-    
-    try {
-        const flat = await Flat.findById(flatId);
-        if (!flat) {
-            return res.status(404).json({ message: 'Flat not found' });
+    async executeAddTenant(req, res) {
+        const { flatId } = req.params;
+        const { name, email, phone, moveInDate, rentAmount } = req.body;
+        
+        console.log('Add Tenant called with:', { flatId, name, email, phone, moveInDate, rentAmount });
+        
+        const validationError = this.validateInput(req.body, 'tenant');
+        if (validationError) {
+            return ResponseFactory.createErrorResponse(res, validationError, 400);
         }
         
-        // Check if user owns this flat
-        if (flat.userId.toString() !== req.user.id) {
-            return res.status(403).json({ message: 'Not authorized to add tenant to this flat' });
+        const authResult = await AuthorizationProxy.validateFlatOwnership(flatId, req.user.id);
+        if (!authResult.authorized) {
+            return ResponseFactory.createErrorResponse(res, authResult.error, authResult.statusCode);
         }
+
+        const flat = authResult.flat;
         
         // Check if flat already has a tenant
         if (!flat.vacant && flat.tenantDetails) {
-            return res.status(400).json({ message: 'Flat already has a tenant. Update existing tenant or mark flat as vacant first.' });
+            return ResponseFactory.createErrorResponse(res, 'Flat already has a tenant. Update existing tenant or mark flat as vacant first.', 400);
         }
-        //
+
+        // Back to your original simple approach
         const tenantData = {
             name,
             email,
@@ -186,36 +318,27 @@ const addTenant = async (req, res) => {
         flat.vacant = false;
         
         const updatedFlat = await flat.save();
-        console.log('Tenant added to flat:', updatedFlat);
+        this.eventNotifier.notifyTenantAdded(updatedFlat);
         
         res.status(201).json({
             message: 'Tenant added successfully',
             flat: updatedFlat,
             tenant: tenantData
         });
-    } catch (error) {
-        console.error('Error adding tenant:', error);
-        res.status(500).json({ message: error.message });
     }
-};
 
-// Get tenant details
-const getTenant = async (req, res) => {
-    const { flatId } = req.params;
-    
-    try {
-        const flat = await Flat.findById(flatId);
-        if (!flat) {
-            return res.status(404).json({ message: 'Flat not found' });
-        }
+    async executeGetTenant(req, res) {
+        const { flatId } = req.params;
         
-        // Check if user owns this flat
-        if (flat.userId.toString() !== req.user.id) {
-            return res.status(403).json({ message: 'Not authorized to view tenant details for this flat' });
+        const authResult = await AuthorizationProxy.validateFlatOwnership(flatId, req.user.id);
+        if (!authResult.authorized) {
+            return ResponseFactory.createErrorResponse(res, authResult.error, authResult.statusCode);
         }
+
+        const flat = authResult.flat;
         
         if (!flat.tenantDetails) {
-            return res.status(404).json({ message: 'No tenant found for this flat' });
+            return ResponseFactory.createErrorResponse(res, 'No tenant found for this flat', 404);
         }
         
         res.json({
@@ -224,35 +347,26 @@ const getTenant = async (req, res) => {
             tenant: flat.tenantDetails,
             vacant: flat.vacant
         });
-    } catch (error) {
-        console.error('Error getting tenant:', error);
-        res.status(500).json({ message: error.message });
     }
-};
 
-// Update tenant details
-const updateTenant = async (req, res) => {
-    const { flatId } = req.params;
-    const { name, email, phone, moveInDate, rentAmount } = req.body;
-    
-    console.log('Update Tenant called with:', { flatId, name, email, phone, moveInDate, rentAmount });
-    
-    try {
-        const flat = await Flat.findById(flatId);
-        if (!flat) {
-            return res.status(404).json({ message: 'Flat not found' });
-        }
+    async executeUpdateTenant(req, res) {
+        const { flatId } = req.params;
+        const { name, email, phone, moveInDate, rentAmount } = req.body;
         
-        // Check if user owns this flat
-        if (flat.userId.toString() !== req.user.id) {
-            return res.status(403).json({ message: 'Not authorized to update tenant for this flat' });
+        console.log('Update Tenant called with:', { flatId, name, email, phone, moveInDate, rentAmount });
+        
+        const authResult = await AuthorizationProxy.validateFlatOwnership(flatId, req.user.id);
+        if (!authResult.authorized) {
+            return ResponseFactory.createErrorResponse(res, authResult.error, authResult.statusCode);
         }
+
+        const flat = authResult.flat;
         
         if (!flat.tenantDetails) {
-            return res.status(404).json({ message: 'No tenant found for this flat to update' });
+            return ResponseFactory.createErrorResponse(res, 'No tenant found for this flat to update', 404);
         }
         
-        // Update tenant details
+        // Back to your original approach - direct field updates
         if (name !== undefined) flat.tenantDetails.name = name;
         if (email !== undefined) flat.tenantDetails.email = email;
         if (phone !== undefined) flat.tenantDetails.phone = phone;
@@ -260,38 +374,29 @@ const updateTenant = async (req, res) => {
         if (rentAmount !== undefined) flat.tenantDetails.rentAmount = rentAmount ? Number(rentAmount) : null;
         
         const updatedFlat = await flat.save();
-        console.log('Tenant updated:', updatedFlat.tenantDetails);
+        this.eventNotifier.notifyTenantUpdated(updatedFlat.tenantDetails);
         
         res.json({
             message: 'Tenant updated successfully',
             flat: updatedFlat,
             tenant: updatedFlat.tenantDetails
         });
-    } catch (error) {
-        console.error('Error updating tenant:', error);
-        res.status(500).json({ message: error.message });
     }
-};
 
-// Remove tenant - mark vacant
-const removeTenant = async (req, res) => {
-    const { flatId } = req.params;
-    
-    console.log('Remove Tenant called for flatId:', flatId);
-    
-    try {
-        const flat = await Flat.findById(flatId);
-        if (!flat) {
-            return res.status(404).json({ message: 'Flat not found' });
-        }
+    async executeRemoveTenant(req, res) {
+        const { flatId } = req.params;
         
-        // Check if user owns this flat
-        if (flat.userId.toString() !== req.user.id) {
-            return res.status(403).json({ message: 'Not authorized to remove tenant from this flat' });
+        console.log('Remove Tenant called for flatId:', flatId);
+        
+        const authResult = await AuthorizationProxy.validateFlatOwnership(flatId, req.user.id);
+        if (!authResult.authorized) {
+            return ResponseFactory.createErrorResponse(res, authResult.error, authResult.statusCode);
         }
+
+        const flat = authResult.flat;
         
         if (!flat.tenantDetails) {
-            return res.status(404).json({ message: 'No tenant found for this flat' });
+            return ResponseFactory.createErrorResponse(res, 'No tenant found for this flat', 404);
         }
         
         const removedTenant = { ...flat.tenantDetails };
@@ -299,22 +404,16 @@ const removeTenant = async (req, res) => {
         flat.vacant = true;
         
         const updatedFlat = await flat.save();
-        console.log('Tenant removed from flat:', updatedFlat);
+        this.eventNotifier.notifyTenantRemoved(updatedFlat);
         
         res.json({
             message: 'Tenant removed successfully',
             flat: updatedFlat,
             removedTenant: removedTenant
         });
-    } catch (error) {
-        console.error('Error removing tenant:', error);
-        res.status(500).json({ message: error.message });
     }
-};
 
-// Get all tenants for user's flats
-const getAllTenants = async (req, res) => {
-    try {
+    async executeGetAllTenants(req, res) {
         const flats = await Flat.find({ 
             userId: req.user.id,
             tenantDetails: { $exists: true, $ne: null }
@@ -332,10 +431,83 @@ const getAllTenants = async (req, res) => {
             count: tenants.length,
             tenants: tenants
         });
-    } catch (error) {
-        console.error('Error getting all tenants:', error);
-        res.status(500).json({ message: error.message });
     }
+}
+
+// ================== DECORATOR PATTERN ==================
+function withErrorHandling(controller) {
+    const originalMethods = {};
+    
+    // Get all execute methods
+    Object.getOwnPropertyNames(Object.getPrototypeOf(controller)).forEach(methodName => {
+        if (methodName.startsWith('execute') && typeof controller[methodName] === 'function') {
+            originalMethods[methodName] = controller[methodName].bind(controller);
+            
+            controller[methodName] = async function(req, res) {
+                try {
+                    await originalMethods[methodName](req, res);
+                } catch (error) {
+                    controller.handleError(res, error, methodName);
+                }
+            };
+        }
+    });
+    
+    return controller;
+}
+
+// ================== CREATE CONTROLLER INSTANCE ==================
+const flatController = withErrorHandling(new FlatController());
+
+// ================== MIDDLEWARE PATTERN ==================
+const logRequest = (req, res, next) => {
+    console.log(`${req.method} ${req.path} - User: ${req.user?.id}`);
+    next();
+};
+
+// ================== ORIGINAL FUNCTION IMPLEMENTATIONS ==================
+const getFlats = async (req, res) => {
+    await flatController.executeGetFlats(req, res);
+};
+
+const addFlat = async (req, res) => {
+    await flatController.executeAddFlat(req, res);
+};
+
+const updateFlat = async (req, res) => {
+    await flatController.executeUpdateFlat(req, res);
+};
+
+const deleteFlat = async (req, res) => {
+    await flatController.executeDeleteFlat(req, res);
+};
+
+const deleteImage = async (req, res) => {
+    await flatController.executeDeleteImage(req, res);
+};
+
+const getPublicFlats = async (req, res) => {
+    await flatController.executeGetPublicFlats(req, res);
+};
+
+const addTenant = async (req, res) => {
+    await flatController.executeAddTenant(req, res);
+};
+
+const getTenant = async (req, res) => {
+    await flatController.executeGetTenant(req, res);
+};
+
+const updateTenant = async (req, res) => {
+    await flatController.executeUpdateTenant(req, res);
+};
+
+const removeTenant = async (req, res) => {
+    await flatController.executeRemoveTenant(req, res);
+};
+
+const getAllTenants = async (req, res) => {
+    await flatController.executeGetAllTenants(req, res);
 };
 
 module.exports = { 
