@@ -13,7 +13,11 @@ class ValidationStrategy {
 
 class FlatValidationStrategy extends ValidationStrategy {
     validate(data) {
-        return !data.title ? 'Title is required' : null;
+        if (!data.address) return 'Address is required';
+        if (!data.bedrooms) return 'Number of bedrooms is required';
+        if (!data.bathrooms) return 'Number of bathrooms is required';
+        if (!data.carpark) return 'Carpark information is required';
+        return null;
     }
 }
 
