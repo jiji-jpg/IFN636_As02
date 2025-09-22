@@ -4,7 +4,10 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
 import Flats from './pages/Flats';
-import Listing from './pages/Listing';  
+import Listing from './pages/Listing';
+// Import the new pages
+import PaymentManagement from './pages/PaymentManagement';
+import MaintenanceManagement from './pages/MaintenanceManagement';
 
 function App() {
   return (
@@ -15,12 +18,15 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/flats" element={<Flats />} />
-        <Route path="/listing" element={<Listing />} />  
+        <Route path="/listing" element={<Listing />} />
+        {/* Add the new routes */}
+        <Route path="/payments" element={<PaymentManagement />} />
+        <Route path="/maintenance" element={<MaintenanceManagement />} />
+        {/* Default route */}
+        <Route path="/" element={<Listing />} />
       </Routes>
     </Router>
   );
 }
 
 export default App;
-
-
