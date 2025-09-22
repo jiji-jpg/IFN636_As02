@@ -2,9 +2,7 @@ const Flat = require('../models/Flat');
 const fs = require('fs');
 const path = require('path');
 
-// ================== DESIGN PATTERNS START HERE ==================
-
-// ================== STRATEGY PATTERN ==================
+// Validation - Strategy pattern
 class ValidationStrategy {
     validate(data) {
         throw new Error('Must implement validate method');
@@ -32,30 +30,7 @@ class TenantValidationStrategy extends ValidationStrategy {
     }
 }
 
-// ================== OBSERVER PATTERN ==================
-class EventNotifier {
-    notifyFlatCreated(flatData) {
-        console.log('Flat created:', flatData);
-    }
-
-    notifyFlatUpdated(flatData) {
-        console.log('Flat updated:', flatData);
-    }
-
-    notifyTenantAdded(tenantData) {
-        console.log('Tenant added to flat:', tenantData);
-    }
-
-    notifyTenantUpdated(tenantData) {
-        console.log('Tenant updated:', tenantData);
-    }
-
-    notifyTenantRemoved(tenantData) {
-        console.log('Tenant removed from flat:', tenantData);
-    }
-}
-
-// ================== FACADE PATTERN ==================
+// File Management - Facade 
 class FileManager {
     processUploadedImages(files) {
         return files ? files.map(file => file.filename) : [];
@@ -73,43 +48,7 @@ class FileManager {
     }
 }
 
-// ================== ADAPTER PATTERN ==================
-class TenantDataAdapter {
-    static adaptTenantData(rawData) {
-        return {
-            name: rawData.name,
-            email: rawData.email,
-            phone: rawData.phone,
-            moveInDate: rawData.moveInDate,
-            rentAmount: rawData.rentAmount ? Number(rawData.rentAmount) : null
-        };
-    }
-}
-
-// ================== PROTOTYPE PATTERN ==================
-class TenantPrototype {
-    constructor(data) {
-        this.name = data.name;
-        this.email = data.email;
-        this.phone = data.phone;
-        this.moveInDate = data.moveInDate;
-        this.rentAmount = data.rentAmount;
-    }
-
-    clone() {
-        return new TenantPrototype(this);
-    }
-
-    updateFields(newData) {
-        if (newData.name !== undefined) this.name = newData.name;
-        if (newData.email !== undefined) this.email = newData.email;
-        if (newData.phone !== undefined) this.phone = newData.phone;
-        if (newData.moveInDate !== undefined) this.moveInDate = newData.moveInDate;
-        if (newData.rentAmount !== undefined) this.rentAmount = newData.rentAmount ? Number(newData.rentAmount) : null;
-    }
-}
-
-// ================== PROXY PATTERN ==================
+// Authorisation - proxy
 class AuthorizationProxy {
     static async validateFlatOwnership(flatId, userId) {
         const flat = await Flat.findById(flatId);
@@ -125,7 +64,7 @@ class AuthorizationProxy {
     }
 }
 
-// ================== BASE CONTROLLER CLASS (INHERITANCE) ==================
+// base classes 
 class BaseController {
     constructor() {
         this.fileManager = new FileManager();
@@ -141,7 +80,7 @@ class BaseController {
         return this.flatValidator.validate(data);
     }
 
-    // Template method for common error handling
+    // common error handling
     handleError(res, error, operation) {
         console.error(`Error in ${operation}:`, error);
         return res.status(500).json({ message: error.message });
@@ -474,12 +413,6 @@ class FlatController extends BaseController {
 
 // ================== CREATE CONTROLLER INSTANCE ==================
 const flatController = new FlatController();
-
-// ================== MIDDLEWARE PATTERN ==================
-const logRequest = (req, res, next) => {
-    console.log(`${req.method} ${req.path} - User: ${req.user?.id}`);
-    next();
-};
 
 // ================== ORIGINAL FUNCTION IMPLEMENTATIONS ==================
 const getFlats = async (req, res) => {
