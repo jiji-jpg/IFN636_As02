@@ -8,9 +8,13 @@
     "dev": "concurrently \"npm run dev --prefix backend\" \"npm start --prefix frontend\""
   },
   "devDependencies": {
-    "chai": "^5.1.2",
+    "chai": "^5.3.3",
     "concurrently": "^7.0.0",
-    "mocha": "^11.0.1"
+    "mocha": "^11.7.2",
+    "mochawesome": "^7.1.4",
+    "nyc": "^17.1.0",
+    "sinon": "^21.0.0",
+    "supertest": "^7.1.4"
   },
   "author": "Flat Manager Team",
   "license": "ISC"
