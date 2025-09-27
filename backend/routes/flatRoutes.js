@@ -3,7 +3,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-// Import existing flat and tenant controllers
+
 const { 
     getFlats, 
     addFlat, 
@@ -18,7 +18,6 @@ const {
     getAllTenants
 } = require('../controllers/flatController');
 
-// Import new payment controller
 const {
     generateInvoice,
     recordPayment,
@@ -28,7 +27,6 @@ const {
     getInvoices
 } = require('../controllers/paymentController');
 
-// Import new maintenance controller
 const {
     reportMaintenance,
     getMaintenanceReports,
@@ -41,7 +39,7 @@ const {
 const { protect } = require('../middleware/authMiddleware');
 const router = express.Router();
 
-// Create uploads directories
+
 const uploadsDir = path.join(__dirname, '../uploads/flats');
 const maintenanceUploadsDir = path.join(__dirname, '../uploads/maintenance');
 
@@ -53,7 +51,7 @@ if (!fs.existsSync(maintenanceUploadsDir)) {
     fs.mkdirSync(maintenanceUploadsDir, { recursive: true });
 }
 
-// Configure multer for flat images
+
 const flatImageStorage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, 'uploads/flats/');
@@ -64,7 +62,7 @@ const flatImageStorage = multer.diskStorage({
     }
 });
 
-// Configure multer for maintenance images
+
 const maintenanceImageStorage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, 'uploads/maintenance/');
@@ -106,7 +104,7 @@ const uploadMaintenanceImages = multer({
     }
 });
 
-// ================== EXISTING FLAT ROUTES ==================
+// Flat routes
 router.route('/')
     .get(protect, getFlats)
     .post(protect, uploadFlatImages.array('images', 10), addFlat);
@@ -120,7 +118,7 @@ router.route('/:id/images/:imageName')
 
 router.get('/public/all', getPublicFlats);
 
-// ================== TENANT ROUTES ==================
+// Tenant routes
 router.route('/:flatId/tenant')
     .post(protect, addTenant)
     .get(protect, getTenant)
@@ -129,7 +127,6 @@ router.route('/:flatId/tenant')
 
 router.get('/tenants/all', protect, getAllTenants);
 
-// ================== PAYMENT TRACKING ROUTES ==================
 // Invoice management
 router.route('/:flatId/invoices')
     .post(protect, generateInvoice)
@@ -143,27 +140,22 @@ router.route('/:flatId/payments')
 router.route('/:flatId/payments/:paymentId')
     .delete(protect, deletePayment);
 
-// Arrears tracking - this needs to be before the /:flatId routes to avoid conflicts
 router.get('/arrears/tracking', protect, getArrearsTracking);
 
-// ================== MAINTENANCE ROUTES ==================
-// Contractors - this needs to be before the /:flatId routes to avoid conflicts
+// Maintenance routes
 router.get('/contractors/list', protect, getContractors);
 
-// All maintenance reports across all flats - this needs to be before the /:flatId routes
 router.get('/maintenance/all', protect, getAllMaintenanceReports);
 
-// Maintenance reports for specific flat
 router.route('/:flatId/maintenance')
     .post(protect, uploadMaintenanceImages.array('images', 5), reportMaintenance)
     .get(protect, getMaintenanceReports);
 
-// Update maintenance status
 router.route('/:flatId/maintenance/:reportId')
     .put(protect, updateMaintenanceStatus)
     .delete(protect, deleteMaintenanceReport);
 
-// ================== ERROR HANDLING MIDDLEWARE ==================
+// Error handling
 router.use((error, req, res, next) => {
     if (error instanceof multer.MulterError) {
         if (error.code === 'LIMIT_FILE_SIZE') {
