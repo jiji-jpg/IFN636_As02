@@ -2,7 +2,6 @@ const Flat = require('../models/Flat');
 const fs = require('fs');
 const path = require('path');
 
-// Validation - Strategy pattern
 class ValidationStrategy {
     validate(data) {
         throw new Error('Must implement validate method');
@@ -30,7 +29,6 @@ class TenantValidationStrategy extends ValidationStrategy {
     }
 }
 
-// File Management - Facade 
 class FileManager {
     processUploadedImages(files) {
         return files ? files.map(file => file.filename) : [];
@@ -48,7 +46,6 @@ class FileManager {
     }
 }
 
-// Authorisation - proxy
 class AuthorizationProxy {
     static async validateFlatOwnership(flatId, userId) {
         const flat = await Flat.findById(flatId);
@@ -64,7 +61,6 @@ class AuthorizationProxy {
     }
 }
 
-// base classes 
 class BaseController {
     constructor() {
         this.fileManager = new FileManager();
@@ -72,7 +68,6 @@ class BaseController {
         this.tenantValidator = new TenantValidationStrategy();
     }
 
-    // Polymorphism - can be overridden in derived classes
     validateInput(data, type = 'flat') {
         if (type === 'tenant') {
             return this.tenantValidator.validate(data);
@@ -80,20 +75,18 @@ class BaseController {
         return this.flatValidator.validate(data);
     }
 
-    // common error handling
     handleError(res, error, operation) {
         console.error(`Error in ${operation}:`, error);
         return res.status(500).json({ message: error.message });
     }
 }
 
-// ================== FLAT CONTROLLER (INHERITANCE + ENCAPSULATION) ==================
 class FlatController extends BaseController {
     constructor() {
         super();
     }
 
-    // Polymorphism - method overriding
+    
     validateInput(data, type = 'flat') {
         const error = super.validateInput(data, type);
         if (error) {
@@ -258,7 +251,6 @@ class FlatController extends BaseController {
                 return res.status(400).json({ message: 'Flat already has a tenant. Update existing tenant or mark flat as vacant first.' });
             }
 
-            // Back to your original simple approach
             const tenantData = {
                 name,
                 email,
@@ -328,8 +320,7 @@ class FlatController extends BaseController {
             if (!flat.tenantDetails) {
                 return res.status(404).json({ message: 'No tenant found for this flat to update' });
             }
-            
-            // Back to your original approach - direct field updates
+        
             if (name !== undefined) flat.tenantDetails.name = name;
             if (email !== undefined) flat.tenantDetails.email = email;
             if (phone !== undefined) flat.tenantDetails.phone = phone;
@@ -411,10 +402,8 @@ class FlatController extends BaseController {
     }
 }
 
-// ================== CREATE CONTROLLER INSTANCE ==================
 const flatController = new FlatController();
 
-// ================== ORIGINAL FUNCTION IMPLEMENTATIONS ==================
 const getFlats = async (req, res) => {
     await flatController.executeGetFlats(req, res);
 };
