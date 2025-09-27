@@ -1,8 +1,5 @@
 const Flat = require('../models/Flat');
 
-// ================== DESIGN PATTERNS START HERE ==================
-
-// ================== FACTORY PATTERN ==================
 class InvoiceFactory {
     static createRentalInvoice(tenantData, flatData, amount, dueDate) {
         return {
@@ -35,7 +32,6 @@ class InvoiceFactory {
     }
 }
 
-// ================== STRATEGY PATTERN ==================
 class ValidationStrategy {
     validate(data) {
         throw new Error('Must implement validate method');
@@ -60,7 +56,6 @@ class InvoiceValidationStrategy extends ValidationStrategy {
     }
 }
 
-// ================== OBSERVER PATTERN ==================
 class PaymentEventNotifier {
     notifyInvoiceGenerated(invoiceData) {
         console.log('Invoice generated:', invoiceData);
@@ -79,7 +74,6 @@ class PaymentEventNotifier {
     }
 }
 
-// ================== ADAPTER PATTERN ==================
 class PaymentDataAdapter {
     static adaptPaymentData(rawData) {
         return {
@@ -92,7 +86,6 @@ class PaymentDataAdapter {
     }
 }
 
-// ================== COMMAND PATTERN ==================
 class PaymentCommand {
     constructor(flatId, paymentData, userId) {
         this.flatId = flatId;
@@ -163,7 +156,6 @@ class InvoiceCommand {
     }
 }
 
-// ================== PROXY PATTERN ==================
 class AuthorizationProxy {
     static async validateFlatOwnership(flatId, userId) {
         const flat = await Flat.findById(flatId);
@@ -179,7 +171,6 @@ class AuthorizationProxy {
     }
 }
 
-// ================== BASE CONTROLLER CLASS (INHERITANCE) ==================
 class BasePaymentController {
     constructor() {
         this.eventNotifier = new PaymentEventNotifier();
@@ -187,7 +178,6 @@ class BasePaymentController {
         this.invoiceValidator = new InvoiceValidationStrategy();
     }
 
-    // Polymorphism - can be overridden in derived classes
     validateInput(data, type = 'payment') {
         if (type === 'invoice') {
             return this.invoiceValidator.validate(data);
@@ -195,20 +185,17 @@ class BasePaymentController {
         return this.paymentValidator.validate(data);
     }
 
-    // Template method for common error handling
     handleError(res, error, operation) {
         console.error(`Error in ${operation}:`, error);
         return res.status(500).json({ message: error.message });
     }
 }
 
-// ================== PAYMENT CONTROLLER (INHERITANCE + ENCAPSULATION) ==================
 class PaymentController extends BasePaymentController {
     constructor() {
         super();
     }
 
-    // Polymorphism - method overriding
     validateInput(data, type = 'payment') {
         const error = super.validateInput(data, type);
         if (error) {
@@ -424,10 +411,8 @@ class PaymentController extends BasePaymentController {
     }
 }
 
-// ================== CREATE CONTROLLER INSTANCE ==================
 const paymentController = new PaymentController();
 
-// ================== ORIGINAL FUNCTION IMPLEMENTATIONS ==================
 const generateInvoice = async (req, res) => {
     await paymentController.executeGenerateInvoice(req, res);
 };
