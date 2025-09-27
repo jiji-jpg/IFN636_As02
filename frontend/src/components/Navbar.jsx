@@ -12,30 +12,71 @@ const Navbar = () => {
 
   return (
     <nav 
-      className="text-white p-4 flex justify-between items-center"
+      className="text-white p-4 flex justify-between items-center shadow-md"
       style={{ backgroundColor: '#E7E6E3' }}
     >
-      <Link to="/" className="text-2xl font-bold text-gray-800">Flat Management</Link>
-      <div>
+      <Link to="/" className="text-2xl font-bold text-gray-800 hover:text-gray-600 transition-colors">
+        Flat Management
+      </Link>
+      
+      <div className="flex items-center space-x-1">
         {user ? (
           <>
-            <Link to="/flats" className="mr-4 text-gray-800 hover:text-gray-600">Flat Details</Link>
-            <Link to="/listing" className="mr-4 text-gray-800 hover:text-gray-600">Listing</Link>
-            <Link to="/profile" className="mr-4 text-gray-800 hover:text-gray-600">Account</Link>
+            {/* Main Navigation Links */}
+            <Link 
+              to="/listing" 
+              className="px-3 py-2 text-gray-800 hover:text-gray-600 hover:bg-gray-200 rounded transition-colors"
+            >
+              Dashboard
+            </Link>
+            <Link 
+              to="/flats" 
+              className="px-3 py-2 text-gray-800 hover:text-gray-600 hover:bg-gray-200 rounded transition-colors"
+            >
+              Properties
+            </Link>
             
+            {/* New Feature Links */}
+            <Link 
+              to="/payments" 
+              className="px-3 py-2 text-gray-800 hover:text-gray-600 hover:bg-gray-200 rounded transition-colors"
+            >
+              💰 Payments
+            </Link>
+            <Link 
+              to="/maintenance" 
+              className="px-3 py-2 text-gray-800 hover:text-gray-600 hover:bg-gray-200 rounded transition-colors"
+            >
+              🔧 Maintenance
+            </Link>
+            
+            {/* User Account */}
+            <Link 
+              to="/profile" 
+              className="px-3 py-2 text-gray-800 hover:text-gray-600 hover:bg-gray-200 rounded transition-colors"
+            >
+              Account
+            </Link>
+            
+            {/* Logout Button */}
             <button
               onClick={handleLogout}
-              className="bg-red-500 px-4 py-2 rounded hover:bg-red-600 text-white transition-colors"
+              className="ml-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded transition-colors"
             >
               Logout
             </button>
           </>
         ) : (
           <>
-            <Link to="/login" className="mr-4 text-gray-800 hover:text-gray-600">Login</Link>
+            <Link 
+              to="/login" 
+              className="px-3 py-2 text-gray-800 hover:text-gray-600 hover:bg-gray-200 rounded transition-colors"
+            >
+              Login
+            </Link>
             <Link
               to="/register"
-              className="bg-green-600 px-4 py-2 rounded hover:bg-green-700 text-white transition-colors"
+              className="ml-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded transition-colors"
             >
               Register
             </Link>
