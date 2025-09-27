@@ -2,9 +2,6 @@ const Flat = require('../models/Flat');
 const fs = require('fs');
 const path = require('path');
 
-// ================== DESIGN PATTERNS START HERE ==================
-
-// ================== STRATEGY PATTERN ==================
 class ValidationStrategy {
     validate(data) {
         throw new Error('Must implement validate method');
@@ -21,7 +18,6 @@ class MaintenanceValidationStrategy extends ValidationStrategy {
     }
 }
 
-// ================== OBSERVER PATTERN ==================
 class MaintenanceEventNotifier {
     notifyMaintenanceReported(maintenanceData) {
         console.log('Maintenance issue reported:', maintenanceData);
@@ -40,7 +36,6 @@ class MaintenanceEventNotifier {
     }
 }
 
-// ================== FACADE PATTERN ==================
 class MaintenanceFileManager {
     processUploadedImages(files) {
         return files ? files.map(file => file.filename) : [];
@@ -60,7 +55,6 @@ class MaintenanceFileManager {
     }
 }
 
-// ================== ADAPTER PATTERN ==================
 class MaintenanceDataAdapter {
     static adaptMaintenanceData(rawData) {
         return {
@@ -75,7 +69,6 @@ class MaintenanceDataAdapter {
     }
 }
 
-// ================== PROTOTYPE PATTERN ==================
 class MaintenancePrototype {
     constructor(data) {
         this.issueType = data.issueType;
@@ -102,7 +95,6 @@ class MaintenancePrototype {
     }
 }
 
-// ================== SINGLETON PATTERN ==================
 class ContractorService {
     static instance = null;
     
@@ -114,7 +106,6 @@ class ContractorService {
     }
 
     getContractors() {
-        // Simulated contractor data - in real app this would come from database
         return [
             { id: '1', name: 'ABC Plumbing Services', specialization: 'plumbing', phone: '+1234567890', email: 'contact@abcplumbing.com' },
             { id: '2', name: 'Quick Fix Electricians', specialization: 'electrical', phone: '+1234567891', email: 'info@quickfixelectric.com' },
@@ -129,7 +120,6 @@ class ContractorService {
     }
 }
 
-// ================== PROXY PATTERN ==================
 class AuthorizationProxy {
     static async validateFlatOwnership(flatId, userId) {
         const flat = await Flat.findById(flatId);
@@ -145,7 +135,6 @@ class AuthorizationProxy {
     }
 }
 
-// ================== BASE CONTROLLER CLASS (INHERITANCE) ==================
 class BaseMaintenanceController {
     constructor() {
         this.fileManager = new MaintenanceFileManager();
@@ -154,25 +143,21 @@ class BaseMaintenanceController {
         this.contractorService = ContractorService.getInstance();
     }
 
-    // Polymorphism - can be overridden in derived classes
     validateInput(data, type = 'maintenance') {
         return this.maintenanceValidator.validate(data);
     }
 
-    // Template method for common error handling
     handleError(res, error, operation) {
         console.error(`Error in ${operation}:`, error);
         return res.status(500).json({ message: error.message });
     }
 }
 
-// ================== MAINTENANCE CONTROLLER (INHERITANCE + ENCAPSULATION) ==================
 class MaintenanceController extends BaseMaintenanceController {
     constructor() {
         super();
     }
 
-    // Polymorphism - method overriding
     validateInput(data, type = 'maintenance') {
         const error = super.validateInput(data, type);
         if (error) {
@@ -299,7 +284,6 @@ class MaintenanceController extends BaseMaintenanceController {
             
             const report = flat.maintenanceReports[reportIndex];
             
-            // Update fields
             if (status) report.status = status;
             if (actualCost !== undefined) report.actualCost = Number(actualCost);
             if (completionDate) report.completionDate = completionDate;
@@ -413,10 +397,8 @@ class MaintenanceController extends BaseMaintenanceController {
     }
 }
 
-// ================== CREATE CONTROLLER INSTANCE ==================
 const maintenanceController = new MaintenanceController();
 
-// ================== ORIGINAL FUNCTION IMPLEMENTATIONS ==================
 const reportMaintenance = async (req, res) => {
     await maintenanceController.executeReportMaintenance(req, res);
 };
