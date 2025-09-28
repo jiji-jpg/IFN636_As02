@@ -467,7 +467,7 @@
 			"response": []
 		},
 		{
-			"name": "New Request",
+			"name": "Delete Flat",
 			"id": "48312216-f4321a3f-fa0d-4fd5-99f6-98d81e29b607",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
