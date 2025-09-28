@@ -505,8 +505,7 @@
 							"pm.test(\"Deletion message is appropriate\", function () {\r",
 							"    const jsonData = pm.response.json();\r",
 							"    const message = jsonData.message.toLowerCase();\r",
-							"    \r",
-							"    // Check that message indicates successful deletion\r",
+							"\r",
 							"    const hasDeletedKeyword = message.includes('deleted') || \r",
 							"                             message.includes('removed') || \r",
 							"                             message.includes('successfully');\r",
@@ -517,7 +516,6 @@
 							"pm.test(\"Response may include deleted flat info\", function () {\r",
 							"    const jsonData = pm.response.json();\r",
 							"    \r",
-							"    // Some APIs return the deleted object, others just return a message\r",
 							"    if (jsonData.flat || jsonData.deletedFlat) {\r",
 							"        const flatInfo = jsonData.flat || jsonData.deletedFlat;\r",
 							"        pm.expect(flatInfo).to.have.property('_id');\r",
@@ -530,7 +528,7 @@
 							"pm.test(\"No sensitive data exposed\", function () {\r",
 							"    const jsonData = pm.response.json();\r",
 							"    \r",
-							"    // Ensure no sensitive information is returned\r",
+							"    // make sure no sensitive data is returned\r",
 							"    pm.expect(jsonData).to.not.have.property('password');\r",
 							"    pm.expect(jsonData).to.not.have.property('token');\r",
 							"});\r",
@@ -539,9 +537,8 @@
 							"pm.test(\"Clean up environment variables\", function () {\r",
 							"    const jsonData = pm.response.json();\r",
 							"    \r",
-							"    // If we successfully deleted a flat, clean up related environment variables\r",
+							"    // If succesfully deleted flat, clean variables\r",
 							"    if (pm.response.code === 200) {\r",
-							"        // Remove any stored flat IDs that might now be invalid\r",
 							"        pm.environment.unset(\"created_flat_id\");\r",
 							"        pm.environment.unset(\"test_flat_id\");\r",
 							"        pm.environment.unset(\"maintenance_report_id\");\r",
@@ -550,7 +547,7 @@
 							"    }\r",
 							"});\r",
 							"\r",
-							"// Verification test (optional)\r",
+							"// Verification test\r",
 							"pm.test(\"Log deletion confirmation\", function () {\r",
 							"    const jsonData = pm.response.json();\r",
 							"    \r",
@@ -617,7 +614,7 @@
 					"raw": ""
 				},
 				"url": {
-					"raw": "http://localhost:5001/api/flats",
+					"raw": "http://localhost:5001/api/flats/68ae8fea4e8dcde013004353",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -625,118 +622,8 @@
 					"port": "5001",
 					"path": [
 						"api",
-						"flats"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Get Tenant",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"id": "3a2336e7-ce56-49af-a5ee-48c53952922a",
-						"exec": [
-							"// Basic Response Tests\r",
-							"pm.test(\"Status code is 200\", function () {\r",
-							"    if (pm.response.code === 401) {\r",
-							"        console.log(\"401 Error - Invalid or expired token\");\r",
-							"    } else if (pm.response.code === 404) {\r",
-							"        console.log(\"404 Error - Tenant not found\");\r",
-							"    }\r",
-							"    pm.response.to.have.status(200);\r",
-							"});\r",
-							"\r",
-							"pm.test(\"Response is JSON\", function () {\r",
-							"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
-							"});\r",
-							"\r",
-							"pm.test(\"Response time is less than 1000ms\", function () {\r",
-							"    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
-							"});\r",
-							"\r",
-							"// Data Structure Tests\r",
-							"pm.test(\"Response contains flats data\", function () {\r",
-							"    const jsonData = pm.response.json();\r",
-							"    pm.expect(jsonData).to.be.an('array');\r",
-							"});\r",
-							"\r",
-							"pm.test(\"Each flat has required properties\", function () {\r",
-							"    const jsonData = pm.response.json();\r",
-							"    if (jsonData.length > 0) {\r",
-							"        const flat = jsonData[0];\r",
-							"        pm.expect(flat).to.have.property('_id');\r",
-							"        pm.expect(flat).to.have.property('title');\r",
-							"        pm.expect(flat).to.have.property('description');\r",
-							"        pm.expect(flat).to.have.property('userId');\r",
-							"    }\r",
-							"});\r",
-							"\r",
-							"pm.test(\"Flat data is valid\", function () {\r",
-							"    const jsonData = pm.response.json();\r",
-							"    if (jsonData.length > 0) {\r",
-							"        const flat = jsonData[0];\r",
-							"        \r",
-							"        // Check data types\r",
-							"        pm.expect(flat._id).to.be.a('string');\r",
-							"        pm.expect(flat.title).to.be.a('string');\r",
-							"        pm.expect(flat.description).to.be.a('string');\r",
-							"        pm.expect(flat.userId).to.be.a('string');\r",
-							"    }\r",
-							"});\r",
-							"\r",
-							"pm.test(\"Password field is not exposed\", function () {\r",
-							"    const jsonData = pm.response.json();\r",
-							"    if (jsonData.length > 0) {\r",
-							"        const flat = jsonData[0];\r",
-							"        pm.expect(flat).to.not.have.property('password');\r",
-							"    }\r",
-							"});"
-						],
-						"type": "text/javascript",
-						"packages": {},
-						"requests": {}
-					}
-				}
-			],
-			"id": "48312216-ac5aaf12-25a8-4871-b8e1-71f09a30802f",
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{auth_token}}",
-							"type": "string"
-						}
-					]
-				},
-				"method": "GET",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n  \"firstName\": \"John\",\r\n  \"lastName\": \"Doe\", \r\n  \"email\": \"john@example.com\",\r\n  \"password\": \"password123\",\r\n  \"phone\": \"123-456-7890\"\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "http://localhost:5001/api/flats",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "5001",
-					"path": [
-						"api",
-						"flats"
+						"flats",
+						"68ae8fea4e8dcde013004353"
 					]
 				}
 			},
@@ -876,6 +763,117 @@
 				"body": {
 					"mode": "raw",
 					"raw": "{\r\n  \"title\": \"Modern 2BR Apartment\",\r\n  \"description\": \"Beautiful apartment in city center\",\r\n  \"address\": \"123 Main St, Brisbane, QLD\",\r\n  \"bedrooms\": \"2\",\r\n  \"bathrooms\": \"1\", \r\n  \"carpark\": \"true\",\r\n  \"inspectionDate\": \"2025-10-15\",\r\n  \"vacant\": false,\r\n  \"tenantDetails\": {\r\n    \"firstName\": \"John\",\r\n    \"lastName\": \"Doe\",\r\n    \"email\": \"john.doe@example.com\",\r\n    \"phone\": \"123-456-7890\",\r\n    \"address\": \"123 Main Street, Brisbane, QLD\"\r\n  }\r\n}"
+				},
+				"url": {
+					"raw": "http://localhost:5001/api/flats",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"api",
+						"flats"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Tenant",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "3a2336e7-ce56-49af-a5ee-48c53952922a",
+						"exec": [
+							"// Basic Response Tests\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    if (pm.response.code === 401) {\r",
+							"        console.log(\"401 Error - Invalid or expired token\");\r",
+							"    } else if (pm.response.code === 404) {\r",
+							"        console.log(\"404 Error - Tenant not found\");\r",
+							"    }\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response is JSON\", function () {\r",
+							"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response time is less than 1000ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
+							"});\r",
+							"\r",
+							"// Data Structure Tests\r",
+							"pm.test(\"Response contains flats data\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.be.an('array');\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Each flat has required properties\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    if (jsonData.length > 0) {\r",
+							"        const flat = jsonData[0];\r",
+							"        pm.expect(flat).to.have.property('_id');\r",
+							"        pm.expect(flat).to.have.property('title');\r",
+							"        pm.expect(flat).to.have.property('description');\r",
+							"        pm.expect(flat).to.have.property('userId');\r",
+							"    }\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Flat data is valid\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    if (jsonData.length > 0) {\r",
+							"        const flat = jsonData[0];\r",
+							"        \r",
+							"        // Check data types\r",
+							"        pm.expect(flat._id).to.be.a('string');\r",
+							"        pm.expect(flat.title).to.be.a('string');\r",
+							"        pm.expect(flat.description).to.be.a('string');\r",
+							"        pm.expect(flat.userId).to.be.a('string');\r",
+							"    }\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Password field is not exposed\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    if (jsonData.length > 0) {\r",
+							"        const flat = jsonData[0];\r",
+							"        pm.expect(flat).to.not.have.property('password');\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"id": "48312216-ac5aaf12-25a8-4871-b8e1-71f09a30802f",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{auth_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"firstName\": \"John\",\r\n  \"lastName\": \"Doe\", \r\n  \"email\": \"john@example.com\",\r\n  \"password\": \"password123\",\r\n  \"phone\": \"123-456-7890\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
 				},
 				"url": {
 					"raw": "http://localhost:5001/api/flats",
