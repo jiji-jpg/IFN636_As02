@@ -467,6 +467,18 @@
 			"response": []
 		},
 		{
+			"name": "Update Flat",
+			"id": "48312216-93af5523-6ad5-4159-8860-75c15f08e2ce",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
 			"name": "Delete Flat",
 			"event": [
 				{
@@ -1050,18 +1062,6 @@
 						"flats"
 					]
 				}
-			},
-			"response": []
-		},
-		{
-			"name": "Update Flat",
-			"id": "48312216-93af5523-6ad5-4159-8860-75c15f08e2ce",
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
-			"request": {
-				"method": "GET",
-				"header": []
 			},
 			"response": []
 		}
