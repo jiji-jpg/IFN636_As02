@@ -468,13 +468,166 @@
 		},
 		{
 			"name": "Delete Flat",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "02213c0f-11ce-4eb3-a3f5-c7fc56877ce5",
+						"exec": [
+							"// Basic Response Tests\r",
+							"pm.test(\"Status code is 200 (Deleted)\", function () {\r",
+							"    if (pm.response.code === 403) {\r",
+							"        console.log(\"403 Error - Not authorized to delete this flat\");\r",
+							"    } else if (pm.response.code === 404) {\r",
+							"        console.log(\"404 Error - Flat not found\");\r",
+							"    } else if (pm.response.code === 401) {\r",
+							"        console.log(\"401 Error - Invalid or expired token\");\r",
+							"    }\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response is JSON\", function () {\r",
+							"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response time is less than 2000ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(2000);\r",
+							"});\r",
+							"\r",
+							"// Response Content Tests\r",
+							"pm.test(\"Response contains success message\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.be.an('object');\r",
+							"    pm.expect(jsonData).to.have.property('message');\r",
+							"    pm.expect(jsonData.message).to.be.a('string');\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Deletion message is appropriate\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    const message = jsonData.message.toLowerCase();\r",
+							"    \r",
+							"    // Check that message indicates successful deletion\r",
+							"    const hasDeletedKeyword = message.includes('deleted') || \r",
+							"                             message.includes('removed') || \r",
+							"                             message.includes('successfully');\r",
+							"    \r",
+							"    pm.expect(hasDeletedKeyword, \"Message should indicate successful deletion\").to.be.true;\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response may include deleted flat info\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    \r",
+							"    // Some APIs return the deleted object, others just return a message\r",
+							"    if (jsonData.flat || jsonData.deletedFlat) {\r",
+							"        const flatInfo = jsonData.flat || jsonData.deletedFlat;\r",
+							"        pm.expect(flatInfo).to.have.property('_id');\r",
+							"        console.log(\"Deleted flat ID:\", flatInfo._id);\r",
+							"    } else {\r",
+							"        console.log(\"API returned only success message (no flat details)\");\r",
+							"    }\r",
+							"});\r",
+							"\r",
+							"pm.test(\"No sensitive data exposed\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    \r",
+							"    // Ensure no sensitive information is returned\r",
+							"    pm.expect(jsonData).to.not.have.property('password');\r",
+							"    pm.expect(jsonData).to.not.have.property('token');\r",
+							"});\r",
+							"\r",
+							"// Cleanup environment variables\r",
+							"pm.test(\"Clean up environment variables\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    \r",
+							"    // If we successfully deleted a flat, clean up related environment variables\r",
+							"    if (pm.response.code === 200) {\r",
+							"        // Remove any stored flat IDs that might now be invalid\r",
+							"        pm.environment.unset(\"created_flat_id\");\r",
+							"        pm.environment.unset(\"test_flat_id\");\r",
+							"        pm.environment.unset(\"maintenance_report_id\");\r",
+							"        \r",
+							"        console.log(\"Cleaned up environment variables for deleted flat\");\r",
+							"    }\r",
+							"});\r",
+							"\r",
+							"// Verification test (optional)\r",
+							"pm.test(\"Log deletion confirmation\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    \r",
+							"    if (pm.response.code === 200) {\r",
+							"        console.log(\"✓ Flat successfully deleted\");\r",
+							"        console.log(\"Response message:\", jsonData.message);\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
 			"id": "48312216-f4321a3f-fa0d-4fd5-99f6-98d81e29b607",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
 			"request": {
-				"method": "GET",
-				"header": []
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{auth_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "multipart/form-data",
+						"type": "text",
+						"disabled": true
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"type": "text",
+						"disabled": true
+					},
+					{
+						"key": "",
+						"value": "",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:5001/api/flats",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"api",
+						"flats"
+					]
+				}
 			},
 			"response": []
 		},
