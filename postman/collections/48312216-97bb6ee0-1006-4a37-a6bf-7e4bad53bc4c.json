@@ -1705,7 +1705,7 @@
 						}
 					]
 				},
-				"method": "POST",
+				"method": "GET",
 				"header": [
 					{
 						"key": "Content-Type",
@@ -1741,7 +1741,7 @@
 					"raw": "{\r\n  \"issueType\": \"plumbing\",\r\n  \"description\": \"Kitchen sink is leaking and needs immediate attention\",\r\n  \"priority\": \"high\",\r\n  \"contractorId\": \"1\",\r\n  \"estimatedCost\": \"250\",\r\n  \"scheduledDate\": \"2025-10-01\"\r\n}"
 				},
 				"url": {
-					"raw": "http://localhost:5001/api/flats/68d9f9d8957d3e315e928b27/maintenance",
+					"raw": "http://localhost:5001/api/flats/68da434525e10cb6be85d64d/maintenance",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -1750,7 +1750,7 @@
 					"path": [
 						"api",
 						"flats",
-						"68d9f9d8957d3e315e928b27",
+						"68da434525e10cb6be85d64d",
 						"maintenance"
 					]
 				}
