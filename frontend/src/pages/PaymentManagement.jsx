@@ -14,6 +14,7 @@ const PaymentManagement = () => {
   // Form states
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [showInvoiceForm, setShowInvoiceForm] = useState(false);
+  const [deletingPayment, setDeletingPayment] = useState(null);
   
   const [paymentForm, setPaymentForm] = useState({
     amount: '',
@@ -30,7 +31,6 @@ const PaymentManagement = () => {
     description: ''
   });
 
-  // Fetch user's flats on component mount
   useEffect(() => {
     if (user) {
       fetchFlats();
@@ -38,7 +38,6 @@ const PaymentManagement = () => {
     }
   }, [user]);
 
-  // Fetch payments and invoices when flat is selected
   useEffect(() => {
     if (selectedFlat) {
       fetchPayments();
@@ -144,12 +143,44 @@ const PaymentManagement = () => {
     }
   };
 
+  const handleDeletePayment = async (paymentId) => {
+    if (!window.confirm('Are you sure you want to delete this payment record?')) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await axiosInstance.delete(`/api/flats/${selectedFlat}/payments/${paymentId}`, {
+        headers: { Authorization: `Bearer ${user.token}` }
+      });
+      
+      fetchPayments();
+      fetchInvoices();
+      fetchArrearsData();
+      setDeletingPayment(null);
+      alert('Payment deleted successfully!');
+    } catch (error) {
+      alert('Error deleting payment: ' + (error.response?.data?.message || error.message));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString();
   };
 
   const formatCurrency = (amount) => {
     return `$${Number(amount).toFixed(2)}`;
+  };
+
+  const getInvoiceStatusColor = (status) => {
+    switch (status) {
+      case 'paid': return 'bg-green-100 text-green-800';
+      case 'overdue': return 'bg-red-100 text-red-800';
+      case 'pending': return 'bg-yellow-100 text-yellow-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
   };
 
   if (!user) {
@@ -170,30 +201,56 @@ const PaymentManagement = () => {
 
   return (
     <div className="container mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">Payment Management</h1>
+      <h1 className="text-2xl font-bold mb-2">Payment Management</h1>
+      <p className="text-gray-600 mb-6">Track invoices, record payments, and monitor arrears</p>
       
-      {/* Arrears Summary - matching your existing design pattern */}
+      {/* Arrears Summary */}
       {arrearsData && (
         <div className="bg-white shadow-md rounded mb-6 p-6">
           <h2 className="text-lg font-semibold mb-4">Arrears Overview</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="bg-red-50 border border-red-200 rounded p-4">
-              <h3 className="text-sm font-medium text-red-600">Properties in Arrears</h3>
+              <h3 className="text-sm font-medium text-red-600 mb-1">Properties in Arrears</h3>
               <p className="text-2xl font-bold text-red-800">{arrearsData.totalFlatsInArrears}</p>
             </div>
             <div className="bg-orange-50 border border-orange-200 rounded p-4">
-              <h3 className="text-sm font-medium text-orange-600">Total Amount Due</h3>
+              <h3 className="text-sm font-medium text-orange-600 mb-1">Total Amount Due</h3>
               <p className="text-2xl font-bold text-orange-800">{formatCurrency(arrearsData.totalArrearsAmount)}</p>
             </div>
             <div className="bg-green-50 border border-green-200 rounded p-4">
-              <h3 className="text-sm font-medium text-green-600">Properties Up to Date</h3>
+              <h3 className="text-sm font-medium text-green-600 mb-1">Properties Up to Date</h3>
               <p className="text-2xl font-bold text-green-800">{flats.length - arrearsData.totalFlatsInArrears}</p>
             </div>
           </div>
+          
+          {/* Arrears Details */}
+          {arrearsData.arrearsData && arrearsData.arrearsData.length > 0 && (
+            <div className="mt-6">
+              <h3 className="text-md font-semibold mb-3 text-red-700">Properties with Overdue Payments</h3>
+              <div className="space-y-3">
+                {arrearsData.arrearsData.map((arrear) => (
+                  <div key={arrear.flatId} className="bg-red-50 border border-red-200 rounded p-3">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h4 className="font-semibold">{arrear.flatTitle}</h4>
+                        <p className="text-sm text-gray-600">Tenant: {arrear.tenantName}</p>
+                        <p className="text-sm text-gray-600">Email: {arrear.tenantEmail}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-lg font-bold text-red-700">{formatCurrency(arrear.totalArrearsAmount)}</p>
+                        <p className="text-xs text-red-600">{arrear.overdueInvoicesCount} overdue invoice(s)</p>
+                        <p className="text-xs text-gray-500">{arrear.daysPastDue} days past due</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
-      {/* Property Selection - matching your FlatForm style */}
+      {/* Property Selection */}
       <div className="bg-white shadow-md rounded mb-6 p-6">
         <h2 className="text-lg font-semibold mb-4">Select Property</h2>
         <label className="block mb-1 font-semibold">Property</label>
@@ -213,7 +270,7 @@ const PaymentManagement = () => {
 
       {selectedFlat && (
         <>
-          {/* Action Buttons - matching your existing button styles */}
+          {/* Action Buttons */}
           <div className="bg-white shadow-md rounded mb-6 p-6">
             <h2 className="text-lg font-semibold mb-4">Quick Actions</h2>
             <div className="flex gap-4">
@@ -232,10 +289,10 @@ const PaymentManagement = () => {
             </div>
           </div>
 
-          {/* Invoice Form Modal - matching your existing modal pattern */}
+          {/* Invoice Form Modal */}
           {showInvoiceForm && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-              <div className="bg-white p-6 rounded shadow-lg max-w-md w-full mx-4">
+              <div className="bg-white p-6 rounded shadow-lg max-w-md w-full mx-4 max-h-screen overflow-y-auto">
                 <h3 className="text-lg font-semibold mb-4">Generate Invoice</h3>
                 <form onSubmit={handleGenerateInvoice}>
                   <div className="space-y-4">
@@ -252,10 +309,11 @@ const PaymentManagement = () => {
                       </select>
                     </div>
                     <div>
-                      <label className="block mb-1 font-semibold">Amount</label>
+                      <label className="block mb-1 font-semibold">Amount ($)</label>
                       <input
                         type="number"
                         step="0.01"
+                        min="0"
                         value={invoiceForm.amount}
                         onChange={(e) => setInvoiceForm({...invoiceForm, amount: e.target.value})}
                         className="w-full p-2 border rounded"
@@ -280,6 +338,7 @@ const PaymentManagement = () => {
                         className="w-full p-2 border rounded h-24 resize-vertical"
                         rows={3}
                         required
+                        placeholder="e.g., Monthly rent for January 2024"
                       />
                     </div>
                   </div>
@@ -307,15 +366,16 @@ const PaymentManagement = () => {
           {/* Payment Form Modal */}
           {showPaymentForm && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-              <div className="bg-white p-6 rounded shadow-lg max-w-md w-full mx-4">
+              <div className="bg-white p-6 rounded shadow-lg max-w-md w-full mx-4 max-h-screen overflow-y-auto">
                 <h3 className="text-lg font-semibold mb-4">Record Payment</h3>
                 <form onSubmit={handleRecordPayment}>
                   <div className="space-y-4">
                     <div>
-                      <label className="block mb-1 font-semibold">Amount</label>
+                      <label className="block mb-1 font-semibold">Amount ($)</label>
                       <input
                         type="number"
                         step="0.01"
+                        min="0"
                         value={paymentForm.amount}
                         onChange={(e) => setPaymentForm({...paymentForm, amount: e.target.value})}
                         className="w-full p-2 border rounded"
@@ -361,14 +421,16 @@ const PaymentManagement = () => {
                           </option>
                         ))}
                       </select>
+                      <p className="text-xs text-gray-500 mt-1">Linking to an invoice will mark it as paid</p>
                     </div>
                     <div>
-                      <label className="block mb-1 font-semibold">Description</label>
+                      <label className="block mb-1 font-semibold">Description (Optional)</label>
                       <textarea
                         value={paymentForm.description}
                         onChange={(e) => setPaymentForm({...paymentForm, description: e.target.value})}
                         className="w-full p-2 border rounded h-24 resize-vertical"
                         rows={3}
+                        placeholder="Additional notes about this payment..."
                       />
                     </div>
                   </div>
@@ -393,7 +455,7 @@ const PaymentManagement = () => {
             </div>
           )}
 
-          {/* Invoices List - matching your FlatList design */}
+          {/* Invoices List */}
           <div className="bg-white shadow-md rounded mb-6 p-6">
             <h2 className="text-lg font-semibold mb-4">Invoices</h2>
             {invoices.length === 0 ? (
@@ -402,30 +464,39 @@ const PaymentManagement = () => {
               </div>
             ) : (
               <div className="space-y-4">
-                {invoices.map(invoice => (
-                  <div key={invoice.id} className="border border-gray-200 rounded p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <h3 className="font-medium text-lg capitalize">{invoice.type}</h3>
-                        <p className="text-gray-600 text-sm">{invoice.description}</p>
+                {invoices.map(invoice => {
+                  const isOverdue = invoice.status === 'pending' && new Date(invoice.dueDate) < new Date();
+                  return (
+                    <div key={invoice.id} className={`border rounded p-4 ${isOverdue ? 'border-red-300 bg-red-50' : 'border-gray-200'}`}>
+                      <div className="flex justify-between items-start mb-2">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="font-medium text-lg capitalize">{invoice.type}</h3>
+                            <span className={`px-2 py-1 text-xs font-semibold rounded ${getInvoiceStatusColor(invoice.status)}`}>
+                              {invoice.status}
+                            </span>
+                            {isOverdue && (
+                              <span className="px-2 py-1 text-xs font-semibold rounded bg-red-100 text-red-800">
+                                OVERDUE
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-gray-600 text-sm">{invoice.description}</p>
+                        </div>
+                        <div className="text-right ml-4">
+                          <p className="text-lg font-semibold">{formatCurrency(invoice.amount)}</p>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-lg font-semibold">{formatCurrency(invoice.amount)}</p>
-                        <span className={`px-2 py-1 text-xs font-semibold rounded ${
-                          invoice.status === 'paid' ? 'bg-green-100 text-green-800' :
-                          invoice.status === 'overdue' ? 'bg-red-100 text-red-800' :
-                          'bg-yellow-100 text-yellow-800'
-                        }`}>
-                          {invoice.status}
-                        </span>
+                      <div className="text-sm text-gray-500 space-y-1">
+                        <p>Issue Date: {formatDate(invoice.issueDate)}</p>
+                        <p>Due Date: {formatDate(invoice.dueDate)}</p>
+                        {invoice.paidDate && <p>Paid Date: {formatDate(invoice.paidDate)}</p>}
+                        {invoice.tenantName && <p>Tenant: {invoice.tenantName}</p>}
+                        {invoice.tenantEmail && <p>Tenant Email: {invoice.tenantEmail}</p>}
                       </div>
                     </div>
-                    <div className="text-sm text-gray-500">
-                      <p>Due: {formatDate(invoice.dueDate)}</p>
-                      {invoice.paidDate && <p>Paid: {formatDate(invoice.paidDate)}</p>}
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
@@ -442,15 +513,22 @@ const PaymentManagement = () => {
                 {payments.map(payment => (
                   <div key={payment.id} className="border border-gray-200 rounded p-4">
                     <div className="flex justify-between items-start">
-                      <div>
+                      <div className="flex-1">
                         <h3 className="font-medium text-lg">{formatCurrency(payment.amount)}</h3>
-                        <p className="text-gray-600 text-sm">{payment.description}</p>
-                        <p className="text-gray-500 text-xs">Method: {payment.paymentMethod.replace('_', ' ')}</p>
+                        <p className="text-gray-600 text-sm">{payment.description || 'No description'}</p>
+                        <div className="text-xs text-gray-500 mt-2 space-y-1">
+                          <p>Method: {payment.paymentMethod.replace('_', ' ')}</p>
+                          <p>Payment Date: {formatDate(payment.paymentDate)}</p>
+                          <p>Recorded: {formatDate(payment.recordedDate)}</p>
+                          {payment.invoiceId && <p>Linked to Invoice ID: {payment.invoiceId}</p>}
+                        </div>
                       </div>
-                      <div className="text-right text-sm text-gray-500">
-                        <p>Paid: {formatDate(payment.paymentDate)}</p>
-                        <p>Recorded: {formatDate(payment.recordedDate)}</p>
-                      </div>
+                      <button
+                        onClick={() => handleDeletePayment(payment.id)}
+                        className="ml-4 text-red-600 hover:text-red-800 text-sm"
+                      >
+                        Delete
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -458,6 +536,12 @@ const PaymentManagement = () => {
             )}
           </div>
         </>
+      )}
+      
+      {!selectedFlat && (
+        <div className="text-center py-8 text-gray-500">
+          <p>Select a property to view and manage payments and invoices.</p>
+        </div>
       )}
     </div>
   );
