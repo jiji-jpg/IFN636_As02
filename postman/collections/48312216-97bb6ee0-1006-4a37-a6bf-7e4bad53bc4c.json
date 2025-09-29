@@ -988,7 +988,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"name\": \"Sarah Johnson\",\r\n  \"email\": \"sarah.johnson@example.com\", \r\n  \"phone\": \"555-123-4567\",\r\n  \"moveInDate\": \"2025-01-01\",\r\n  \"rentAmount\": 1800,\r\n  \"dateOfBirth\": \"1988-03-20\",\r\n  \"leaseEndDate\": \"2025-12-31\",\r\n  \"bondAmount\": 3600\r\n}"
+					"raw": "{\r\n  \"name\": \"Sarah Johnson\",\r\n  \"email\": \"sarah.johnson@test.com\", \r\n  \"phone\": \"555-123-4567\",\r\n  \"moveInDate\": \"2025-01-01\",\r\n  \"rentAmount\": 1800,\r\n  \"dateOfBirth\": \"1988-03-20\",\r\n  \"leaseEndDate\": \"2025-12-31\",\r\n  \"bondAmount\": 3600\r\n}"
 				},
 				"url": {
 					"raw": "http://localhost:5001/api/flats/68d9f9d8957d3e315e928b27/tenant",
