@@ -2993,7 +2993,7 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:5001/api/flats/689aa0e72823e691896b9b63/payments/1759145070608?",
+					"raw": "http://localhost:5001/api/flats/689aa0e72823e691896b9b63/payments/1759145070608",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -3005,13 +3005,6 @@
 						"689aa0e72823e691896b9b63",
 						"payments",
 						"1759145070608"
-					],
-					"query": [
-						{
-							"key": "",
-							"value": null,
-							"type": "text"
-						}
 					]
 				}
 			},
