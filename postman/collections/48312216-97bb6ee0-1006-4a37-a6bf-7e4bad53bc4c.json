@@ -2492,13 +2492,171 @@
 		},
 		{
 			"name": "Get Rental/Maintenance Invoice",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "d8958ce4-355b-46e7-80ba-f2bdab8fa98e",
+						"exec": [
+							"// Basic Response Tests\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    if (pm.response.code === 401) {\r",
+							"        console.log(\"401 Error - Invalid or expired token\");\r",
+							"    } else if (pm.response.code === 403) {\r",
+							"        console.log(\"403 Error - Not authorized\");\r",
+							"    } else if (pm.response.code === 404) {\r",
+							"        console.log(\"404 Error - Flat not found\");\r",
+							"    }\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response is JSON\", function () {\r",
+							"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response time is less than 200ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+							"});\r",
+							"\r",
+							"// Response Structure Tests\r",
+							"pm.test(\"Response contains invoices data\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.be.an('object');\r",
+							"    pm.expect(jsonData).to.have.property('message');\r",
+							"    pm.expect(jsonData).to.have.property('flatTitle');\r",
+							"    pm.expect(jsonData).to.have.property('invoices');\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Invoices is an array\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.invoices).to.be.an('array');\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Each invoice has required properties\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    if (jsonData.invoices.length > 0) {\r",
+							"        const invoice = jsonData.invoices[0];\r",
+							"        \r",
+							"        pm.expect(invoice).to.have.property('id');\r",
+							"        pm.expect(invoice).to.have.property('type');\r",
+							"        pm.expect(invoice).to.have.property('amount');\r",
+							"        pm.expect(invoice).to.have.property('dueDate');\r",
+							"        pm.expect(invoice).to.have.property('status');\r",
+							"        pm.expect(invoice).to.have.property('description');\r",
+							"    }\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Invoice types are valid\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    jsonData.invoices.forEach((invoice, index) => {\r",
+							"        pm.expect(invoice.type, `Invoice ${index} type`).to.be.oneOf(['rental', 'maintenance']);\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Rental invoices have tenant details\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    const rentalInvoices = jsonData.invoices.filter(inv => inv.type === 'rental');\r",
+							"    \r",
+							"    rentalInvoices.forEach((invoice, index) => {\r",
+							"        pm.expect(invoice, `Rental invoice ${index}`).to.have.property('tenantName');\r",
+							"        pm.expect(invoice, `Rental invoice ${index}`).to.have.property('tenantEmail');\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Maintenance invoices don't have tenant details\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    const maintenanceInvoices = jsonData.invoices.filter(inv => inv.type === 'maintenance');\r",
+							"    \r",
+							"    maintenanceInvoices.forEach((invoice, index) => {\r",
+							"        pm.expect(invoice, `Maintenance invoice ${index}`).to.not.have.property('tenantName');\r",
+							"        pm.expect(invoice, `Maintenance invoice ${index}`).to.not.have.property('tenantEmail');\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Invoices are sorted by issue date\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    const invoices = jsonData.invoices;\r",
+							"    \r",
+							"    if (invoices.length > 1) {\r",
+							"        for (let i = 0; i < invoices.length - 1; i++) {\r",
+							"            const currentDate = new Date(invoices[i].issueDate);\r",
+							"            const nextDate = new Date(invoices[i + 1].issueDate);\r",
+							"            pm.expect(currentDate.getTime()).to.be.at.least(nextDate.getTime());\r",
+							"        }\r",
+							"    }\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Invoice amounts are valid\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    jsonData.invoices.forEach((invoice, index) => {\r",
+							"        pm.expect(invoice.amount, `Invoice ${index} amount`).to.be.a('number');\r",
+							"        pm.expect(invoice.amount, `Invoice ${index} amount`).to.be.above(0);\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Log invoices summary\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    console.log(`Total invoices: ${jsonData.invoices.length}`);\r",
+							"    \r",
+							"    const rentalCount = jsonData.invoices.filter(inv => inv.type === 'rental').length;\r",
+							"    const maintenanceCount = jsonData.invoices.filter(inv => inv.type === 'maintenance').length;\r",
+							"    const pendingCount = jsonData.invoices.filter(inv => inv.status === 'pending').length;\r",
+							"    const paidCount = jsonData.invoices.filter(inv => inv.status === 'paid').length;\r",
+							"    \r",
+							"    console.log(`Rental: ${rentalCount}, Maintenance: ${maintenanceCount}`);\r",
+							"    console.log(`Pending: ${pendingCount}, Paid: ${paidCount}`);\r",
+							"    \r",
+							"    const totalAmount = jsonData.invoices.reduce((sum, inv) => sum + inv.amount, 0);\r",
+							"    console.log(`Total amount: $${totalAmount}`);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
 			"id": "48312216-fc9ca130-7800-4679-9ba3-2cc9cd30fd8e",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
 			"request": {
 				"method": "GET",
-				"header": []
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"message\": \"Invoices retrieved successfully\",\r\n  \"flatId\": \"689aa0e72823e691896b9b63\",\r\n  \"flatTitle\": \"17 Adelaide st, Brisbane City\",\r\n  \"invoices\": [\r\n    {\r\n      \"id\": \"1759152133576\",\r\n      \"type\": \"rental\",\r\n      \"tenantName\": \"Sarah Johnson\",\r\n      \"tenantEmail\": \"sarah.johnson@example.com\",\r\n      \"flatTitle\": \"17 Adelaide st, Brisbane City\",\r\n      \"amount\": 1800,\r\n      \"dueDate\": \"2025-11-01T00:00:00.000Z\",\r\n      \"status\": \"pending\",\r\n      \"description\": \"Monthly rent for November 2025\"\r\n    },\r\n    {\r\n      \"id\": \"1759152244789\",\r\n      \"type\": \"maintenance\",\r\n      \"flatTitle\": \"17 Adelaide st, Brisbane City\",\r\n      \"amount\": 500,\r\n      \"dueDate\": \"2025-11-15T00:00:00.000Z\",\r\n      \"status\": \"pending\",\r\n      \"description\": \"Plumbing repair charges\"\r\n    }\r\n  ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5001/api/flats/689aa0e72823e691896b9b63/invoices",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"api",
+						"flats",
+						"689aa0e72823e691896b9b63",
+						"invoices"
+					]
+				}
 			},
 			"response": []
 		}
