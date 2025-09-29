@@ -362,11 +362,14 @@ async executeGetMaintenanceReports(req, res) {
         }
     }
 
-    async executeDeleteMaintenanceReport(req, res) {
+  async executeDeleteMaintenanceReport(req, res) {
     try {
         const { flatId, reportId } = req.params;
         
-        console.log('Delete Maintenance Report called with:', { flatId, reportId });
+        console.log('=== DELETE MAINTENANCE REPORT DEBUG ===');
+        console.log('Flat ID:', flatId);
+        console.log('Report ID to delete:', reportId);
+        console.log('Report ID type:', typeof reportId);
         
         const authResult = await AuthorizationProxy.validateFlatOwnership(flatId, req.user.id);
         if (!authResult.authorized) {
@@ -376,22 +379,38 @@ async executeGetMaintenanceReports(req, res) {
         const flat = authResult.flat;
         
         if (!flat.maintenanceReports || flat.maintenanceReports.length === 0) {
+            console.log('No maintenance reports found in flat');
             return res.status(404).json({ message: 'No maintenance reports found for this flat' });
         }
         
-        console.log('Looking for report with id:', reportId);
-        console.log('Available reports:', flat.maintenanceReports.map(r => ({ id: r.id, _id: r._id })));
+        console.log('Total reports in flat:', flat.maintenanceReports.length);
+        
+        // Log all reports with their IDs
+        flat.maintenanceReports.forEach((report, index) => {
+            console.log(`Report ${index}:`, {
+                id: report.id,
+                _id: report._id ? report._id.toString() : 'no _id',
+                issueType: report.issueType
+            });
+        });
         
         // Try to find by custom id first, then by _id
-        const reportIndex = flat.maintenanceReports.findIndex(report => 
-            report.id === reportId || report._id.toString() === reportId
-        );
+        const reportIndex = flat.maintenanceReports.findIndex(report => {
+            const matchById = report.id === reportId;
+            const matchBy_id = report._id && report._id.toString() === reportId;
+            console.log(`Checking report: id="${report.id}" matches=${matchById}, _id="${report._id}" matches=${matchBy_id}`);
+            return matchById || matchBy_id;
+        });
+        
+        console.log('Found report at index:', reportIndex);
         
         if (reportIndex === -1) {
+            console.log('ERROR: Report not found!');
             return res.status(404).json({ message: 'Maintenance report not found' });
         }
         
         const report = flat.maintenanceReports[reportIndex];
+        console.log('Deleting report:', report.id || report._id);
         
         // Delete associated images
         if (report.images && report.images.length > 0) {
@@ -402,6 +421,8 @@ async executeGetMaintenanceReports(req, res) {
         await flat.save();
         
         this.eventNotifier.notifyMaintenanceDeleted(report);
+        
+        console.log('=== DELETE SUCCESSFUL ===');
         
         res.json({
             message: 'Maintenance report deleted successfully',

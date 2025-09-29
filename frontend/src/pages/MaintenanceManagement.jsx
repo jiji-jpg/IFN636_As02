@@ -181,6 +181,11 @@ const MaintenanceManagement = () => {
   const handleDeleteReport = async () => {
     if (!deletingReport) return;
 
+    console.log('=== FRONTEND DELETE DEBUG ===');
+    console.log('Deleting report:', deletingReport);
+    console.log('Report ID:', deletingReport.id);
+    console.log('Flat ID:', deletingReport.flatId);
+
     setLoading(true);
     try {
       await axiosInstance.delete(
@@ -197,15 +202,22 @@ const MaintenanceManagement = () => {
       
       alert('Maintenance report deleted successfully!');
     } catch (error) {
+      console.error('Delete error:', error);
+      console.error('Error response:', error.response?.data);
       alert('Error deleting report: ' + (error.response?.data?.message || error.message));
     } finally {
       setLoading(false);
     }
-  };
+};
 
   const openStatusForm = (report, flatId = null) => {
-    const reportId = report.id || report._id;
-    setEditingReport({ ...report, id: reportId, flatId: flatId || selectedFlat });
+    const reportId = report.id || report._id?._id || report._id || String(report._id);
+    console.log('Opening status form for report ID:', reportId);
+    setEditingReport({ 
+        ...report, 
+        id: reportId,
+        flatId: flatId || selectedFlat 
+    });
     setStatusForm({
       status: report.status,
       actualCost: report.actualCost || '',
@@ -213,7 +225,7 @@ const MaintenanceManagement = () => {
       notes: report.notes || ''
     });
     setShowStatusForm(true);
-  };
+};
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString();
@@ -249,12 +261,17 @@ const MaintenanceManagement = () => {
   };
 
   const renderReportCard = (report, showFlatInfo = false) => {
-    const reportId = report.id || report._id;
-    return (
-      <div key={reportId} className="border border-gray-200 rounded p-4">
-        <div className="flex justify-between items-start mb-3">
-          <div className="flex-1">
-            {showFlatInfo && (
+  // Make sure we extract _id properly - it might be nested
+  const reportId = report.id || report._id?._id || report._id || String(report._id);
+  
+  console.log('Report card - report object:', report);
+  console.log('Report card - extracted ID:', reportId);
+  
+  return (
+    <div key={reportId} className="border border-gray-200 rounded p-4">
+      <div className="flex justify-between items-start mb-3">
+        <div className="flex-1">
+          {showFlatInfo && (
             <p className="text-sm font-semibold text-blue-600 mb-1">{report.flatTitle}</p>
           )}
           <h3 className="font-medium text-lg capitalize">{(report.issueType || "").replace('_', ' ')}</h3>
@@ -265,7 +282,7 @@ const MaintenanceManagement = () => {
             {report.priority}
           </span>
           <span className={`px-2 py-1 text-xs font-semibold rounded ${getStatusColor(report.status)}`}>
-            {(report.issueType || "").replace('_', ' ')}
+            {report.status.replace('_', ' ')}
           </span>
         </div>
       </div>
@@ -330,13 +347,25 @@ const MaintenanceManagement = () => {
       
       <div className="flex justify-end gap-2 mt-4">
         <button
-          onClick={() => openStatusForm(report, report.flatId)}
+          onClick={() => {
+            console.log('Update button clicked for report:', report);
+            console.log('Using ID:', reportId);
+            openStatusForm(report, report.flatId);
+          }}
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors text-sm"
         >
           Update Status
         </button>
         <button
-          onClick={() => setDeletingReport({ id: report.id, flatId: report.flatId || selectedFlat })}
+          onClick={() => {
+            console.log('Delete button clicked for report:', report);
+            console.log('Using ID:', reportId);
+            console.log('Flat ID:', report.flatId || selectedFlat);
+            setDeletingReport({ 
+              id: reportId,
+              flatId: report.flatId || selectedFlat 
+            });
+          }}
           className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded transition-colors text-sm"
         >
           Delete
