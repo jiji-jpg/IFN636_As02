@@ -1324,7 +1324,7 @@
 					"raw": "{\r\n  \"name\": \"Update Test\",\r\n  \"email\": \"sarah.update@test.com\", \r\n  \"phone\": \"555-999-8888\",\r\n  \"moveInDate\": \"2025-01-01\",\r\n  \"rentAmount\": 2000,\r\n  \"dateOfBirth\": \"1988-03-20\",\r\n  \"leaseEndDate\": \"2025-12-31\",\r\n  \"bondAmount\": 3600\r\n}"
 				},
 				"url": {
-					"raw": "http://localhost:5001/api/flats/68d9f9d8957d3e315e928b27/tenant",
+					"raw": "http://localhost:5001/api/flats/68da434525e10cb6be85d64d/tenants",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -1333,8 +1333,8 @@
 					"path": [
 						"api",
 						"flats",
-						"68d9f9d8957d3e315e928b27",
-						"tenant"
+						"68da434525e10cb6be85d64d",
+						"tenants"
 					]
 				}
 			},
@@ -1836,7 +1836,7 @@
 							"    const jsonData = pm.response.json();\r",
 							"    const invoice = jsonData.invoice;\r",
 							"    \r",
-							"    // Test the data that was sent\r",
+							"    // Test sent data\r",
 							"    pm.expect(invoice.type).to.equal(\"rental\");\r",
 							"    pm.expect(invoice.amount).to.equal(1800);\r",
 							"    pm.expect(invoice.status).to.equal(\"pending\");\r",
@@ -1873,11 +1873,6 @@
 							"    }\r",
 							"});\r",
 							"\r",
-							"pm.test(\"Debug - Show validation error\", function () {\r",
-							"    const jsonData = pm.response.json();\r",
-							"    console.log(\"Validation error message:\", jsonData.message);\r",
-							"    console.log(\"Request body sent:\", pm.request.body);\r",
-							"});\r",
 							""
 						],
 						"type": "text/javascript",
