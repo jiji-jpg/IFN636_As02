@@ -1929,6 +1929,159 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "Create Maintenance Invoice",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "00f99294-3716-4c9f-8333-3c5bf4d87b8d",
+						"exec": [
+							"// Basic Response Tests\r",
+							"pm.test(\"Status code is 201 (Created)\", function () {\r",
+							"    if (pm.response.code === 400) {\r",
+							"        console.log(\"400 Error - Validation issue\");\r",
+							"        console.log(\"Response:\", pm.response.json());\r",
+							"    } else if (pm.response.code === 403) {\r",
+							"        console.log(\"403 Error - Not authorized\");\r",
+							"    } else if (pm.response.code === 404) {\r",
+							"        console.log(\"404 Error - Flat not found\");\r",
+							"    } else if (pm.response.code === 500) {\r",
+							"        console.log(\"500 Error - Server error\");\r",
+							"        console.log(\"Error:\", pm.response.json().message);\r",
+							"    }\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response is JSON\", function () {\r",
+							"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response time is less than 2000ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(2000);\r",
+							"});\r",
+							"\r",
+							"// Response Structure Tests\r",
+							"pm.test(\"Response contains invoice data\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.be.an('object');\r",
+							"    pm.expect(jsonData).to.have.property('message');\r",
+							"    pm.expect(jsonData).to.have.property('invoice');\r",
+							"    pm.expect(jsonData).to.have.property('flat');\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Invoice has required properties\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    const invoice = jsonData.invoice;\r",
+							"    \r",
+							"    pm.expect(invoice).to.have.property('id');\r",
+							"    pm.expect(invoice).to.have.property('type');\r",
+							"    pm.expect(invoice).to.have.property('amount');\r",
+							"    pm.expect(invoice).to.have.property('dueDate');\r",
+							"    pm.expect(invoice).to.have.property('issueDate');\r",
+							"    pm.expect(invoice).to.have.property('status');\r",
+							"    pm.expect(invoice).to.have.property('flatId');\r",
+							"    pm.expect(invoice).to.have.property('flatTitle');\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Invoice data matches sent data\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    const invoice = jsonData.invoice;\r",
+							"    \r",
+							"    // Test the data that was sent\r",
+							"    pm.expect(invoice.type).to.equal(\"rental\");\r",
+							"    pm.expect(invoice.amount).to.equal(1800);\r",
+							"    pm.expect(invoice.status).to.equal(\"pending\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Rental invoice includes tenant details\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    const invoice = jsonData.invoice;\r",
+							"    \r",
+							"    if (invoice.type === 'rental') {\r",
+							"        pm.expect(invoice).to.have.property('tenantName');\r",
+							"        pm.expect(invoice).to.have.property('tenantEmail');\r",
+							"    }\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Invoice added to flat\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    const flat = jsonData.flat;\r",
+							"    \r",
+							"    pm.expect(flat).to.have.property('invoices');\r",
+							"    pm.expect(flat.invoices).to.be.an('array');\r",
+							"    pm.expect(flat.invoices.length).to.be.at.least(1);\r",
+							"});\r",
+							"\r",
+							"// Save invoice data for future tests\r",
+							"pm.test(\"Save invoice ID for future tests\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    if (jsonData.invoice && jsonData.invoice.id) {\r",
+							"        pm.environment.set(\"invoice_id\", jsonData.invoice.id);\r",
+							"        console.log(\"Saved invoice ID:\", jsonData.invoice.id);\r",
+							"    }\r",
+							"    if (jsonData.flat && jsonData.flat._id) {\r",
+							"        pm.environment.set(\"invoice_flat_id\", jsonData.flat._id);\r",
+							"    }\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Debug - Show validation error\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    console.log(\"Validation error message:\", jsonData.message);\r",
+							"    console.log(\"Request body sent:\", pm.request.body);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"id": "48312216-292bed48-0c74-409b-ab02-ec162051a024",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"type\": \"rental\",\r\n  \"amount\": 1800,\r\n  \"dueDate\": \"2025-11-25\",\r\n  \"description\": \"Monthly rent for November 2025\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5001/api/flats/689aa0e72823e691896b9b63/invoices",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"api",
+						"flats",
+						"689aa0e72823e691896b9b63",
+						"invoices"
+					]
+				}
+			},
+			"response": []
 		}
 	]
 }
