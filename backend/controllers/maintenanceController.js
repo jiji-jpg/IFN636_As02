@@ -226,83 +226,93 @@ class MaintenanceController extends BaseMaintenanceController {
         }
     }
 
-    async executeGetMaintenanceReports(req, res) {
-        try {
-            const { flatId } = req.params;
-            
-            const authResult = await AuthorizationProxy.validateFlatOwnership(flatId, req.user.id);
-            if (!authResult.authorized) {
-                return res.status(authResult.statusCode).json({ message: authResult.error });
-            }
-
-            const flat = authResult.flat;
-            const maintenanceReports = flat.maintenanceReports || [];
-            
-            // Enhance reports with contractor details
-            const enhancedReports = maintenanceReports.map(report => {
-                const contractor = this.contractorService.getContractorById(report.contractorId);
-                return {
-                    ...report,
-                    contractorDetails: contractor
-                };
-            });
-            
-            res.json({
-                message: 'Maintenance reports retrieved successfully',
-                flatId: flat._id,
-                flatTitle: flat.title,
-                reports: enhancedReports.sort((a, b) => new Date(b.reportedDate) - new Date(a.reportedDate))
-            });
-        } catch (error) {
-            console.error('Error getting maintenance reports:', error);
-            res.status(500).json({ message: error.message });
+async executeGetMaintenanceReports(req, res) {
+    try {
+        const { flatId } = req.params;
+        
+        const authResult = await AuthorizationProxy.validateFlatOwnership(flatId, req.user.id);
+        if (!authResult.authorized) {
+            return res.status(authResult.statusCode).json({ message: authResult.error });
         }
+
+        const flat = authResult.flat;
+        const maintenanceReports = flat.maintenanceReports || [];
+        
+        // ADD THIS TO SEE WHAT IDs ARE IN THE DATABASE
+        console.log('Raw maintenance reports:', JSON.stringify(maintenanceReports, null, 2));
+        
+        // Enhance reports with contractor details
+        const enhancedReports = maintenanceReports.map(report => {
+            const contractor = this.contractorService.getContractorById(report.contractorId);
+            return {
+                ...report.toObject(), // Convert Mongoose document to plain object
+                contractorDetails: contractor
+            };
+        });
+        
+        res.json({
+            message: 'Maintenance reports retrieved successfully',
+            flatId: flat._id,
+            flatTitle: flat.title,
+            reports: enhancedReports.sort((a, b) => new Date(b.reportedDate) - new Date(a.reportedDate))
+        });
+    } catch (error) {
+        console.error('Error getting maintenance reports:', error);
+        res.status(500).json({ message: error.message });
     }
+}
 
     async executeUpdateMaintenanceStatus(req, res) {
-        try {
-            const { flatId, reportId } = req.params;
-            const { status, actualCost, completionDate, notes } = req.body;
-            
-            console.log('Update Maintenance Status called with:', { flatId, reportId, status, actualCost });
-            
-            const authResult = await AuthorizationProxy.validateFlatOwnership(flatId, req.user.id);
-            if (!authResult.authorized) {
-                return res.status(authResult.statusCode).json({ message: authResult.error });
-            }
-
-            const flat = authResult.flat;
-            
-            if (!flat.maintenanceReports) {
-                return res.status(404).json({ message: 'No maintenance reports found for this flat' });
-            }
-            
-            const reportIndex = flat.maintenanceReports.findIndex(report => report.id === reportId);
-            if (reportIndex === -1) {
-                return res.status(404).json({ message: 'Maintenance report not found' });
-            }
-            
-            const report = flat.maintenanceReports[reportIndex];
-            
-            if (status) report.status = status;
-            if (actualCost !== undefined) report.actualCost = Number(actualCost);
-            if (completionDate) report.completionDate = completionDate;
-            if (notes) report.notes = notes;
-            report.lastUpdated = new Date();
-            
-            await flat.save();
-            this.eventNotifier.notifyMaintenanceUpdated(report);
-            
-            res.json({
-                message: 'Maintenance status updated successfully',
-                report: report,
-                flat: flat
-            });
-        } catch (error) {
-            console.error('Error updating maintenance status:', error);
-            res.status(500).json({ message: error.message });
+    try {
+        const { flatId, reportId } = req.params;
+        const { status, actualCost, completionDate, notes } = req.body;
+        
+        console.log('Update Maintenance Status called with:', { flatId, reportId, status, actualCost });
+        
+        const authResult = await AuthorizationProxy.validateFlatOwnership(flatId, req.user.id);
+        if (!authResult.authorized) {
+            return res.status(authResult.statusCode).json({ message: authResult.error });
         }
+
+        const flat = authResult.flat;
+        
+        if (!flat.maintenanceReports) {
+            return res.status(404).json({ message: 'No maintenance reports found for this flat' });
+        }
+        
+        console.log('Looking for report with id:', reportId);
+        console.log('Available reports:', flat.maintenanceReports.map(r => ({ id: r.id, _id: r._id })));
+        
+        // Try to find by custom id first, then by _id
+        const reportIndex = flat.maintenanceReports.findIndex(report => 
+            report.id === reportId || report._id.toString() === reportId
+        );
+        
+        if (reportIndex === -1) {
+            return res.status(404).json({ message: 'Maintenance report not found' });
+        }
+        
+        const report = flat.maintenanceReports[reportIndex];
+        
+        if (status) report.status = status;
+        if (actualCost !== undefined) report.actualCost = Number(actualCost);
+        if (completionDate) report.completionDate = completionDate;
+        if (notes) report.notes = notes;
+        report.lastUpdated = new Date();
+        
+        await flat.save();
+        this.eventNotifier.notifyMaintenanceUpdated(report);
+        
+        res.json({
+            message: 'Maintenance status updated successfully',
+            report: report,
+            flat: flat
+        });
+    } catch (error) {
+        console.error('Error updating maintenance status:', error);
+        res.status(500).json({ message: error.message });
     }
+}
 
     async executeGetAllMaintenanceReports(req, res) {
         try {
@@ -353,48 +363,55 @@ class MaintenanceController extends BaseMaintenanceController {
     }
 
     async executeDeleteMaintenanceReport(req, res) {
-        try {
-            const { flatId, reportId } = req.params;
-            
-            console.log('Delete Maintenance Report called with:', { flatId, reportId });
-            
-            const authResult = await AuthorizationProxy.validateFlatOwnership(flatId, req.user.id);
-            if (!authResult.authorized) {
-                return res.status(authResult.statusCode).json({ message: authResult.error });
-            }
-
-            const flat = authResult.flat;
-            
-            if (!flat.maintenanceReports) {
-                return res.status(404).json({ message: 'No maintenance reports found for this flat' });
-            }
-            
-            const reportIndex = flat.maintenanceReports.findIndex(report => report.id === reportId);
-            if (reportIndex === -1) {
-                return res.status(404).json({ message: 'Maintenance report not found' });
-            }
-            
-            const report = flat.maintenanceReports[reportIndex];
-            
-            // Delete associated images
-            if (report.images && report.images.length > 0) {
-                this.fileManager.deleteMaintenanceImages(report.images);
-            }
-            
-            flat.maintenanceReports.splice(reportIndex, 1);
-            await flat.save();
-            
-            this.eventNotifier.notifyMaintenanceDeleted(report);
-            
-            res.json({
-                message: 'Maintenance report deleted successfully',
-                flat: flat
-            });
-        } catch (error) {
-            console.error('Error deleting maintenance report:', error);
-            res.status(500).json({ message: error.message });
+    try {
+        const { flatId, reportId } = req.params;
+        
+        console.log('Delete Maintenance Report called with:', { flatId, reportId });
+        
+        const authResult = await AuthorizationProxy.validateFlatOwnership(flatId, req.user.id);
+        if (!authResult.authorized) {
+            return res.status(authResult.statusCode).json({ message: authResult.error });
         }
+
+        const flat = authResult.flat;
+        
+        if (!flat.maintenanceReports || flat.maintenanceReports.length === 0) {
+            return res.status(404).json({ message: 'No maintenance reports found for this flat' });
+        }
+        
+        console.log('Looking for report with id:', reportId);
+        console.log('Available reports:', flat.maintenanceReports.map(r => ({ id: r.id, _id: r._id })));
+        
+        // Try to find by custom id first, then by _id
+        const reportIndex = flat.maintenanceReports.findIndex(report => 
+            report.id === reportId || report._id.toString() === reportId
+        );
+        
+        if (reportIndex === -1) {
+            return res.status(404).json({ message: 'Maintenance report not found' });
+        }
+        
+        const report = flat.maintenanceReports[reportIndex];
+        
+        // Delete associated images
+        if (report.images && report.images.length > 0) {
+            this.fileManager.deleteMaintenanceImages(report.images);
+        }
+        
+        flat.maintenanceReports.splice(reportIndex, 1);
+        await flat.save();
+        
+        this.eventNotifier.notifyMaintenanceDeleted(report);
+        
+        res.json({
+            message: 'Maintenance report deleted successfully',
+            flat: flat
+        });
+    } catch (error) {
+        console.error('Error deleting maintenance report:', error);
+        res.status(500).json({ message: error.message });
     }
+}
 }
 
 const maintenanceController = new MaintenanceController();

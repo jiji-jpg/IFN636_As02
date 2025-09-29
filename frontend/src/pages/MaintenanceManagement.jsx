@@ -204,7 +204,8 @@ const MaintenanceManagement = () => {
   };
 
   const openStatusForm = (report, flatId = null) => {
-    setEditingReport({ ...report, flatId: flatId || selectedFlat });
+    const reportId = report.id || report._id;
+    setEditingReport({ ...report, id: reportId, flatId: flatId || selectedFlat });
     setStatusForm({
       status: report.status,
       actualCost: report.actualCost || '',
@@ -247,11 +248,13 @@ const MaintenanceManagement = () => {
     return `${process.env.REACT_APP_API_URL || 'http://localhost:5001'}/uploads/maintenance/${imagePath}`;
   };
 
-  const renderReportCard = (report, showFlatInfo = false) => (
-    <div key={report.id} className="border border-gray-200 rounded p-4">
-      <div className="flex justify-between items-start mb-3">
-        <div className="flex-1">
-          {showFlatInfo && (
+  const renderReportCard = (report, showFlatInfo = false) => {
+    const reportId = report.id || report._id;
+    return (
+      <div key={reportId} className="border border-gray-200 rounded p-4">
+        <div className="flex justify-between items-start mb-3">
+          <div className="flex-1">
+            {showFlatInfo && (
             <p className="text-sm font-semibold text-blue-600 mb-1">{report.flatTitle}</p>
           )}
           <h3 className="font-medium text-lg capitalize">{(report.issueType || "").replace('_', ' ')}</h3>
@@ -341,6 +344,7 @@ const MaintenanceManagement = () => {
       </div>
     </div>
   );
+};
 
   if (!user) {
     return (
@@ -685,7 +689,9 @@ const MaintenanceManagement = () => {
             </div>
           ) : (
             <div className="space-y-4">
-              {maintenanceReports.map(report => renderReportCard(report, false))}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {maintenanceReports.map(report => renderReportCard(report, false))}
+              </div>
             </div>
           )}
         </div>
