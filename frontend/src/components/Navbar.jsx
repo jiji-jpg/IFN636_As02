@@ -35,8 +35,14 @@ const Navbar = () => {
             >
               Properties
             </Link>
+            <Link 
+              to="/tenants" 
+              className="px-3 py-2 text-gray-800 hover:text-gray-600 hover:bg-gray-200 rounded transition-colors"
+            >
+              Tenants
+            </Link>
             
-            {/* New Feature Links */}
+            {/* Feature Links */}
             <Link 
               to="/payments" 
               className="px-3 py-2 text-gray-800 hover:text-gray-600 hover:bg-gray-200 rounded transition-colors"
