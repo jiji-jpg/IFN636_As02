@@ -636,7 +636,7 @@
 					"raw": "{\r\n  \"title\": \"Updated Modern Apartment\",\r\n  \"description\": \"Recently renovated apartment with modern amenities\",\r\n  \"vacant\": false\r\n}"
 				},
 				"url": {
-					"raw": "http://localhost:5001/api/flats/68d94346957d3e315e9289d7",
+					"raw": "http://localhost:5001/api/flats/68da434525e10cb6be85d64d",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -645,7 +645,7 @@
 					"path": [
 						"api",
 						"flats",
-						"68d94346957d3e315e9289d7"
+						"68da434525e10cb6be85d64d"
 					]
 				}
 			},
@@ -799,7 +799,7 @@
 					"raw": ""
 				},
 				"url": {
-					"raw": "http://localhost:5001/api/flats/68d9f4a8957d3e315e928ad5",
+					"raw": "http://localhost:5001/api/flats/68d9f9d8957d3e315e928b27",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -808,7 +808,7 @@
 					"path": [
 						"api",
 						"flats",
-						"68d9f4a8957d3e315e928ad5"
+						"68d9f9d8957d3e315e928b27"
 					]
 				}
 			},
@@ -991,7 +991,7 @@
 					"raw": "{\r\n  \"name\": \"Sarah Johnson\",\r\n  \"email\": \"sarah.johnson@test.com\", \r\n  \"phone\": \"555-123-4567\",\r\n  \"moveInDate\": \"2025-01-01\",\r\n  \"rentAmount\": 1800,\r\n  \"dateOfBirth\": \"1988-03-20\",\r\n  \"leaseEndDate\": \"2025-12-31\",\r\n  \"bondAmount\": 3600\r\n}"
 				},
 				"url": {
-					"raw": "http://localhost:5001/api/flats/68d9f9d8957d3e315e928b27/tenant",
+					"raw": "http://localhost:5001/api/flats/68da434525e10cb6be85d64d/tenants",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -1000,8 +1000,8 @@
 					"path": [
 						"api",
 						"flats",
-						"68d9f9d8957d3e315e928b27",
-						"tenant"
+						"68da434525e10cb6be85d64d",
+						"tenants"
 					]
 				}
 			},
