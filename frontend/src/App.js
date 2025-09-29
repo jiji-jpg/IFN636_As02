@@ -5,9 +5,9 @@ import Register from './pages/Register';
 import Profile from './pages/Profile';
 import Flats from './pages/Flats';
 import Listing from './pages/Listing';
-// Import the new pages
 import PaymentManagement from './pages/PaymentManagement';
 import MaintenanceManagement from './pages/MaintenanceManagement';
+import Tenants from './pages/Tenants';
 
 function App() {
   return (
@@ -19,10 +19,9 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/flats" element={<Flats />} />
         <Route path="/listing" element={<Listing />} />
-        {/* Add the new routes */}
         <Route path="/payments" element={<PaymentManagement />} />
         <Route path="/maintenance" element={<MaintenanceManagement />} />
-        {/* Default route */}
+        <Route path="/tenants" element={<Tenants />} />
         <Route path="/" element={<Listing />} />
       </Routes>
     </Router>
