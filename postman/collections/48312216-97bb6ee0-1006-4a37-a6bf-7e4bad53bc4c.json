@@ -2661,7 +2661,7 @@
 			"response": []
 		},
 		{
-			"name": "Update Rental Invoice",
+			"name": "Update Rental/Maintenance Invoice",
 			"event": [
 				{
 					"listen": "test",
