@@ -1341,6 +1341,32 @@
 			"response": []
 		},
 		{
+			"name": "Delete Tenant Details",
+			"id": "48312216-78f36b19-8a65-49a2-a60d-f7a5f0aa4d4e",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5001/api/flats/68d9f9d8957d3e315e928b27/tenant",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"api",
+						"flats",
+						"68d9f9d8957d3e315e928b27",
+						"tenant"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Create Maintenance Request",
 			"event": [
 				{
@@ -1509,32 +1535,6 @@
 						"flats",
 						"6899a141d09f59387aaae15a",
 						"maintenance"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Delete Tenant Details",
-			"id": "48312216-78f36b19-8a65-49a2-a60d-f7a5f0aa4d4e",
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
-			"request": {
-				"method": "DELETE",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:5001/api/flats/68d9f9d8957d3e315e928b27/tenant",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "5001",
-					"path": [
-						"api",
-						"flats",
-						"68d9f9d8957d3e315e928b27",
-						"tenant"
 					]
 				}
 			},
