@@ -2777,13 +2777,7 @@
 							"        console.log(\"Saved payment ID:\", jsonData.payment.id);\r",
 							"    }\r",
 							"});\r",
-							"\r",
-							"pm.test(\"Debug - Check request details\", function () {\r",
-							"    console.log(\"Request URL:\", pm.request.url.toString());\r",
-							"    console.log(\"Request method:\", pm.request.method);\r",
-							"    console.log(\"Response status:\", pm.response.code);\r",
-							"    console.log(\"Response body (first 300 chars):\", pm.response.text().substring(0, 300));\r",
-							"});"
+							""
 						],
 						"type": "text/javascript",
 						"packages": {},
@@ -2819,7 +2813,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:5001/api/flats/689aa0e72823e691896b9b63/invoices",
+					"raw": "http://localhost:5001/api/flats/689aa0e72823e691896b9b63/payments",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -2829,7 +2823,7 @@
 						"api",
 						"flats",
 						"689aa0e72823e691896b9b63",
-						"invoices"
+						"payments"
 					]
 				}
 			},
