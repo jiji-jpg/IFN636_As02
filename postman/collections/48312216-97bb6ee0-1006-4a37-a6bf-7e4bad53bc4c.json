@@ -1134,7 +1134,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:5001/api/flats/68d9f9d8957d3e315e928b27/tenant",
+					"raw": "http://localhost:5001/api/flats/689aa0e72823e691896b9b63/tenants",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -1143,8 +1143,8 @@
 					"path": [
 						"api",
 						"flats",
-						"68d9f9d8957d3e315e928b27",
-						"tenant"
+						"689aa0e72823e691896b9b63",
+						"tenants"
 					]
 				}
 			},
@@ -1672,7 +1672,7 @@
 					"raw": "{\r\n  \"issueType\": \"plumbing\",\r\n  \"description\": \"Kitchen sink is leaking and needs immediate attention\",\r\n  \"priority\": \"high\",\r\n  \"contractorId\": \"1\",\r\n  \"estimatedCost\": \"250\",\r\n  \"scheduledDate\": \"2025-10-01\"\r\n}"
 				},
 				"url": {
-					"raw": "http://localhost:5001/api/flats/68d9f9d8957d3e315e928b27/maintenance",
+					"raw": "http://localhost:5001/api/flats/68da434525e10cb6be85d64d/maintenance",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -1681,7 +1681,7 @@
 					"path": [
 						"api",
 						"flats",
-						"68d9f9d8957d3e315e928b27",
+						"68da434525e10cb6be85d64d",
 						"maintenance"
 					]
 				}
@@ -1695,10 +1695,64 @@
 				"disableBodyPruning": true
 			},
 			"request": {
-				"method": "GET",
-				"header": [],
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{auth_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "multipart/form-data",
+						"type": "text",
+						"disabled": true
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"type": "text",
+						"disabled": true
+					},
+					{
+						"key": "",
+						"value": "",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"issueType\": \"plumbing\",\r\n  \"description\": \"Kitchen sink is leaking and needs immediate attention\",\r\n  \"priority\": \"high\",\r\n  \"contractorId\": \"1\",\r\n  \"estimatedCost\": \"250\",\r\n  \"scheduledDate\": \"2025-10-01\"\r\n}"
+				},
 				"url": {
-					"raw": ""
+					"raw": "http://localhost:5001/api/flats/68d9f9d8957d3e315e928b27/maintenance",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"api",
+						"flats",
+						"68d9f9d8957d3e315e928b27",
+						"maintenance"
+					]
 				}
 			},
 			"response": []
