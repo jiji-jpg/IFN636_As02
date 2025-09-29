@@ -1556,13 +1556,13 @@
 			"response": []
 		},
 		{
-			"name": "New Request",
+			"name": "Delete Maintenance Request",
 			"id": "48312216-903e64df-13c6-4740-b150-dac7f9f43f4f",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
 			"request": {
-				"method": "GET",
+				"method": "DELETE",
 				"header": []
 			},
 			"response": []
