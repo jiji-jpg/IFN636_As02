@@ -21,23 +21,43 @@ const Login = () => {
 
   return (
     <div className="max-w-md mx-auto mt-20">
-      <form onSubmit={handleSubmit} className="bg-white p-6 shadow-md rounded">
-        <h1 className="text-2xl font-bold mb-4 text-center">Login</h1>
-        <input
-          type="email"
-          placeholder="Email"
-          value={formData.email}
-          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-          className="w-full mb-4 p-2 border rounded"
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={formData.password}
-          onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-          className="w-full mb-4 p-2 border rounded"
-        />
-        <button type="submit" className="w-full bg-blue-600 text-white p-2 rounded">
+      <form onSubmit={handleSubmit} className="bg-white p-8 shadow-lg rounded-lg">
+        <div className="text-center mb-6">
+          <h1 className="text-3xl font-bold mb-2" style={{ color: '#2C3E50' }}>
+            Welcome Back!
+          </h1>
+          <p className="text-gray-600">Login to manage your properties</p>
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-gray-700 font-semibold mb-2">Email Address</label>
+          <input
+            type="email"
+            placeholder="Enter your email"
+            value={formData.email}
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            className="w-full p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition-colors"
+            required
+          />
+        </div>
+
+        <div className="mb-6">
+          <label className="block text-gray-700 font-semibold mb-2">Password</label>
+          <input
+            type="password"
+            placeholder="Enter your password"
+            value={formData.password}
+            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+            className="w-full p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition-colors"
+            required
+          />
+        </div>
+
+        <button 
+          type="submit" 
+          className="w-full text-white p-3 rounded-lg font-semibold hover:opacity-90 transition-all"
+          style={{ backgroundColor: '#3498DB' }}
+        >
           Login
         </button>
       </form>
@@ -45,4 +65,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Login;  
