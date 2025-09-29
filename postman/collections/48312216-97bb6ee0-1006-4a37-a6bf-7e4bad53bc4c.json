@@ -2662,13 +2662,176 @@
 		},
 		{
 			"name": "Update Rental Invoice",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "7127cc76-015e-4fdc-bf50-c182ffe4d429",
+						"exec": [
+							"// Basic Response Tests\r",
+							"pm.test(\"Status code is 201 (Created)\", function () {\r",
+							"    if (pm.response.code === 400) {\r",
+							"        console.log(\"400 Error - Validation issue\");\r",
+							"        console.log(\"Response:\", pm.response.json());\r",
+							"    } else if (pm.response.code === 403) {\r",
+							"        console.log(\"403 Error - Not authorized\");\r",
+							"    } else if (pm.response.code === 404) {\r",
+							"        console.log(\"404 Error - Flat not found\");\r",
+							"    } else if (pm.response.code === 401) {\r",
+							"        console.log(\"401 Error - Invalid or expired token\");\r",
+							"    }\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response is JSON\", function () {\r",
+							"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response time is less than 200ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+							"});\r",
+							"\r",
+							"// Response Structure Tests\r",
+							"pm.test(\"Response contains payment data\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.be.an('object');\r",
+							"    pm.expect(jsonData).to.have.property('message');\r",
+							"    pm.expect(jsonData).to.have.property('payment');\r",
+							"    pm.expect(jsonData).to.have.property('flat');\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Payment has required properties\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    const payment = jsonData.payment;\r",
+							"    \r",
+							"    pm.expect(payment).to.have.property('id');\r",
+							"    pm.expect(payment).to.have.property('amount');\r",
+							"    pm.expect(payment).to.have.property('paymentDate');\r",
+							"    pm.expect(payment).to.have.property('paymentMethod');\r",
+							"    pm.expect(payment).to.have.property('recordedDate');\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Payment data matches sent data\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    const payment = jsonData.payment;\r",
+							"    \r",
+							"    pm.expect(payment.amount).to.equal(1800);\r",
+							"    pm.expect(payment.paymentMethod).to.equal(\"bank transfer\");\r",
+							"    pm.expect(payment.description).to.equal(\"November rent payment\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Payment added to flat\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    const flat = jsonData.flat;\r",
+							"    \r",
+							"    pm.expect(flat).to.have.property('paymentLogs');\r",
+							"    pm.expect(flat.paymentLogs).to.be.an('array');\r",
+							"    pm.expect(flat.paymentLogs.length).to.be.at.least(1);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Linked invoice status updated to paid\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    const flat = jsonData.flat;\r",
+							"    const payment = jsonData.payment;\r",
+							"    \r",
+							"    // If payment was linked to an invoice\r",
+							"    if (payment.invoiceId && flat.invoices) {\r",
+							"        const linkedInvoice = flat.invoices.find(inv => inv.id === payment.invoiceId);\r",
+							"        \r",
+							"        if (linkedInvoice) {\r",
+							"            pm.expect(linkedInvoice.status).to.equal(\"paid\");\r",
+							"            pm.expect(linkedInvoice).to.have.property('paidDate');\r",
+							"            \r",
+							"            console.log(\"✓ Invoice status updated from 'pending' to 'paid'\");\r",
+							"            console.log(\"Invoice ID:\", linkedInvoice.id);\r",
+							"            console.log(\"Paid date:\", linkedInvoice.paidDate);\r",
+							"        } else {\r",
+							"            console.log(\"Note: Linked invoice not found in response\");\r",
+							"        }\r",
+							"    } else {\r",
+							"        console.log(\"Note: Payment not linked to any invoice\");\r",
+							"    }\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Payment amount is valid\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    const payment = jsonData.payment;\r",
+							"    \r",
+							"    pm.expect(payment.amount).to.be.a('number');\r",
+							"    pm.expect(payment.amount).to.be.above(0);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Payment date is valid\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    const payment = jsonData.payment;\r",
+							"    \r",
+							"    pm.expect(payment.paymentDate).to.not.be.empty;\r",
+							"    pm.expect(payment.recordedDate).to.not.be.empty;\r",
+							"});\r",
+							"\r",
+							"// Save payment data for future tests\r",
+							"pm.test(\"Save payment ID for future tests\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    if (jsonData.payment && jsonData.payment.id) {\r",
+							"        pm.environment.set(\"payment_id\", jsonData.payment.id);\r",
+							"        console.log(\"Saved payment ID:\", jsonData.payment.id);\r",
+							"    }\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Debug - Check request details\", function () {\r",
+							"    console.log(\"Request URL:\", pm.request.url.toString());\r",
+							"    console.log(\"Request method:\", pm.request.method);\r",
+							"    console.log(\"Response status:\", pm.response.code);\r",
+							"    console.log(\"Response body (first 300 chars):\", pm.response.text().substring(0, 300));\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
 			"id": "48312216-669d170d-02c7-4b1c-87b1-a2c9cb08c203",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
 			"request": {
-				"method": "PUT",
-				"header": []
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"amount\": 1800,\r\n  \"paymentDate\": \"2025-11-01\",\r\n  \"paymentMethod\": \"bank transfer\",\r\n  \"description\": \"November rent payment\",\r\n  \"invoiceId\": \"1759159520954\"\r\n}\r\n\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5001/api/flats/689aa0e72823e691896b9b63/invoices",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"api",
+						"flats",
+						"689aa0e72823e691896b9b63",
+						"invoices"
+					]
+				}
 			},
 			"response": []
 		}
