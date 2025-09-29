@@ -1104,7 +1104,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:5001/api/flats",
+					"raw": "http://localhost:5001/api/flats/68d9f9d8957d3e315e928b27/tenant",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -1112,7 +1112,9 @@
 					"port": "5001",
 					"path": [
 						"api",
-						"flats"
+						"flats",
+						"68d9f9d8957d3e315e928b27",
+						"tenant"
 					]
 				}
 			},
