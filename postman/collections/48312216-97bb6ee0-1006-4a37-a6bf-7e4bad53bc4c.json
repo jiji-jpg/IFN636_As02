@@ -2491,7 +2491,7 @@
 			"response": []
 		},
 		{
-			"name": "New Request",
+			"name": "Get Rental/Maintenance Invoice",
 			"id": "48312216-fc9ca130-7800-4679-9ba3-2cc9cd30fd8e",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
