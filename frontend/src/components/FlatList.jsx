@@ -54,6 +54,7 @@ const FlatList = ({ flats, setFlats, setEditingFlat }) => {
   return (
     <div>
       <h1 className="text-2xl font-bold mb-4">My Flat Listings</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {flats.map((flat) => (
         <div key={flat._id} className="bg-gray-100 p-4 mb-4 rounded shadow">
           <h2 className="font-bold text-lg mb-2">{flat.title}</h2>
@@ -126,6 +127,7 @@ const FlatList = ({ flats, setFlats, setEditingFlat }) => {
           </div>
         </div>
       ))}
+      </div>
       
       {flats.length === 0 && (
         <div className="text-center py-8 text-gray-500">

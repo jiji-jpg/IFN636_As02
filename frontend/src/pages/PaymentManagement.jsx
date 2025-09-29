@@ -456,49 +456,52 @@ const PaymentManagement = () => {
           )}
 
           {/* Invoices List */}
-          <div className="bg-white shadow-md rounded mb-6 p-6">
-            <h2 className="text-lg font-semibold mb-4">Invoices</h2>
-            {invoices.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
-                <p>No invoices found for this property.</p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {invoices.map(invoice => {
-                  const isOverdue = invoice.status === 'pending' && new Date(invoice.dueDate) < new Date();
-                  return (
-                    <div key={invoice.id} className={`border rounded p-4 ${isOverdue ? 'border-red-300 bg-red-50' : 'border-gray-200'}`}>
-                      <div className="flex justify-between items-start mb-2">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-medium text-lg capitalize">{invoice.type}</h3>
-                            <span className={`px-2 py-1 text-xs font-semibold rounded ${getInvoiceStatusColor(invoice.status)}`}>
-                              {invoice.status}
-                            </span>
-                            {isOverdue && (
-                              <span className="px-2 py-1 text-xs font-semibold rounded bg-red-100 text-red-800">
-                                OVERDUE
+         
+            <div className="bg-white shadow-md rounded mb-6 p-6">
+              <h2 className="text-lg font-semibold mb-4">Invoices</h2>
+              {invoices.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  <p>No invoices found for this property.</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {invoices.map(invoice => {
+                    const isOverdue = invoice.status === 'pending' && new Date(invoice.dueDate) < new Date();
+                    return (
+                      <div key={invoice.id} className={`border rounded p-4 ${isOverdue ? 'border-red-300 bg-red-50' : 'border-gray-200'}`}>
+                        <div className="flex justify-between items-start mb-2">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h3 className="font-medium text-lg capitalize">{invoice.type}</h3>
+                              <span className={`px-2 py-1 text-xs font-semibold rounded ${getInvoiceStatusColor(invoice.status)}`}>
+                                {invoice.status}
                               </span>
-                            )}
+                              {isOverdue && (
+                                <span className="px-2 py-1 text-xs font-semibold rounded bg-red-100 text-red-800">
+                                  OVERDUE
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-gray-600 text-sm">{invoice.description}</p>
                           </div>
-                          <p className="text-gray-600 text-sm">{invoice.description}</p>
+                          <div className="text-right ml-4">
+                            <p className="text-lg font-semibold">{formatCurrency(invoice.amount)}</p>
+                          </div>
                         </div>
-                        <div className="text-right ml-4">
-                          <p className="text-lg font-semibold">{formatCurrency(invoice.amount)}</p>
+                        <div className="text-sm text-gray-500 space-y-1">
+                          <p>Issue Date: {formatDate(invoice.issueDate)}</p>
+                          <p>Due Date: {formatDate(invoice.dueDate)}</p>
+                          {invoice.paidDate && <p>Paid Date: {formatDate(invoice.paidDate)}</p>}
+                          {invoice.tenantName && <p>Tenant: {invoice.tenantName}</p>}
+                          {invoice.tenantEmail && <p>Tenant Email: {invoice.tenantEmail}</p>}
                         </div>
                       </div>
-                      <div className="text-sm text-gray-500 space-y-1">
-                        <p>Issue Date: {formatDate(invoice.issueDate)}</p>
-                        <p>Due Date: {formatDate(invoice.dueDate)}</p>
-                        {invoice.paidDate && <p>Paid Date: {formatDate(invoice.paidDate)}</p>}
-                        {invoice.tenantName && <p>Tenant: {invoice.tenantName}</p>}
-                        {invoice.tenantEmail && <p>Tenant Email: {invoice.tenantEmail}</p>}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
+                    );
+                  })}
+                </div>
+                 </div>
+              )}
           </div>
 
           {/* Payments List */}
@@ -510,6 +513,7 @@ const PaymentManagement = () => {
               </div>
             ) : (
               <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {payments.map(payment => (
                   <div key={payment.id} className="border border-gray-200 rounded p-4">
                     <div className="flex justify-between items-start">
@@ -532,6 +536,7 @@ const PaymentManagement = () => {
                     </div>
                   </div>
                 ))}
+                </div>
               </div>
             )}
           </div>
