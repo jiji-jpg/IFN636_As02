@@ -1613,7 +1613,15 @@
 							"        pm.environment.set(\"last_maintenance_issue_type\", jsonData.maintenanceReport.issueType);\r",
 							"    }\r",
 							"});\r",
-							""
+							"\r",
+							"pm.test(\"Debug - Show server error details\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    console.log(\"=== SERVER ERROR DEBUG ===\");\r",
+							"    console.log(\"Full error response:\", JSON.stringify(jsonData, null, 2));\r",
+							"    console.log(\"Error message:\", jsonData.message);\r",
+							"    console.log(\"Request URL:\", pm.request.url.toString());\r",
+							"    console.log(\"Request body:\", pm.request.body);\r",
+							"});"
 						],
 						"type": "text/javascript",
 						"packages": {},
