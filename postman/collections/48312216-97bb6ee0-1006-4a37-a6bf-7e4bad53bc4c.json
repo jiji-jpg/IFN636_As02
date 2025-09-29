@@ -1776,6 +1776,32 @@
 				"header": []
 			},
 			"response": []
+		},
+		{
+			"name": "Create Invoice",
+			"id": "48312216-861f1b22-14b0-4d40-9942-a25fa95ea4d0",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5001/api/flats/68da434525e10cb6be85d64d/invoice",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"api",
+						"flats",
+						"68da434525e10cb6be85d64d",
+						"invoice"
+					]
+				}
+			},
+			"response": []
 		}
 	]
 }

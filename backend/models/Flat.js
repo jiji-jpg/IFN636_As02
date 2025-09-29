@@ -1,26 +1,11 @@
-// backend/models/Flat.js
 const mongoose = require('mongoose');
 
 const flatSchema = new mongoose.Schema({
-    userId: { 
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: 'User', 
-        required: true 
-    },
-    title: { 
-        type: String, 
-        required: true 
-    },
-    description: { 
-        type: String 
-    },
-    vacant: { 
-        type: Boolean, 
-        default: true 
-    },
-    inspectionDate: { 
-        type: Date 
-    },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    title: { type: String, required: true },
+    description: { type: String },
+    vacant: { type: Boolean, default: true },
+    inspectionDate: { type: Date },
     images: [String],
     
     // Tenant details
@@ -32,71 +17,50 @@ const flatSchema = new mongoose.Schema({
         rentAmount: { type: Number }
     },
     
-    // Invoices array - THIS WAS MISSING
-    invoices: [{
-        id: { type: String, required: true },
-        type: { type: String, enum: ['rental', 'maintenance'], required: true },
-        tenantName: { type: String },
-        tenantEmail: { type: String },
-        flatTitle: { type: String },
-        flatId: { type: mongoose.Schema.Types.ObjectId },
-        amount: { type: Number, required: true },
-        dueDate: { type: Date, required: true },
-        issueDate: { type: Date, default: Date.now },
-        paidDate: { type: Date },
-        status: { 
-            type: String, 
-            enum: ['pending', 'paid', 'overdue'], 
-            default: 'pending' 
-        },
-        description: { type: String }
+    // Maintenance reports
+    maintenanceReports: [{
+        id: String, // Remove required completely, just make it a plain String
+        issueType: String,
+        description: String,
+        priority: String,
+        contractorId: String,
+        contractorName: String,
+        contractorPhone: String,
+        status: { type: String, default: 'reported' },
+        estimatedCost: Number,
+        actualCost: Number,
+        scheduledDate: Date,
+        completionDate: Date,
+        reportedDate: { type: Date, default: Date.now },
+        lastUpdated: Date,
+        notes: String,
+        images: [String]
     }],
     
-    // Payment logs array - THIS WAS MISSING
+    // Payment logs
     paymentLogs: [{
-        id: { type: String, required: true },
-        amount: { type: Number, required: true },
-        paymentDate: { type: Date, required: true },
-        paymentMethod: { 
-            type: String, 
-            enum: ['bank_transfer', 'cash', 'check', 'online', 'card'],
-            required: true 
-        },
-        description: { type: String },
-        invoiceId: { type: String },
+        id: String,
+        amount: Number,
+        paymentDate: Date,
+        paymentMethod: String,
+        description: String,
+        invoiceId: String,
         recordedDate: { type: Date, default: Date.now }
     }],
     
-    // Maintenance reports array - THIS WAS MISSING
-    maintenanceReports: [{
-        id: { type: String, required: true },
-        issueType: { 
-            type: String, 
-            enum: ['plumbing', 'electrical', 'heating', 'cooling', 'appliance', 'structural', 'pest_control', 'cleaning', 'painting', 'carpentry', 'other'],
-            required: true 
-        },
-        description: { type: String, required: true },
-        priority: { 
-            type: String, 
-            enum: ['low', 'medium', 'high', 'urgent'],
-            required: true 
-        },
-        contractorId: { type: String, required: true },
-        contractorName: { type: String },
-        contractorPhone: { type: String },
-        status: { 
-            type: String, 
-            enum: ['reported', 'assigned', 'in_progress', 'completed', 'cancelled'],
-            default: 'reported' 
-        },
-        estimatedCost: { type: Number },
-        actualCost: { type: Number },
-        scheduledDate: { type: Date },
-        reportedDate: { type: Date, default: Date.now },
-        completionDate: { type: Date },
-        lastUpdated: { type: Date },
-        notes: { type: String },
-        images: [String]
+    // Invoices
+    invoices: [{
+        id: String,
+        type: { type: String, enum: ['rental', 'maintenance'] },
+        tenantName: String,
+        tenantEmail: String,
+        flatTitle: String,
+        amount: Number,
+        dueDate: Date,
+        issueDate: { type: Date, default: Date.now },
+        status: { type: String, default: 'pending' },
+        paidDate: Date,
+        description: String
     }]
 }, {
     timestamps: true
