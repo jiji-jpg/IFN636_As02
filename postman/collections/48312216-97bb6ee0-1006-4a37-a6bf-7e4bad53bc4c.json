@@ -1784,8 +1784,22 @@
 				"disableBodyPruning": true
 			},
 			"request": {
-				"method": "GET",
-				"header": []
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5001/api/flats/68da434525e10cb6be85d64d/invoice",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"api",
+						"flats",
+						"68da434525e10cb6be85d64d",
+						"invoice"
+					]
+				}
 			},
 			"response": []
 		}
