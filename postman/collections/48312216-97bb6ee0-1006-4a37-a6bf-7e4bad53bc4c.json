@@ -1879,14 +1879,28 @@
 			"response": []
 		},
 		{
-			"name": "New Request",
+			"name": "Update Maintenance Request",
 			"id": "48312216-c070c4e3-68d3-4843-a52c-a0cd1f1e0225",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
 			"request": {
-				"method": "GET",
-				"header": []
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5001/api/flats/689aa0e72823e691896b9b63/maintenance",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"api",
+						"flats",
+						"689aa0e72823e691896b9b63",
+						"maintenance"
+					]
+				}
 			},
 			"response": []
 		},
