@@ -282,7 +282,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"title\": \"Modern 2BR Apartment\",\r\n  \"description\": \"Beautiful apartment in city center\",\r\n  \"address\": \"123 Main St, City\",\r\n  \"bedrooms\": \"2\",\r\n  \"bathrooms\": \"1\",\r\n  \"carpark\": \"true\",\r\n  \"inspectionDate\": \"2025-10-15\"\r\n}"
+					"raw": "{\r\n  \"title\": \"Test\",\r\n  \"description\": \"Test description\",\r\n  \"address\": \"Test address\",\r\n  \"bedrooms\": \"2\",\r\n  \"bathrooms\": \"1\",\r\n  \"carpark\": \"true\",\r\n  \"inspectionDate\": \"2025-10-15\"\r\n}"
 				},
 				"url": {
 					"raw": "http://localhost:5001/api/flats",
