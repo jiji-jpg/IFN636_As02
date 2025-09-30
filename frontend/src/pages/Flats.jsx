@@ -9,10 +9,16 @@ const Flats = () => {
   const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState('all'); // 'all', 'occupied', 'vacant'
+  const [filterStatus, setFilterStatus] = useState('all');
 
-  // Form state
-  const [formData, setFormData] = useState({ title: '', description: '', inspectionDate: '' });
+  const [formData, setFormData] = useState({ 
+    title: '', 
+    description: '', 
+    inspectionDate: '',
+    bedrooms: '',
+    bathrooms: '',
+    carpark: ''
+  });
   const [selectedImages, setSelectedImages] = useState([]);
   const [uploading, setUploading] = useState(false);
 
@@ -26,6 +32,9 @@ const Flats = () => {
         title: editingFlat.title,
         description: editingFlat.description,
         inspectionDate: editingFlat.inspectionDate ? editingFlat.inspectionDate.split('T')[0] : '',
+        bedrooms: editingFlat.bedrooms || '',
+        bathrooms: editingFlat.bathrooms || '',
+        carpark: editingFlat.carpark || '',
       });
       setSelectedImages([]);
       setShowAddForm(true);
@@ -60,6 +69,18 @@ const Flats = () => {
       alert('Please enter a valid address.');
       return;
     }
+    if (!formData.bedrooms) {
+      alert('Please enter number of bedrooms.');
+      return;
+    }
+    if (!formData.bathrooms) {
+      alert('Please enter number of bathrooms.');
+      return;
+    }
+    if (!formData.carpark) {
+      alert('Please enter carpark information.');
+      return;
+    }
 
     setUploading(true);
     try {
@@ -67,6 +88,9 @@ const Flats = () => {
       submitData.append('title', formData.title);
       submitData.append('description', formData.description);
       submitData.append('inspectionDate', formData.inspectionDate);
+      submitData.append('bedrooms', formData.bedrooms);
+      submitData.append('bathrooms', formData.bathrooms);
+      submitData.append('carpark', formData.carpark);
       
       selectedImages.forEach((image) => {
         submitData.append('images', image);
@@ -91,8 +115,14 @@ const Flats = () => {
         setFlats([...flats, response.data]);
       }
       
-      // Reset form
-      setFormData({ title: '', description: '', inspectionDate: '' });
+      setFormData({ 
+        title: '', 
+        description: '', 
+        inspectionDate: '',
+        bedrooms: '',
+        bathrooms: '',
+        carpark: ''
+      });
       setSelectedImages([]);
       setShowAddForm(false);
       const fileInput = document.getElementById('image-upload-input');
@@ -150,7 +180,14 @@ const Flats = () => {
   };
 
   const resetForm = () => {
-    setFormData({ title: '', description: '', inspectionDate: '' });
+    setFormData({ 
+      title: '', 
+      description: '', 
+      inspectionDate: '',
+      bedrooms: '',
+      bathrooms: '',
+      carpark: ''
+    });
     setSelectedImages([]);
     setEditingFlat(null);
     setShowAddForm(false);
@@ -158,7 +195,6 @@ const Flats = () => {
     if (fileInput) fileInput.value = '';
   };
 
-  // Filter properties based on search and status
   const filteredFlats = flats.filter(flat => {
     const matchesSearch = flat.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          flat.description.toLowerCase().includes(searchTerm.toLowerCase());
@@ -190,15 +226,15 @@ const Flats = () => {
             <div className="mb-6 md:mb-0">
               <h1 className="text-3xl font-bold text-gray-900 mb-2">My Properties</h1>
               <p className="text-gray-600">
-                Manage and organize your property portfolio with ease
+                Manage and organise your property portfolio with ease.
               </p>
             </div>
             
             <button
               onClick={() => setShowAddForm(true)}
-              className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-semibold px-6 py-3 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center space-x-2"
+              className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-6 py-3 rounded-lg transition-all duration-300 transform hover:scale-105"
             >
-              <span>Add New Property</span>
+              Add New Property
             </button>
           </div>
         </div>
@@ -206,26 +242,23 @@ const Flats = () => {
 
       <div className="container mx-auto px-6 py-8">
         {/* Search and Filter Bar */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-8">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1">
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-xl">🔍</span>
-                <input
-                  type="text"
-                  placeholder="Search properties by address or description..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                />
-              </div>
+              <input
+                type="text"
+                placeholder="Search properties by address or description..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+              />
             </div>
             
             <div className="md:w-48">
               <select
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
               >
                 <option value="all">All Properties</option>
                 <option value="occupied">Occupied Only</option>
@@ -253,9 +286,11 @@ const Flats = () => {
 
         {/* Properties Grid */}
         {filteredFlats.length === 0 ? (
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-16 text-center">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-16 text-center">
             <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <span className="text-gray-400 text-4xl">🏠</span>
+              <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+              </svg>
             </div>
             <h3 className="text-xl font-semibold text-gray-800 mb-2">
               {searchTerm || filterStatus !== 'all' ? 'No matching properties found' : 'No Properties Yet'}
@@ -269,7 +304,7 @@ const Flats = () => {
             {!searchTerm && filterStatus === 'all' && (
               <button
                 onClick={() => setShowAddForm(true)}
-                className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-6 py-3 rounded-xl transition-colors"
+                className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors"
               >
                 Add Your First Property
               </button>
@@ -294,7 +329,7 @@ const Flats = () => {
       {/* Add/Edit Property Modal */}
       {showAddForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-screen overflow-y-auto">
+          <div className="bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-screen overflow-y-auto">
             <div className="p-8">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-2xl font-bold text-gray-800">
@@ -304,7 +339,7 @@ const Flats = () => {
                   onClick={resetForm}
                   className="text-gray-400 hover:text-gray-600 text-2xl"
                 >
-                  ✕
+                  ×
                 </button>
               </div>
               
@@ -319,6 +354,49 @@ const Flats = () => {
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                     required
                   />
+                </div>
+
+                {/* Property Details Grid */}
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Bedrooms *</label>
+                    <input
+                      type="number"
+                      placeholder="0"
+                      min="0"
+                      value={formData.bedrooms}
+                      onChange={(e) => setFormData({ ...formData, bedrooms: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Bathrooms *</label>
+                    <input
+                      type="number"
+                      placeholder="0"
+                      min="0"
+                      step="0.5"
+                      value={formData.bathrooms}
+                      onChange={(e) => setFormData({ ...formData, bathrooms: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Carpark *</label>
+                    <input
+                      type="number"
+                      placeholder="0"
+                      min="0"
+                      value={formData.carpark}
+                      onChange={(e) => setFormData({ ...formData, carpark: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                      required
+                    />
+                  </div>
                 </div>
                 
                 <div>
@@ -385,7 +463,7 @@ const Flats = () => {
                   <button 
                     type="submit" 
                     disabled={uploading}
-                    className="flex-1 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {uploading ? 'Saving...' : (editingFlat ? 'Update Property' : 'Add Property')}
                   </button>
@@ -424,7 +502,7 @@ const PropertyCard = ({ flat, onEdit, onDelete, onImageDelete, getImageUrl }) =>
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 group">
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 group">
       {/* Image Section */}
       <div className="relative h-48 bg-gray-200">
         {flat.images && flat.images.length > 0 ? (
@@ -439,23 +517,21 @@ const PropertyCard = ({ flat, onEdit, onDelete, onImageDelete, getImageUrl }) =>
               }}
             />
             
-            {/* Image Navigation */}
             {flat.images.length > 1 && (
               <>
                 <button
                   onClick={handlePrevImage}
                   className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white rounded-full w-8 h-8 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-opacity-75"
                 >
-                  ❮
+                  ‹
                 </button>
                 <button
                   onClick={handleNextImage}
                   className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white rounded-full w-8 h-8 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-opacity-75"
                 >
-                  ❯
+                  ›
                 </button>
                 
-                {/* Image dots indicator */}
                 <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-1">
                   {flat.images.map((_, index) => (
                     <button
@@ -472,19 +548,19 @@ const PropertyCard = ({ flat, onEdit, onDelete, onImageDelete, getImageUrl }) =>
               </>
             )}
             
-            {/* Image count badge */}
             <div className="absolute top-2 right-2 bg-black bg-opacity-75 text-white px-2 py-1 rounded text-xs font-medium">
               {currentImageIndex + 1} / {flat.images.length}
             </div>
           </>
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
-            <span className="text-4xl mb-2">🏠</span>
+            <svg className="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
             <span className="text-sm">No images</span>
           </div>
         )}
         
-        {/* Status Badge */}
         <div className="absolute top-2 left-2">
           <span className={`px-3 py-1 text-xs font-semibold rounded-full ${
             flat.vacant 
@@ -503,20 +579,22 @@ const PropertyCard = ({ flat, onEdit, onDelete, onImageDelete, getImageUrl }) =>
         
         {/* Property Details */}
         <div className="space-y-2 mb-4">
-          <div className="flex items-center text-sm text-gray-600">
-            <span className="mr-2">📅</span>
-            <span>
-              Inspection: {flat.inspectionDate 
-                ? new Date(flat.inspectionDate).toLocaleDateString() 
-                : 'Not scheduled'
-              }
-            </span>
+          <div className="flex items-center justify-between text-sm text-gray-600">
+            <span>{flat.bedrooms || 0} Bedrooms</span>
+            <span>{flat.bathrooms || 0} Bathrooms</span>
+            <span>{flat.carpark || 0} Carpark</span>
+          </div>
+          
+          <div className="text-sm text-gray-600">
+            Inspection: {flat.inspectionDate 
+              ? new Date(flat.inspectionDate).toLocaleDateString() 
+              : 'Not scheduled'
+            }
           </div>
           
           {!flat.vacant && flat.tenantDetails && (
-            <div className="flex items-center text-sm text-gray-600">
-              <span className="mr-2">👤</span>
-              <span>{flat.tenantDetails.name}</span>
+            <div className="text-sm text-gray-600">
+              Tenant: {flat.tenantDetails.name}
             </div>
           )}
         </div>
@@ -525,15 +603,15 @@ const PropertyCard = ({ flat, onEdit, onDelete, onImageDelete, getImageUrl }) =>
         <div className="flex gap-2">
           <button
             onClick={() => onEdit(flat)}
-            className="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2"
+            className="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
           >
-            <span>Edit</span>
+            Edit
           </button>
           <button
             onClick={() => onDelete(flat._id)}
-            className="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2"
+            className="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
           >
-            <span>Delete</span>
+            Delete
           </button>
         </div>
       </div>
