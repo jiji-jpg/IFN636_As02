@@ -10,9 +10,8 @@ const MaintenanceManagement = () => {
   const [allReports, setAllReports] = useState([]);
   const [contractors, setContractors] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [viewMode, setViewMode] = useState('property'); // 'property' or 'all'
+  const [viewMode, setViewMode] = useState('property');
   
-  // Form states
   const [showMaintenanceForm, setShowMaintenanceForm] = useState(false);
   const [showStatusForm, setShowStatusForm] = useState(false);
   const [editingReport, setEditingReport] = useState(null);
@@ -181,11 +180,6 @@ const MaintenanceManagement = () => {
   const handleDeleteReport = async () => {
     if (!deletingReport) return;
 
-    console.log('=== FRONTEND DELETE DEBUG ===');
-    console.log('Deleting report:', deletingReport);
-    console.log('Report ID:', deletingReport.id);
-    console.log('Flat ID:', deletingReport.flatId);
-
     setLoading(true);
     try {
       await axiosInstance.delete(
@@ -203,16 +197,14 @@ const MaintenanceManagement = () => {
       alert('Maintenance report deleted successfully!');
     } catch (error) {
       console.error('Delete error:', error);
-      console.error('Error response:', error.response?.data);
       alert('Error deleting report: ' + (error.response?.data?.message || error.message));
     } finally {
       setLoading(false);
     }
-};
+  };
 
   const openStatusForm = (report, flatId = null) => {
     const reportId = report.id || report._id?._id || report._id || String(report._id);
-    console.log('Opening status form for report ID:', reportId);
     setEditingReport({ 
         ...report, 
         id: reportId,
@@ -225,7 +217,7 @@ const MaintenanceManagement = () => {
       notes: report.notes || ''
     });
     setShowStatusForm(true);
-};
+  };
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString();
@@ -261,128 +253,128 @@ const MaintenanceManagement = () => {
   };
 
   const renderReportCard = (report, showFlatInfo = false) => {
-  // Make sure we extract _id properly - it might be nested
-  const reportId = report.id || report._id?._id || report._id || String(report._id);
-  
-  console.log('Report card - report object:', report);
-  console.log('Report card - extracted ID:', reportId);
-  
-  return (
-    <div key={reportId} className="border border-gray-200 rounded p-4">
-      <div className="flex justify-between items-start mb-3">
-        <div className="flex-1">
-          {showFlatInfo && (
-            <p className="text-sm font-semibold text-blue-600 mb-1">{report.flatTitle}</p>
+    const reportId = report.id || report._id?._id || report._id || String(report._id);
+    
+    return (
+      <div key={reportId} className="border border-gray-200 rounded-lg p-4">
+        <div className="flex justify-between items-start mb-3">
+          <div className="flex-1">
+            {showFlatInfo && (
+              <p className="text-sm font-semibold text-blue-600 mb-1">{report.flatTitle}</p>
+            )}
+            <h3 className="font-semibold text-lg capitalize">{(report.issueType || "").replace('_', ' ')}</h3>
+            <p className="text-gray-600 text-sm">Reported: {formatDate(report.reportedDate)}</p>
+          </div>
+          <div className="flex gap-2 flex-wrap justify-end">
+            <span className={`px-2 py-1 text-xs font-semibold rounded ${getPriorityColor(report.priority)}`}>
+              {report.priority}
+            </span>
+            <span className={`px-2 py-1 text-xs font-semibold rounded ${getStatusColor(report.status)}`}>
+              {report.status.replace('_', ' ')}
+            </span>
+          </div>
+        </div>
+        
+        <p className="text-gray-700 mb-3">{report.description}</p>
+        
+        <div className="grid grid-cols-2 gap-4 text-sm mb-3">
+          <div>
+            <span className="font-semibold text-gray-700">Contractor: </span>
+            <span className="text-gray-600">{report.contractorName || report.contractorDetails?.name}</span>
+          </div>
+          <div>
+            <span className="font-semibold text-gray-700">Estimated Cost: </span>
+            <span className="text-gray-600">{formatCurrency(report.estimatedCost)}</span>
+          </div>
+          {report.actualCost && (
+            <div>
+              <span className="font-semibold text-gray-700">Actual Cost: </span>
+              <span className="text-gray-600">{formatCurrency(report.actualCost)}</span>
+            </div>
           )}
-          <h3 className="font-medium text-lg capitalize">{(report.issueType || "").replace('_', ' ')}</h3>
-          <p className="text-gray-600 text-sm">Reported: {formatDate(report.reportedDate)}</p>
+          {report.scheduledDate && (
+            <div>
+              <span className="font-semibold text-gray-700">Scheduled: </span>
+              <span className="text-gray-600">{formatDate(report.scheduledDate)}</span>
+            </div>
+          )}
+          {report.completionDate && (
+            <div>
+              <span className="font-semibold text-gray-700">Completed: </span>
+              <span className="text-gray-600">{formatDate(report.completionDate)}</span>
+            </div>
+          )}
         </div>
-        <div className="flex gap-2 flex-wrap justify-end">
-          <span className={`px-2 py-1 text-xs font-semibold rounded ${getPriorityColor(report.priority)}`}>
-            {report.priority}
-          </span>
-          <span className={`px-2 py-1 text-xs font-semibold rounded ${getStatusColor(report.status)}`}>
-            {report.status.replace('_', ' ')}
-          </span>
-        </div>
-      </div>
-      
-      <p className="text-gray-700 mb-3">{report.description}</p>
-      
-      <div className="grid grid-cols-2 gap-4 text-sm mb-3">
-        <div>
-          <span className="font-medium">Contractor:</span> {report.contractorName || report.contractorDetails?.name}
-        </div>
-        <div>
-          <span className="font-medium">Estimated Cost:</span> {formatCurrency(report.estimatedCost)}
-        </div>
-        {report.actualCost && (
-          <div>
-            <span className="font-medium">Actual Cost:</span> {formatCurrency(report.actualCost)}
+        
+        {report.notes && (
+          <div className="mb-3 p-3 bg-gray-50 rounded-lg">
+            <span className="font-semibold text-sm text-gray-700">Notes: </span>
+            <p className="text-sm text-gray-600 mt-1">{report.notes}</p>
           </div>
         )}
-        {report.scheduledDate && (
-          <div>
-            <span className="font-medium">Scheduled:</span> {formatDate(report.scheduledDate)}
-          </div>
-        )}
-        {report.completionDate && (
-          <div>
-            <span className="font-medium">Completed:</span> {formatDate(report.completionDate)}
-          </div>
-        )}
-      </div>
-      
-      {report.notes && (
-        <div className="mb-3 p-3 bg-gray-50 rounded">
-          <span className="font-medium text-sm">Notes:</span>
-          <p className="text-sm text-gray-700 mt-1">{report.notes}</p>
-        </div>
-      )}
-      
-      {report.images && report.images.length > 0 && (
-        <div className="mb-3">
-          <span className="font-medium text-sm">Images:</span>
-          <div className="grid grid-cols-4 gap-2 mt-2">
-            {report.images.map((image, index) => (
-              <div key={index} className="relative group">
-                <img
-                  src={getImageUrl(image)}
-                  alt={`Maintenance ${index + 1}`}
-                  className="w-full h-20 object-cover rounded border hover:shadow-md transition-shadow cursor-pointer"
-                  onError={(e) => {
-                    e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTIxIDlWN0MxOSA1IDEyIDUgMTIgNUM5IDUgMyA1IDMgN1Y5QzMgMTEgMyAxNyAzIDE5QzMgMjEgOSAyMSAxMiAyMUMxNSAyMSAyMSAyMSAyMSAxOUMyMSAxNyAyMSAxMSAyMSA5WiIgc3Ryb2tlPSIjY2NjIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBkPSJNOSA5SDE1IiBzdHJva2U9IiNjY2MiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjwvcGF0aD4KPC9zdmc+';
-                    e.target.alt = 'Image not found';
-                    e.target.className += ' opacity-50';
-                  }}
-                />
-                <div className="absolute top-1 left-1 bg-black bg-opacity-50 text-white text-xs px-1 rounded">
-                  {index + 1}
+        
+        {report.images && report.images.length > 0 && (
+          <div className="mb-3">
+            <span className="font-semibold text-sm text-gray-700">Images:</span>
+            <div className="grid grid-cols-4 gap-2 mt-2">
+              {report.images.map((image, index) => (
+                <div key={index} className="relative group">
+                  <img
+                    src={getImageUrl(image)}
+                    alt={`Maintenance ${index + 1}`}
+                    className="w-full h-20 object-cover rounded-lg border hover:shadow-md transition-shadow cursor-pointer"
+                    onError={(e) => {
+                      e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTIxIDlWN0MxOSA1IDEyIDUgMTIgNUM5IDUgMyA1IDMgN1Y5QzMgMTEgMyAxNyAzIDE5QzMgMjEgOSAyMSAxMiAyMUMxNSAyMSAyMSAyMSAyMSAxOUMyMSAxNyAyMSAxMSAyMSA5WiIgc3Ryb2tlPSIjY2NjIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBkPSJNOSA5SDE1IiBzdHJva2U9IiNjY2MiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjwvcGF0aD4KPC9zdmc+';
+                      e.target.alt = 'Image not found';
+                      e.target.className += ' opacity-50';
+                    }}
+                  />
+                  <div className="absolute top-1 left-1 bg-black bg-opacity-50 text-white text-xs px-1 rounded">
+                    {index + 1}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
+        )}
+        
+        <div className="flex justify-end gap-2 mt-4">
+          <button
+            onClick={() => openStatusForm(report, report.flatId)}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg transition-colors text-sm"
+          >
+            Update Status
+          </button>
+          <button
+            onClick={() => {
+              setDeletingReport({ 
+                id: reportId,
+                flatId: report.flatId || selectedFlat 
+              });
+            }}
+            className="bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded-lg transition-colors text-sm"
+          >
+            Delete
+          </button>
         </div>
-      )}
-      
-      <div className="flex justify-end gap-2 mt-4">
-        <button
-          onClick={() => {
-            console.log('Update button clicked for report:', report);
-            console.log('Using ID:', reportId);
-            openStatusForm(report, report.flatId);
-          }}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors text-sm"
-        >
-          Update Status
-        </button>
-        <button
-          onClick={() => {
-            console.log('Delete button clicked for report:', report);
-            console.log('Using ID:', reportId);
-            console.log('Flat ID:', report.flatId || selectedFlat);
-            setDeletingReport({ 
-              id: reportId,
-              flatId: report.flatId || selectedFlat 
-            });
-          }}
-          className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded transition-colors text-sm"
-        >
-          Delete
-        </button>
       </div>
-    </div>
-  );
-};
+    );
+  };
 
   if (!user) {
     return (
-      <div className="container mx-auto p-6">
-        <div className="text-center py-8">
-          <p className="text-red-500 text-lg mb-4">Please log in to access maintenance management.</p>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="bg-white rounded-lg shadow-md p-12 text-center max-w-md mx-4">
+          <div className="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg className="w-10 h-10 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Authentication Required</h2>
+          <p className="text-gray-600 mb-8">Please log in to access maintenance management.</p>
           <a 
             href="/login"
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition-colors"
+            className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors inline-block"
           >
             Go to Login
           </a>
@@ -392,360 +384,367 @@ const MaintenanceManagement = () => {
   }
 
   return (
-    <div className="container mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-2">Maintenance Management</h1>
-      <p className="text-gray-600 mb-6">Track and manage maintenance issues across your properties</p>
-      
-      {/* View Mode Toggle */}
-      <div className="bg-white shadow-md rounded mb-6 p-6">
-        <h2 className="text-lg font-semibold mb-4">View Mode</h2>
-        <div className="flex gap-4">
-          <button
-            onClick={() => setViewMode('property')}
-            className={`px-4 py-2 rounded transition-colors ${
-              viewMode === 'property'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-            }`}
-          >
-            By Property
-          </button>
-          <button
-            onClick={() => setViewMode('all')}
-            className={`px-4 py-2 rounded transition-colors ${
-              viewMode === 'all'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-            }`}
-          >
-            All Properties
-          </button>
+    <div className="min-h-screen bg-gray-50">
+      <div className="bg-white shadow-sm border-b border-gray-200">
+        <div className="container mx-auto px-6 py-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Maintenance Management</h1>
+          <p className="text-gray-600">Track and manage maintenance issues across your properties.</p>
         </div>
       </div>
 
-      {/* Property Selection (only show in property mode) */}
-      {viewMode === 'property' && (
-        <div className="bg-white shadow-md rounded mb-6 p-6">
-          <h2 className="text-lg font-semibold mb-4">Select Property</h2>
-          <label className="block mb-1 font-semibold">Property</label>
-          <select
-            value={selectedFlat}
-            onChange={(e) => setSelectedFlat(e.target.value)}
-            className="w-full mb-4 p-2 border rounded"
-          >
-            <option value="">-- Select a Property --</option>
-            {flats.map(flat => (
-              <option key={flat._id} value={flat._id}>
-                {flat.title} {flat.tenantDetails ? `(${flat.tenantDetails.name})` : '(Vacant)'}
-              </option>
-            ))}
-          </select>
+      <div className="container mx-auto px-6 py-8">
+        <div className="bg-white shadow-sm border border-gray-200 rounded-lg mb-6 p-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">View Mode</h2>
+          <div className="flex gap-4">
+            <button
+              onClick={() => setViewMode('property')}
+              className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                viewMode === 'property'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+            >
+              By Property
+            </button>
+            <button
+              onClick={() => setViewMode('all')}
+              className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                viewMode === 'all'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+            >
+              All Properties
+            </button>
+          </div>
         </div>
-      )}
 
-      {/* Action Button (only in property mode with selection) */}
-      {viewMode === 'property' && selectedFlat && (
-        <div className="bg-white shadow-md rounded mb-6 p-6">
-          <h2 className="text-lg font-semibold mb-4">Quick Actions</h2>
-          <button
-            onClick={() => setShowMaintenanceForm(true)}
-            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded transition-colors"
-          >
-            Report Maintenance Issue
-          </button>
-        </div>
-      )}
+        {viewMode === 'property' && (
+          <div className="bg-white shadow-sm border border-gray-200 rounded-lg mb-6 p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Select Property</h2>
+            <select
+              value={selectedFlat}
+              onChange={(e) => setSelectedFlat(e.target.value)}
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            >
+              <option value="">-- Select a Property --</option>
+              {flats.map(flat => (
+                <option key={flat._id} value={flat._id}>
+                  {flat.title} {flat.tenantDetails ? `(${flat.tenantDetails.name})` : '(Vacant)'}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
-      {/* Maintenance Form Modal */}
-      {showMaintenanceForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded shadow-lg max-w-md w-full mx-4 max-h-screen overflow-y-auto">
-            <h3 className="text-lg font-semibold mb-4">Report Maintenance Issue</h3>
-            <form onSubmit={handleReportMaintenance}>
-              <div className="space-y-4">
-                <div>
-                  <label className="block mb-1 font-semibold">Issue Type</label>
-                  <select
-                    value={maintenanceForm.issueType}
-                    onChange={(e) => setMaintenanceForm({...maintenanceForm, issueType: e.target.value})}
-                    className="w-full p-2 border rounded"
-                    required
-                  >
-                    <option value="plumbing">Plumbing</option>
-                    <option value="electrical">Electrical</option>
-                    <option value="heating">Heating</option>
-                    <option value="cooling">Cooling/AC</option>
-                    <option value="appliance">Appliance</option>
-                    <option value="structural">Structural</option>
-                    <option value="pest_control">Pest Control</option>
-                    <option value="cleaning">Cleaning</option>
-                    <option value="painting">Painting</option>
-                    <option value="carpentry">Carpentry</option>
-                    <option value="other">Other</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block mb-1 font-semibold">Description</label>
-                  <textarea
-                    value={maintenanceForm.description}
-                    onChange={(e) => setMaintenanceForm({...maintenanceForm, description: e.target.value})}
-                    className="w-full p-2 border rounded h-24 resize-vertical"
-                    rows={3}
-                    required
-                    placeholder="Describe the maintenance issue in detail..."
-                  />
-                </div>
-                <div>
-                  <label className="block mb-1 font-semibold">Priority</label>
-                  <select
-                    value={maintenanceForm.priority}
-                    onChange={(e) => setMaintenanceForm({...maintenanceForm, priority: e.target.value})}
-                    className="w-full p-2 border rounded"
-                    required
-                  >
-                    <option value="low">Low</option>
-                    <option value="medium">Medium</option>
-                    <option value="high">High</option>
-                    <option value="urgent">Urgent</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block mb-1 font-semibold">Contractor</label>
-                  <select
-                    value={maintenanceForm.contractorId}
-                    onChange={(e) => setMaintenanceForm({...maintenanceForm, contractorId: e.target.value})}
-                    className="w-full p-2 border rounded"
-                    required
-                  >
-                    <option value="">-- Select Contractor --</option>
-                    {contractors.map(contractor => (
-                      <option key={contractor.id} value={contractor.id}>
-                        {contractor.name} ({contractor.specialization})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block mb-1 font-semibold">Estimated Cost ($)</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={maintenanceForm.estimatedCost}
-                    onChange={(e) => setMaintenanceForm({...maintenanceForm, estimatedCost: e.target.value})}
-                    className="w-full p-2 border rounded"
-                    placeholder="Optional estimated cost"
-                  />
-                </div>
-                <div>
-                  <label className="block mb-1 font-semibold">Scheduled Date</label>
-                  <input
-                    type="date"
-                    value={maintenanceForm.scheduledDate}
-                    onChange={(e) => setMaintenanceForm({...maintenanceForm, scheduledDate: e.target.value})}
-                    className="w-full p-2 border rounded"
-                  />
-                </div>
-                <div>
-                  <label className="block mb-1 font-semibold">Images</label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={handleImageSelect}
-                    className="w-full mb-4 p-2 border rounded file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                  />
-                  {selectedImages.length > 0 && (
-                    <div className="mb-4">
-                      <p className="text-sm font-medium text-gray-700 mb-2">
-                        Selected Images ({selectedImages.length}):
-                      </p>
-                      <div className="space-y-2 max-h-32 overflow-y-auto">
-                        {selectedImages.map((image, index) => (
-                          <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded border">
-                            <div className="flex items-center">
-                              <span className="text-sm text-gray-600 truncate">{image.name}</span>
-                              <span className="text-xs text-gray-400 ml-2">
-                                ({(image.size / 1024 / 1024).toFixed(2)} MB)
-                              </span>
+        {viewMode === 'property' && selectedFlat && (
+          <div className="bg-white shadow-sm border border-gray-200 rounded-lg mb-6 p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
+            <button
+              onClick={() => setShowMaintenanceForm(true)}
+              className="bg-red-600 hover:bg-red-700 text-white font-medium px-6 py-3 rounded-lg transition-colors"
+            >
+              Report Maintenance Issue
+            </button>
+          </div>
+        )}
+
+        {showMaintenanceForm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg shadow-2xl max-w-md w-full max-h-screen overflow-y-auto p-6">
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Report Maintenance Issue</h3>
+              <form onSubmit={handleReportMaintenance}>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Issue Type</label>
+                    <select
+                      value={maintenanceForm.issueType}
+                      onChange={(e) => setMaintenanceForm({...maintenanceForm, issueType: e.target.value})}
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      required
+                    >
+                      <option value="plumbing">Plumbing</option>
+                      <option value="electrical">Electrical</option>
+                      <option value="heating">Heating</option>
+                      <option value="cooling">Cooling/AC</option>
+                      <option value="appliance">Appliance</option>
+                      <option value="structural">Structural</option>
+                      <option value="pest_control">Pest Control</option>
+                      <option value="cleaning">Cleaning</option>
+                      <option value="painting">Painting</option>
+                      <option value="carpentry">Carpentry</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                    <textarea
+                      value={maintenanceForm.description}
+                      onChange={(e) => setMaintenanceForm({...maintenanceForm, description: e.target.value})}
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent h-24 resize-vertical"
+                      rows={3}
+                      required
+                      placeholder="Describe the maintenance issue in detail..."
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Priority</label>
+                    <select
+                      value={maintenanceForm.priority}
+                      onChange={(e) => setMaintenanceForm({...maintenanceForm, priority: e.target.value})}
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      required
+                    >
+                      <option value="low">Low</option>
+                      <option value="medium">Medium</option>
+                      <option value="high">High</option>
+                      <option value="urgent">Urgent</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Contractor</label>
+                    <select
+                      value={maintenanceForm.contractorId}
+                      onChange={(e) => setMaintenanceForm({...maintenanceForm, contractorId: e.target.value})}
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      required
+                    >
+                      <option value="">-- Select Contractor --</option>
+                      {contractors.map(contractor => (
+                        <option key={contractor.id} value={contractor.id}>
+                          {contractor.name} ({contractor.specialization})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Estimated Cost ($)</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={maintenanceForm.estimatedCost}
+                      onChange={(e) => setMaintenanceForm({...maintenanceForm, estimatedCost: e.target.value})}
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      placeholder="Optional estimated cost"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Scheduled Date</label>
+                    <input
+                      type="date"
+                      value={maintenanceForm.scheduledDate}
+                      onChange={(e) => setMaintenanceForm({...maintenanceForm, scheduledDate: e.target.value})}
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Images</label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handleImageSelect}
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
+                    />
+                    {selectedImages.length > 0 && (
+                      <div className="mt-4">
+                        <p className="text-sm font-medium text-gray-700 mb-2">
+                          Selected Images ({selectedImages.length}):
+                        </p>
+                        <div className="space-y-2 max-h-32 overflow-y-auto">
+                          {selectedImages.map((image, index) => (
+                            <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg border">
+                              <div className="flex items-center">
+                                <span className="text-sm text-gray-600 truncate">{image.name}</span>
+                                <span className="text-xs text-gray-400 ml-2">
+                                  ({(image.size / 1024 / 1024).toFixed(2)} MB)
+                                </span>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => removeImage(index)}
+                                className="text-red-500 hover:text-red-700 ml-2 font-bold text-lg"
+                              >
+                                ×
+                              </button>
                             </div>
-                            <button
-                              type="button"
-                              onClick={() => removeImage(index)}
-                              className="text-red-500 hover:text-red-700 ml-2 font-bold"
-                            >
-                              ×
-                            </button>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
-              </div>
-              <div className="flex gap-2 mt-6">
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-                >
-                  {loading ? 'Reporting...' : 'Report Issue'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowMaintenanceForm(false);
-                    setSelectedImages([]);
-                  }}
-                  className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Status Update Form Modal */}
-      {showStatusForm && editingReport && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded shadow-lg max-w-md w-full mx-4 max-h-screen overflow-y-auto">
-            <h3 className="text-lg font-semibold mb-4">Update Maintenance Status</h3>
-            <form onSubmit={handleUpdateStatus}>
-              <div className="space-y-4">
-                <div>
-                  <label className="block mb-1 font-semibold">Status</label>
-                  <select
-                    value={statusForm.status}
-                    onChange={(e) => setStatusForm({...statusForm, status: e.target.value})}
-                    className="w-full p-2 border rounded"
+                <div className="flex gap-3 mt-6">
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="flex-1 bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-4 rounded-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
                   >
-                    <option value="reported">Reported</option>
-                    <option value="assigned">Assigned</option>
-                    <option value="in_progress">In Progress</option>
-                    <option value="completed">Completed</option>
-                    <option value="cancelled">Cancelled</option>
-                  </select>
+                    {loading ? 'Reporting...' : 'Report Issue'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowMaintenanceForm(false);
+                      setSelectedImages([]);
+                    }}
+                    className="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-medium py-3 px-4 rounded-lg transition-colors"
+                  >
+                    Cancel
+                  </button>
                 </div>
-                <div>
-                  <label className="block mb-1 font-semibold">Actual Cost ($)</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={statusForm.actualCost}
-                    onChange={(e) => setStatusForm({...statusForm, actualCost: e.target.value})}
-                    className="w-full p-2 border rounded"
-                    placeholder="Final cost"
-                  />
+              </form>
+            </div>
+          </div>
+        )}
+
+        {showStatusForm && editingReport && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg shadow-2xl max-w-md w-full max-h-screen overflow-y-auto p-6">
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Update Maintenance Status</h3>
+              <form onSubmit={handleUpdateStatus}>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                    <select
+                      value={statusForm.status}
+                      onChange={(e) => setStatusForm({...statusForm, status: e.target.value})}
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    >
+                      <option value="reported">Reported</option>
+                      <option value="assigned">Assigned</option>
+                      <option value="in_progress">In Progress</option>
+                      <option value="completed">Completed</option>
+                      <option value="cancelled">Cancelled</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Actual Cost ($)</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={statusForm.actualCost}
+                      onChange={(e) => setStatusForm({...statusForm, actualCost: e.target.value})}
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      placeholder="Final cost"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Completion Date</label>
+                    <input
+                      type="date"
+                      value={statusForm.completionDate}
+                      onChange={(e) => setStatusForm({...statusForm, completionDate: e.target.value})}
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+                    <textarea
+                      value={statusForm.notes}
+                      onChange={(e) => setStatusForm({...statusForm, notes: e.target.value})}
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent h-24 resize-vertical"
+                      rows={3}
+                      placeholder="Additional notes..."
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="block mb-1 font-semibold">Completion Date</label>
-                  <input
-                    type="date"
-                    value={statusForm.completionDate}
-                    onChange={(e) => setStatusForm({...statusForm, completionDate: e.target.value})}
-                    className="w-full p-2 border rounded"
-                  />
+                <div className="flex gap-3 mt-6">
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                  >
+                    {loading ? 'Updating...' : 'Update Status'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowStatusForm(false)}
+                    className="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-medium py-3 px-4 rounded-lg transition-colors"
+                  >
+                    Cancel
+                  </button>
                 </div>
-                <div>
-                  <label className="block mb-1 font-semibold">Notes</label>
-                  <textarea
-                    value={statusForm.notes}
-                    onChange={(e) => setStatusForm({...statusForm, notes: e.target.value})}
-                    className="w-full p-2 border rounded h-24 resize-vertical"
-                    rows={3}
-                    placeholder="Additional notes..."
-                  />
-                </div>
-              </div>
-              <div className="flex gap-2 mt-6">
+              </form>
+            </div>
+          </div>
+        )}
+
+        {deletingReport && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg shadow-2xl max-w-md w-full p-6">
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Delete Maintenance Report</h3>
+              <p className="text-gray-600 mb-6">
+                Are you sure you want to delete this maintenance report? This action cannot be undone.
+              </p>
+              <div className="flex gap-3">
                 <button
-                  type="submit"
+                  onClick={handleDeleteReport}
                   disabled={loading}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                  className="flex-1 bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-4 rounded-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
                 >
-                  {loading ? 'Updating...' : 'Update Status'}
+                  {loading ? 'Deleting...' : 'Delete Report'}
                 </button>
                 <button
-                  type="button"
-                  onClick={() => setShowStatusForm(false)}
-                  className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded transition-colors"
+                  onClick={() => setDeletingReport(null)}
+                  className="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-medium py-3 px-4 rounded-lg transition-colors"
                 >
                   Cancel
                 </button>
               </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Delete Confirmation Modal */}
-      {deletingReport && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded shadow-lg max-w-md w-full mx-4">
-            <h3 className="text-lg font-semibold mb-4">Delete Maintenance Report</h3>
-            <p className="text-gray-600 mb-6">
-              Are you sure you want to delete this maintenance report? This action cannot be undone.
-            </p>
-            <div className="flex gap-2">
-              <button
-                onClick={handleDeleteReport}
-                disabled={loading}
-                className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-              >
-                {loading ? 'Deleting...' : 'Delete Report'}
-              </button>
-              <button
-                onClick={() => setDeletingReport(null)}
-                className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded transition-colors"
-              >
-                Cancel
-              </button>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Reports Display */}
-      {viewMode === 'property' && selectedFlat && (
-        <div className="bg-white shadow-md rounded p-6">
-          <h2 className="text-lg font-semibold mb-4">Maintenance Reports</h2>
-          {maintenanceReports.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              <p>No maintenance reports found for this property.</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {viewMode === 'property' && selectedFlat && (
+          <div className="bg-white shadow-sm border border-gray-200 rounded-lg p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Maintenance Reports</h2>
+            {maintenanceReports.length === 0 ? (
+              <div className="text-center py-12 text-gray-500">
+                <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <p>No maintenance reports found for this property.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {maintenanceReports.map(report => renderReportCard(report, false))}
               </div>
-            </div>
-          )}
-        </div>
-      )}
+            )}
+          </div>
+        )}
 
-      {viewMode === 'all' && (
-        <div className="bg-white shadow-md rounded p-6">
-          <h2 className="text-lg font-semibold mb-4">All Maintenance Reports</h2>
-          {allReports.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              <p>No maintenance reports found across all properties.</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {allReports.map(report => renderReportCard(report, true))}
-            </div>
-          )}
-        </div>
-      )}
+        {viewMode === 'all' && (
+          <div className="bg-white shadow-sm border border-gray-200 rounded-lg p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">All Maintenance Reports</h2>
+            {allReports.length === 0 ? (
+              <div className="text-center py-12 text-gray-500">
+                <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <p>No maintenance reports found across all properties.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {allReports.map(report => renderReportCard(report, true))}
+              </div>
+            )}
+          </div>
+        )}
 
-      {viewMode === 'property' && !selectedFlat && (
-        <div className="text-center py-8 text-gray-500">
-          <p>Select a property to view and manage maintenance reports.</p>
-        </div>
-      )}
+        {viewMode === 'property' && !selectedFlat && (
+          <div className="text-center py-16 text-gray-500">
+            <svg className="w-20 h-20 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+            <p>Select a property to view and manage maintenance reports.</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
