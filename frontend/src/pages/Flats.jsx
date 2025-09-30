@@ -409,50 +409,6 @@ const Flats = () => {
                     rows="4"
                   />
                 </div>
-
-                
-                {/* NEW FIELDS - Property Details Grid */}
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Bedrooms *</label>
-                    <input
-                      type="number"
-                      placeholder="0"
-                      min="0"
-                      value={formData.bedrooms}
-                      onChange={(e) => setFormData({ ...formData, bedrooms: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Bathrooms *</label>
-                    <input
-                      type="number"
-                      placeholder="0"
-                      min="0"
-                      step="0.5"
-                      value={formData.bathrooms}
-                      onChange={(e) => setFormData({ ...formData, bathrooms: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Carpark *</label>
-                    <input
-                      type="number"
-                      placeholder="0"
-                      min="0"
-                      value={formData.carpark}
-                      onChange={(e) => setFormData({ ...formData, carpark: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                      required
-                    />
-                  </div>
-                </div>
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Inspection Date</label>
@@ -626,7 +582,7 @@ const PropertyCard = ({ flat, onEdit, onDelete, onImageDelete, getImageUrl }) =>
           <span className="text-gray-600 text-sm">{flat.description || 'No description available'}</span>
         </div>
         
-        {/* Property Details - UPDATED to show new fields */}
+        {/* Property Details */}
         <div className="space-y-2 mb-4">
           <div className="flex items-center justify-between text-sm text-gray-600">
             <span>{flat.bedrooms || 0} Bedrooms</span>
