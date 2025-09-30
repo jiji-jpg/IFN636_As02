@@ -9,7 +9,7 @@ const Listing = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
-  const [filterAlert, setFilterAlert] = useState("all"); // 'all', 'alerts', 'no-alerts'
+  const [filterAlert, setFilterAlert] = useState("all");
   const [statistics, setStatistics] = useState({
     totalProperties: 0,
     occupiedProperties: 0,
@@ -70,7 +70,6 @@ const Listing = () => {
     const activities = [];
 
     flatsData.forEach((flat) => {
-      // Add maintenance activities
       if (flat.maintenanceReports) {
         flat.maintenanceReports.forEach((report) => {
           activities.push({
@@ -83,7 +82,6 @@ const Listing = () => {
         });
       }
 
-      // Add payment activities
       if (flat.payments) {
         flat.payments.forEach((payment) => {
           activities.push({
@@ -123,7 +121,6 @@ const Listing = () => {
     };
   };
 
-  // Filter properties
   const filteredFlats = flats.filter((flat) => {
     const matchesSearch =
       flat.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -146,9 +143,11 @@ const Listing = () => {
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="bg-white rounded-2xl shadow-lg p-12 text-center max-w-md mx-4">
+        <div className="bg-white rounded-lg shadow-md p-12 text-center max-w-md mx-4">
           <div className="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <span className="text-purple-600 text-4xl">🔐</span>
+            <svg className="w-10 h-10 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
           </div>
           <h2 className="text-2xl font-bold text-gray-800 mb-4">
             Welcome to Property Manager
@@ -159,7 +158,7 @@ const Listing = () => {
           </p>
           <Link
             to="/login"
-            className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-semibold py-3 px-8 rounded-xl transition-all duration-300 transform hover:scale-105"
+            className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 inline-block"
           >
             Go to Login
           </Link>
@@ -181,32 +180,31 @@ const Listing = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header Section */}
       <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="container mx-auto px-6 py-8">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
             <div className="mb-6 lg:mb-0">
               <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                Welcome back, {user?.name || "Property Manager"}! 👋
+                Welcome back, {user?.name || "Property Manager"}
               </h1>
               <p className="text-gray-600">
                 Here's an overview of your property portfolio and recent
-                activity
+                activity.
               </p>
             </div>
 
             <div className="flex gap-3">
               <Link
                 to="/flats"
-                className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-semibold px-6 py-3 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center space-x-2"
+                className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-6 py-3 rounded-lg transition-all duration-300 transform hover:scale-105"
               >
-                <span>Add Property</span>
+                Add Property
               </Link>
               <Link
                 to="/payments"
-                className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-semibold px-6 py-3 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center space-x-2"
+                className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-3 rounded-lg transition-all duration-300 transform hover:scale-105"
               >
-                <span>Payments</span>
+                Payments
               </Link>
             </div>
           </div>
@@ -214,71 +212,52 @@ const Listing = () => {
       </div>
 
       <div className="container mx-auto px-6 py-8">
-        {/* Statistics Cards */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
           <StatCard
-            icon="🏠"
             title="Total Properties"
             value={statistics.totalProperties}
-            color="bg-blue-500"
           />
           <StatCard
-            icon="✅"
             title="Occupied"
             value={statistics.occupiedProperties}
-            color="bg-green-500"
           />
           <StatCard
-            icon="🏚️"
             title="Vacant"
             value={statistics.vacantProperties}
-            color="bg-orange-500"
           />
           <StatCard
-            icon="💰"
             title="Monthly Rent"
             value={`$${statistics.totalRentExpected.toLocaleString()}`}
-            color="bg-purple-500"
           />
           <StatCard
-            icon="⚠️"
             title="Overdue"
             value={statistics.overduePayments}
-            color="bg-red-500"
             alert={statistics.overduePayments > 0}
           />
           <StatCard
-            icon="🔧"
             title="Maintenance"
             value={statistics.maintenanceIssues}
-            color="bg-yellow-500"
             alert={statistics.maintenanceIssues > 0}
           />
         </div>
 
-        {/* Search and Filter Bar */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-8">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
           <div className="flex flex-col lg:flex-row gap-4">
             <div className="flex-1">
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-xl">
-                  🔍
-                </span>
-                <input
-                  type="text"
-                  placeholder="Search properties by address or description..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                />
-              </div>
+              <input
+                type="text"
+                placeholder="Search properties by address or description..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+              />
             </div>
 
             <div className="flex gap-4">
               <select
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
-                className="px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
               >
                 <option value="all">All Status</option>
                 <option value="occupied">Occupied Only</option>
@@ -288,7 +267,7 @@ const Listing = () => {
               <select
                 value={filterAlert}
                 onChange={(e) => setFilterAlert(e.target.value)}
-                className="px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
               >
                 <option value="all">All Alerts</option>
                 <option value="alerts">With Alerts</option>
@@ -299,7 +278,6 @@ const Listing = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Properties Grid */}
           <div className="lg:col-span-3">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-gray-800">
@@ -311,9 +289,11 @@ const Listing = () => {
             </div>
 
             {filteredFlats.length === 0 ? (
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-16 text-center">
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-16 text-center">
                 <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <span className="text-gray-400 text-4xl">🏠</span>
+                  <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                  </svg>
                 </div>
                 <h3 className="text-xl font-semibold text-gray-800 mb-2">
                   {searchTerm || filterStatus !== "all" || filterAlert !== "all"
@@ -330,7 +310,7 @@ const Listing = () => {
                   filterAlert === "all" && (
                     <Link
                       to="/flats"
-                      className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-6 py-3 rounded-xl transition-colors"
+                      className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors inline-block"
                     >
                       Add Your First Property
                     </Link>
@@ -350,12 +330,9 @@ const Listing = () => {
             )}
           </div>
 
-          {/* Sidebar */}
           <div className="space-y-6">
-            {/* Recent Activity */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                <span className="mr-2">📊</span>
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">
                 Recent Activity
               </h3>
 
@@ -386,68 +363,54 @@ const Listing = () => {
                 </div>
               ) : (
                 <div className="text-center py-8">
-                  <span className="text-4xl mb-2 block">📝</span>
+                  <svg className="w-12 h-12 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
                   <p className="text-gray-600 text-sm">No recent activity</p>
                 </div>
               )}
             </div>
 
-            {/* Quick Actions */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                <span className="mr-2">⚡</span>
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">
                 Quick Actions
               </h3>
 
               <div className="space-y-3">
                 <Link
                   to="/flats"
-                  className="flex items-center p-3 text-gray-700 hover:bg-purple-50 hover:text-purple-700 rounded-lg transition-all duration-200 group"
+                  className="flex items-center p-3 text-gray-700 hover:bg-purple-50 hover:text-purple-700 rounded-lg transition-all duration-200"
                 >
-                  <span className="mr-3 text-lg group-hover:scale-110 transition-transform">
-                    🏠
-                  </span>
                   <span className="font-medium">Manage Properties</span>
                 </Link>
 
                 <Link
                   to="/tenants"
-                  className="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-lg transition-all duration-200 group"
+                  className="flex items-center p-3 text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-lg transition-all duration-200"
                 >
-                  <span className="mr-3 text-lg group-hover:scale-110 transition-transform">
-                    👥
-                  </span>
                   <span className="font-medium">View Tenants</span>
                 </Link>
 
                 <Link
                   to="/payments"
-                  className="flex items-center p-3 text-gray-700 hover:bg-green-50 hover:text-green-700 rounded-lg transition-all duration-200 group"
+                  className="flex items-center p-3 text-gray-700 hover:bg-green-50 hover:text-green-700 rounded-lg transition-all duration-200"
                 >
-                  <span className="mr-3 text-lg group-hover:scale-110 transition-transform">
-                    💰
-                  </span>
                   <span className="font-medium">Record Payment</span>
                 </Link>
 
                 <Link
                   to="/maintenance"
-                  className="flex items-center p-3 text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 rounded-lg transition-all duration-200 group"
+                  className="flex items-center p-3 text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 rounded-lg transition-all duration-200"
                 >
-                  <span className="mr-3 text-lg group-hover:scale-110 transition-transform">
-                    🔧
-                  </span>
                   <span className="font-medium">Report Issue</span>
                 </Link>
               </div>
             </div>
 
-            {/* Alerts */}
             {(statistics.overduePayments > 0 ||
               statistics.maintenanceIssues > 0) && (
-              <div className="bg-white rounded-2xl shadow-sm border border-red-200 p-6">
-                <h3 className="text-lg font-semibold text-red-800 mb-4 flex items-center">
-                  <span className="mr-2">🚨</span>
+              <div className="bg-white rounded-lg shadow-sm border border-red-200 p-6">
+                <h3 className="text-lg font-semibold text-red-800 mb-4">
                   Alerts
                 </h3>
 
@@ -491,38 +454,27 @@ const Listing = () => {
   );
 };
 
-// Statistics Card Component
-const StatCard = ({ icon, title, value, color, alert = false }) => {
+const StatCard = ({ title, value, alert = false }) => {
   return (
     <div
-      className={`bg-white rounded-xl shadow-sm border border-gray-200 p-4 ${
+      className={`bg-white rounded-lg shadow-sm border border-gray-200 p-4 ${
         alert ? "ring-2 ring-red-200 bg-red-50" : ""
       }`}
     >
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-gray-600 text-xs font-medium mb-1">{title}</p>
-          <p
-            className={`text-lg font-bold ${
-              alert ? "text-red-600" : "text-gray-900"
-            }`}
-          >
-            {value}
-          </p>
-        </div>
-        <div
-          className={`w-10 h-10 ${color} rounded-lg flex items-center justify-center ${
-            alert ? "animate-pulse" : ""
+      <div>
+        <p className="text-gray-600 text-xs font-medium mb-1">{title}</p>
+        <p
+          className={`text-lg font-bold ${
+            alert ? "text-red-600" : "text-gray-900"
           }`}
         >
-          <span className="text-white text-lg">{icon}</span>
-        </div>
+          {value}
+        </p>
       </div>
     </div>
   );
 };
 
-// Dashboard Property Card Component
 const DashboardPropertyCard = ({ flat, getImageUrl, getPropertyStatus }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const { hasOverdueInvoices, hasActiveMaintenance, hasAlerts } =
@@ -542,11 +494,10 @@ const DashboardPropertyCard = ({ flat, getImageUrl, getPropertyStatus }) => {
 
   return (
     <div
-      className={`bg-white rounded-2xl shadow-sm border overflow-hidden hover:shadow-lg transition-all duration-300 group ${
+      className={`bg-white rounded-lg shadow-sm border overflow-hidden hover:shadow-lg transition-all duration-300 group ${
         hasAlerts ? "border-red-200 ring-1 ring-red-200" : "border-gray-200"
       }`}
     >
-      {/* Image Section */}
       <div className="relative h-48 bg-gray-200">
         {flat.images && flat.images.length > 0 ? (
           <>
@@ -560,20 +511,19 @@ const DashboardPropertyCard = ({ flat, getImageUrl, getPropertyStatus }) => {
               }}
             />
 
-            {/* Image Navigation */}
             {flat.images.length > 1 && (
               <>
                 <button
                   onClick={handlePrevImage}
                   className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white rounded-full w-8 h-8 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-opacity-75"
                 >
-                  ❮
+                  ‹
                 </button>
                 <button
                   onClick={handleNextImage}
                   className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white rounded-full w-8 h-8 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-opacity-75"
                 >
-                  ❯
+                  ›
                 </button>
 
                 <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-1">
@@ -600,12 +550,13 @@ const DashboardPropertyCard = ({ flat, getImageUrl, getPropertyStatus }) => {
           </>
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
-            <span className="text-4xl mb-2">🏠</span>
+            <svg className="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
             <span className="text-sm">No images</span>
           </div>
         )}
 
-        {/* Status Badges */}
         <div className="absolute top-2 left-2 flex flex-col gap-1">
           <span
             className={`px-3 py-1 text-xs font-semibold rounded-full ${
@@ -631,34 +582,33 @@ const DashboardPropertyCard = ({ flat, getImageUrl, getPropertyStatus }) => {
         </div>
       </div>
 
-      {/* Content Section */}
       <div className="p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-1">
           {flat.title}
         </h3>
-        <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-          {flat.description || "No description available"}
-        </p>
+        
+        <div className="mb-4">
+          <span className="text-sm font-semibold text-gray-700">Description: </span>
+          <span className="text-gray-600 text-sm">{flat.description || "No description available"}</span>
+        </div>
 
-        {/* Property Details */}
         <div className="space-y-2 mb-4">
           {!flat.vacant && flat.tenantDetails && (
             <>
-              <div className="flex items-center text-sm text-gray-600">
-                <span className="mr-2">👤</span>
-                <span>{flat.tenantDetails.name}</span>
+              <div className="text-sm">
+                <span className="font-semibold text-gray-700">Tenant: </span>
+                <span className="text-gray-600">{flat.tenantDetails.name}</span>
               </div>
-              <div className="flex items-center text-sm font-medium text-green-600">
-                <span className="mr-2">💰</span>
-                <span>${flat.tenantDetails.rentAmount}/month</span>
+              <div className="text-sm">
+                <span className="font-semibold text-gray-700">Rent: </span>
+                <span className="text-green-600 font-medium">${flat.tenantDetails.rentAmount}/month</span>
               </div>
             </>
           )}
 
-          <div className="flex items-center text-sm text-gray-600">
-            <span className="mr-2">📅</span>
-            <span>
-              Next inspection:{" "}
+          <div className="text-sm">
+            <span className="font-semibold text-gray-700">Inspection: </span>
+            <span className="text-gray-600">
               {flat.inspectionDate
                 ? new Date(flat.inspectionDate).toLocaleDateString()
                 : "Not scheduled"}
@@ -666,19 +616,18 @@ const DashboardPropertyCard = ({ flat, getImageUrl, getPropertyStatus }) => {
           </div>
         </div>
 
-        {/* Action Buttons */}
         <div className="grid grid-cols-2 gap-2">
           <Link
             to={`/flats`}
-            className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2 text-sm"
+            className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center justify-center text-sm"
           >
-            <span>Manage</span>
+            Manage
           </Link>
           <Link
             to={`/payments`}
-            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2 text-sm"
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center justify-center text-sm"
           >
-            <span>Payments</span>
+            Payments
           </Link>
         </div>
       </div>
