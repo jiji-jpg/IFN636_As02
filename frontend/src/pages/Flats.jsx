@@ -575,7 +575,12 @@ const PropertyCard = ({ flat, onEdit, onDelete, onImageDelete, getImageUrl }) =>
       {/* Content Section */}
       <div className="p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-1">{flat.title}</h3>
-        <p className="text-gray-600 text-sm mb-4 line-clamp-2">{flat.description || 'No description available'}</p>
+        
+        {/* Description */}
+        <div className="mb-4">
+          <span className="text-sm font-semibold text-gray-700">Description: </span>
+          <span className="text-gray-600 text-sm">{flat.description || 'No description available'}</span>
+        </div>
         
         {/* Property Details */}
         <div className="space-y-2 mb-4">
@@ -585,16 +590,20 @@ const PropertyCard = ({ flat, onEdit, onDelete, onImageDelete, getImageUrl }) =>
             <span>{flat.carpark || 0} Carpark</span>
           </div>
           
-          <div className="text-sm text-gray-600">
-            Inspection: {flat.inspectionDate 
-              ? new Date(flat.inspectionDate).toLocaleDateString() 
-              : 'Not scheduled'
-            }
+          <div className="text-sm">
+            <span className="font-semibold text-gray-700">Inspection: </span>
+            <span className="text-gray-600">
+              {flat.inspectionDate 
+                ? new Date(flat.inspectionDate).toLocaleDateString() 
+                : 'Not scheduled'
+              }
+            </span>
           </div>
           
           {!flat.vacant && flat.tenantDetails && (
-            <div className="text-sm text-gray-600">
-              Tenant: {flat.tenantDetails.name}
+            <div className="text-sm">
+              <span className="font-semibold text-gray-700">Tenant: </span>
+              <span className="text-gray-600">{flat.tenantDetails.name}</span>
             </div>
           )}
         </div>
