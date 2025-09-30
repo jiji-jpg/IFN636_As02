@@ -9,10 +9,17 @@ const Flats = () => {
   const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState('all'); // 'all', 'occupied', 'vacant'
+  const [filterStatus, setFilterStatus] = useState('all');
 
-  // Form state
-  const [formData, setFormData] = useState({ title: '', description: '', inspectionDate: '' });
+  // Form state - UPDATED with new fields
+  const [formData, setFormData] = useState({ 
+    title: '', 
+    description: '', 
+    inspectionDate: '',
+    bedrooms: '',
+    bathrooms: '',
+    carpark: ''
+  });
   const [selectedImages, setSelectedImages] = useState([]);
   const [uploading, setUploading] = useState(false);
 
@@ -26,6 +33,9 @@ const Flats = () => {
         title: editingFlat.title,
         description: editingFlat.description,
         inspectionDate: editingFlat.inspectionDate ? editingFlat.inspectionDate.split('T')[0] : '',
+        bedrooms: editingFlat.bedrooms || '',
+        bathrooms: editingFlat.bathrooms || '',
+        carpark: editingFlat.carpark || '',
       });
       setSelectedImages([]);
       setShowAddForm(true);
@@ -60,6 +70,18 @@ const Flats = () => {
       alert('Please enter a valid address.');
       return;
     }
+    if (!formData.bedrooms) {
+      alert('Please enter number of bedrooms.');
+      return;
+    }
+    if (!formData.bathrooms) {
+      alert('Please enter number of bathrooms.');
+      return;
+    }
+    if (!formData.carpark) {
+      alert('Please enter carpark information.');
+      return;
+    }
 
     setUploading(true);
     try {
@@ -67,6 +89,9 @@ const Flats = () => {
       submitData.append('title', formData.title);
       submitData.append('description', formData.description);
       submitData.append('inspectionDate', formData.inspectionDate);
+      submitData.append('bedrooms', formData.bedrooms);
+      submitData.append('bathrooms', formData.bathrooms);
+      submitData.append('carpark', formData.carpark);
       
       selectedImages.forEach((image) => {
         submitData.append('images', image);
@@ -92,7 +117,14 @@ const Flats = () => {
       }
       
       // Reset form
-      setFormData({ title: '', description: '', inspectionDate: '' });
+      setFormData({ 
+        title: '', 
+        description: '', 
+        inspectionDate: '',
+        bedrooms: '',
+        bathrooms: '',
+        carpark: ''
+      });
       setSelectedImages([]);
       setShowAddForm(false);
       const fileInput = document.getElementById('image-upload-input');
@@ -150,7 +182,14 @@ const Flats = () => {
   };
 
   const resetForm = () => {
-    setFormData({ title: '', description: '', inspectionDate: '' });
+    setFormData({ 
+      title: '', 
+      description: '', 
+      inspectionDate: '',
+      bedrooms: '',
+      bathrooms: '',
+      carpark: ''
+    });
     setSelectedImages([]);
     setEditingFlat(null);
     setShowAddForm(false);
@@ -158,7 +197,6 @@ const Flats = () => {
     if (fileInput) fileInput.value = '';
   };
 
-  // Filter properties based on search and status
   const filteredFlats = flats.filter(flat => {
     const matchesSearch = flat.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          flat.description.toLowerCase().includes(searchTerm.toLowerCase());
@@ -331,6 +369,50 @@ const Flats = () => {
                     rows="4"
                   />
                 </div>
+
+                
+                {/* NEW FIELDS - Property Details Grid */}
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Bedrooms *</label>
+                    <input
+                      type="number"
+                      placeholder="0"
+                      min="0"
+                      value={formData.bedrooms}
+                      onChange={(e) => setFormData({ ...formData, bedrooms: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Bathrooms *</label>
+                    <input
+                      type="number"
+                      placeholder="0"
+                      min="0"
+                      step="0.5"
+                      value={formData.bathrooms}
+                      onChange={(e) => setFormData({ ...formData, bathrooms: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Carpark *</label>
+                    <input
+                      type="number"
+                      placeholder="0"
+                      min="0"
+                      value={formData.carpark}
+                      onChange={(e) => setFormData({ ...formData, carpark: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                      required
+                    />
+                  </div>
+                </div>
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Inspection Date</label>
@@ -439,7 +521,6 @@ const PropertyCard = ({ flat, onEdit, onDelete, onImageDelete, getImageUrl }) =>
               }}
             />
             
-            {/* Image Navigation */}
             {flat.images.length > 1 && (
               <>
                 <button
@@ -455,7 +536,6 @@ const PropertyCard = ({ flat, onEdit, onDelete, onImageDelete, getImageUrl }) =>
                   ❯
                 </button>
                 
-                {/* Image dots indicator */}
                 <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-1">
                   {flat.images.map((_, index) => (
                     <button
@@ -472,19 +552,16 @@ const PropertyCard = ({ flat, onEdit, onDelete, onImageDelete, getImageUrl }) =>
               </>
             )}
             
-            {/* Image count badge */}
             <div className="absolute top-2 right-2 bg-black bg-opacity-75 text-white px-2 py-1 rounded text-xs font-medium">
               {currentImageIndex + 1} / {flat.images.length}
             </div>
           </>
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
-            <span className="text-4xl mb-2">🏠</span>
             <span className="text-sm">No images</span>
           </div>
         )}
         
-        {/* Status Badge */}
         <div className="absolute top-2 left-2">
           <span className={`px-3 py-1 text-xs font-semibold rounded-full ${
             flat.vacant 
@@ -501,8 +578,23 @@ const PropertyCard = ({ flat, onEdit, onDelete, onImageDelete, getImageUrl }) =>
         <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-1">{flat.title}</h3>
         <p className="text-gray-600 text-sm mb-4 line-clamp-2">{flat.description || 'No description available'}</p>
         
-        {/* Property Details */}
+        {/* Property Details - UPDATED to show new fields */}
         <div className="space-y-2 mb-4">
+          <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center text-gray-600">
+              <span className="mr-2">🛏️</span>
+              <span>{flat.bedrooms || 0} Bed</span>
+            </div>
+            <div className="flex items-center text-gray-600">
+              <span className="mr-2">🚿</span>
+              <span>{flat.bathrooms || 0} Bath</span>
+            </div>
+            <div className="flex items-center text-gray-600">
+              <span className="mr-2">🚗</span>
+              <span>{flat.carpark || 0} Car</span>
+            </div>
+          </div>
+          
           <div className="flex items-center text-sm text-gray-600">
             <span className="mr-2">📅</span>
             <span>
