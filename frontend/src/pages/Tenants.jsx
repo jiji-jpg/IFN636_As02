@@ -51,7 +51,6 @@ const Tenants = () => {
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
 
-      // Update tenant in the list
       setTenants(tenants.map(tenant => 
         tenant.flatId === editingTenant.flatId 
           ? { ...tenant, tenant: response.data.tenant }
@@ -76,7 +75,6 @@ const Tenants = () => {
         headers: { Authorization: `Bearer ${user.token}` }
       });
 
-      // Remove tenant from the list
       setTenants(tenants.filter(t => t.flatId !== flatId));
       alert('Tenant removed successfully!');
     } catch (error) {
@@ -95,32 +93,21 @@ const Tenants = () => {
     });
   };
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString();
-  };
-
-  const formatCurrency = (amount) => {
-    return `$${Number(amount).toFixed(2)}`;
-  };
-
-  // Filter tenants based on search term
-  const filteredTenants = tenants.filter(tenant => {
-    const searchLower = searchTerm.toLowerCase();
-    return (
-      tenant.tenant.name.toLowerCase().includes(searchLower) ||
-      tenant.tenant.email.toLowerCase().includes(searchLower) ||
-      tenant.flatTitle.toLowerCase().includes(searchLower)
-    );
-  });
+  const filteredTenants = tenants.filter(tenant =>
+    tenant.tenant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    tenant.tenant.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    tenant.flatTitle.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   if (!user) {
     return (
-      <div className="container mx-auto p-6">
-        <div className="text-center py-8">
-          <p className="text-red-500 text-lg mb-4">Please log in to access tenant management.</p>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+        <div className="bg-white rounded-2xl shadow-2xl p-12 text-center max-w-md mx-4">
+          <h2 className="text-3xl font-bold text-gray-800 mb-4">Access Required</h2>
+          <p className="text-gray-600 mb-8">Please log in to view tenant information.</p>
           <a 
             href="/login"
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition-colors"
+            className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
           >
             Go to Login
           </a>
@@ -131,226 +118,239 @@ const Tenants = () => {
 
   if (loading) {
     return (
-      <div className="container mx-auto p-6">
-        <div className="text-center py-8 text-gray-500">
-          <p>Loading tenants...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="container mx-auto p-6">
-        <div className="text-center py-8">
-          <p className="text-red-500 text-lg mb-4">{error}</p>
-          <button 
-            onClick={fetchAllTenants}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition-colors"
-          >
-            Try Again
-          </button>
-        </div>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+        <div className="text-white text-xl">Loading tenants...</div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-2">Tenant Directory</h1>
-      <p className="text-gray-600 mb-6">View and manage all tenants across your properties</p>
-
-      {/* Statistics */}
-      <div className="bg-white shadow-md rounded mb-6 p-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-blue-50 border border-blue-200 rounded p-4">
-            <h3 className="text-sm font-medium text-blue-600 mb-1">Total Tenants</h3>
-            <p className="text-2xl font-bold text-blue-800">{tenants.length}</p>
-          </div>
-          <div className="bg-green-50 border border-green-200 rounded p-4">
-            <h3 className="text-sm font-medium text-green-600 mb-1">Total Monthly Rent</h3>
-            <p className="text-2xl font-bold text-green-800">
-              {formatCurrency(tenants.reduce((sum, t) => sum + (t.tenant.rentAmount || 0), 0))}
-            </p>
-          </div>
-          <div className="bg-purple-50 border border-purple-200 rounded p-4">
-            <h3 className="text-sm font-medium text-purple-600 mb-1">Average Rent</h3>
-            <p className="text-2xl font-bold text-purple-800">
-              {tenants.length > 0 
-                ? formatCurrency(tenants.reduce((sum, t) => sum + (t.tenant.rentAmount || 0), 0) / tenants.length)
-                : '$0.00'}
+    <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+      {/* Header Section */}
+      <div className="bg-white bg-opacity-10 backdrop-blur-sm border-b border-white border-opacity-20">
+        <div className="container mx-auto px-6 py-8">
+          <div className="text-center text-white">
+            <h1 className="text-4xl font-bold mb-4">Tenant Management</h1>
+            <p className="text-xl opacity-90 max-w-2xl mx-auto">
+              View and manage all your tenants in one place. Keep track of contact details, rent amounts, and lease information.
             </p>
           </div>
         </div>
       </div>
 
-      {/* Search Bar */}
-      <div className="bg-white shadow-md rounded mb-6 p-6">
-        <label className="block mb-1 font-semibold">Search Tenants</label>
-        <input
-          type="text"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Search by tenant name, email, or property..."
-          className="w-full p-2 border rounded"
-        />
-      </div>
-
-      {/* Tenants List */}
-      <div className="bg-white shadow-md rounded p-6">
-        <h2 className="text-lg font-semibold mb-4">All Tenants ({filteredTenants.length})</h2>
-        
-        {filteredTenants.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
-            <p>{searchTerm ? 'No tenants found matching your search.' : 'No tenants found.'}</p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {filteredTenants.map((tenantData) => (
-              <div key={tenantData.flatId} className="border border-gray-200 rounded p-4 hover:shadow-md transition-shadow">
-                <div className="flex justify-between items-start mb-3">
-                  <div>
-                    <h3 className="font-semibold text-lg">{tenantData.tenant.name}</h3>
-                    <p className="text-sm text-blue-600 font-medium">{tenantData.flatTitle}</p>
-                    <span className={`inline-block mt-1 px-2 py-1 text-xs font-semibold rounded ${
-                      tenantData.vacant ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
-                    }`}>
-                      {tenantData.vacant ? 'Marked Vacant' : 'Active'}
-                    </span>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-lg font-bold text-green-700">
-                      {formatCurrency(tenantData.tenant.rentAmount)}/mo
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm mb-3">
-                  <div>
-                    <span className="font-medium text-gray-600">Email:</span>
-                    <p className="text-gray-800">{tenantData.tenant.email}</p>
-                  </div>
-                  <div>
-                    <span className="font-medium text-gray-600">Phone:</span>
-                    <p className="text-gray-800">{tenantData.tenant.phone}</p>
-                  </div>
-                  <div>
-                    <span className="font-medium text-gray-600">Move-in Date:</span>
-                    <p className="text-gray-800">{formatDate(tenantData.tenant.moveInDate)}</p>
-                  </div>
-                  <div>
-                    <span className="font-medium text-gray-600">Tenure:</span>
-                    <p className="text-gray-800">
-                      {Math.floor((new Date() - new Date(tenantData.tenant.moveInDate)) / (1000 * 60 * 60 * 24 * 30))} months
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex gap-2 mt-4">
-                  <button
-                    onClick={() => openEditForm(tenantData)}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors text-sm"
-                  >
-                    Edit Details
-                  </button>
-                  <button
-                    onClick={() => handleRemoveTenant(tenantData.flatId)}
-                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded transition-colors text-sm"
-                  >
-                    Remove Tenant
-                  </button>
-                </div>
+      <div className="container mx-auto px-6 py-12">
+        <div className="max-w-6xl mx-auto">
+          {/* Search and Stats */}
+          <div className="bg-white rounded-2xl shadow-2xl p-8 mb-8 border border-white border-opacity-20">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-800 mb-4 md:mb-0">
+                All Tenants ({filteredTenants.length})
+              </h2>
+              <div className="w-full md:w-96">
+                <input
+                  type="text"
+                  placeholder="Search tenants by name, email, or property..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                />
               </div>
-            ))}
+            </div>
           </div>
-        )}
+
+          {/* Tenants List */}
+          <div className="bg-white rounded-2xl shadow-2xl border border-white border-opacity-20 overflow-hidden">
+            {error && (
+              <div className="bg-red-50 border-l-4 border-red-400 p-4 m-6">
+                <p className="text-red-800">{error}</p>
+              </div>
+            )}
+
+            {filteredTenants.length === 0 ? (
+              <div className="text-center py-16">
+                <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <span className="text-gray-400 text-4xl">👥</span>
+                </div>
+                <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                  {searchTerm ? 'No matching tenants found' : 'No tenants yet'}
+                </h3>
+                <p className="text-gray-600">
+                  {searchTerm 
+                    ? 'Try adjusting your search criteria'
+                    : 'Add tenants to your properties to see them here'
+                  }
+                </p>
+              </div>
+            ) : (
+              <div className="divide-y divide-gray-200">
+                {filteredTenants.map((tenantData) => (
+                  <div key={tenantData.flatId} className="p-6 hover:bg-gray-50 transition-colors">
+                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+                      <div className="flex-1 mb-4 lg:mb-0">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                          {/* Tenant Info */}
+                          <div>
+                            <p className="text-sm font-medium text-gray-700 mb-1">Tenant Information</p>
+                            <h3 className="text-lg font-semibold text-gray-800 mb-1">
+                              {tenantData.tenant.name}
+                            </h3>
+                            <p className="text-gray-600 text-sm mb-1">{tenantData.tenant.email}</p>
+                            <p className="text-gray-600 text-sm">{tenantData.tenant.phone}</p>
+                          </div>
+                          
+                          {/* Property Info */}
+                          <div>
+                            <p className="text-sm font-medium text-gray-700 mb-1">Property Details</p>
+                            <p className="font-medium text-gray-800 text-sm mb-1">{tenantData.flatTitle}</p>
+                          </div>
+                          
+                          {/* Lease Info */}
+                          <div>
+                            <p className="text-sm font-medium text-gray-700 mb-1">Lease Information</p>
+                            <p className="text-green-600 font-semibold text-sm mb-1">
+                              ${tenantData.tenant.rentAmount}/month
+                            </p>
+                            <p className="text-gray-600 text-sm">
+                              Moved in: {tenantData.tenant.moveInDate ? 
+                                new Date(tenantData.tenant.moveInDate).toLocaleDateString() : 'N/A'
+                              }
+                            </p>
+                          </div>
+                          
+                          {/* Contact & Status */}
+                          <div>
+                            <p className="text-sm font-medium text-gray-700 mb-1">Status</p>
+                            <div className="flex items-center space-x-2 mb-2">
+                              <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                              <span className="text-sm text-green-600 font-medium">Active Lease</span>
+                            </div>
+                            <p className="text-gray-600 text-xs">
+                              Lease Duration: {tenantData.tenant.moveInDate ? 
+                                Math.floor((new Date() - new Date(tenantData.tenant.moveInDate)) / (1000 * 60 * 60 * 24)) 
+                                : 0} days
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Action Buttons */}
+                      <div className="flex gap-3 lg:ml-6">
+                        <button
+                          onClick={() => openEditForm(tenantData)}
+                          className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center space-x-2"
+                        >
+                          <span>Edit</span>
+                        </button>
+                        <button
+                          onClick={() => handleRemoveTenant(tenantData.flatId)}
+                          className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center space-x-2"
+                        >
+                          <span>Remove</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
-      {/* Edit Tenant Modal */}
+      {/* Edit Modal */}
       {editingTenant && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded shadow-lg max-w-md w-full mx-4 max-h-screen overflow-y-auto">
-            <h3 className="text-lg font-semibold mb-4">Edit Tenant Details</h3>
-            <p className="text-sm text-gray-600 mb-4">Property: {editingTenant.flatTitle}</p>
-            <form onSubmit={handleUpdateTenant}>
-              <div className="space-y-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-screen overflow-y-auto">
+            <div className="p-8">
+              <h3 className="text-2xl font-bold text-gray-800 mb-6">Edit Tenant</h3>
+              <form onSubmit={handleUpdateTenant} className="space-y-4">
                 <div>
-                  <label className="block mb-1 font-semibold">Tenant Name</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
                   <input
                     type="text"
                     value={tenantForm.name}
                     onChange={(e) => setTenantForm({...tenantForm, name: e.target.value})}
-                    className="w-full p-2 border rounded"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                     required
                   />
                 </div>
                 
                 <div>
-                  <label className="block mb-1 font-semibold">Email</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
                   <input
                     type="email"
                     value={tenantForm.email}
                     onChange={(e) => setTenantForm({...tenantForm, email: e.target.value})}
-                    className="w-full p-2 border rounded"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                     required
                   />
                 </div>
                 
                 <div>
-                  <label className="block mb-1 font-semibold">Phone</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
                   <input
                     type="tel"
                     value={tenantForm.phone}
                     onChange={(e) => setTenantForm({...tenantForm, phone: e.target.value})}
-                    className="w-full p-2 border rounded"
-                    required
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                   />
                 </div>
                 
                 <div>
-                  <label className="block mb-1 font-semibold">Move-in Date</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Move-in Date</label>
                   <input
                     type="date"
                     value={tenantForm.moveInDate}
                     onChange={(e) => setTenantForm({...tenantForm, moveInDate: e.target.value})}
-                    className="w-full p-2 border rounded"
-                    required
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                   />
                 </div>
                 
                 <div>
-                  <label className="block mb-1 font-semibold">Monthly Rent ($)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Monthly Rent ($)</label>
                   <input
                     type="number"
+                    step="0.01"
+                    min="0"
                     value={tenantForm.rentAmount}
                     onChange={(e) => setTenantForm({...tenantForm, rentAmount: e.target.value})}
-                    className="w-full p-2 border rounded"
-                    min="0"
-                    step="0.01"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                     required
                   />
                 </div>
-              </div>
-              
-              <div className="flex gap-2 mt-6">
-                <button
-                  type="submit"
-                  className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded transition-colors"
-                >
-                  Update Tenant
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setEditingTenant(null)}
-                  className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
+                
+                <div className="flex gap-4 pt-4">
+                  <button
+                    type="submit"
+                    className="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-3 px-4 rounded-lg font-medium transition-colors"
+                  >
+                    Update Tenant
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingTenant(null);
+                      setTenantForm({ name: '', email: '', phone: '', moveInDate: '', rentAmount: '' });
+                    }}
+                    className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-3 px-4 rounded-lg font-medium transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       )}
+
+      {/* Footer */}
+      <div className="bg-white bg-opacity-10 backdrop-blur-sm border-t border-white border-opacity-20">
+        <div className="container mx-auto px-6 py-6">
+          <p className="text-white text-center text-sm opacity-75">
+            © 2025 Property Manager. All rights reserved.
+          </p>
+        </div>
+      </div>
     </div>
   );
 };
