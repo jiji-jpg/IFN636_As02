@@ -294,7 +294,7 @@ const Tenants = () => {
             <form onSubmit={handleUpdateTenant}>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Tenant Name</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Tenant Name</label>      
                   <input
                     type="text"
                     value={tenantForm.name}
@@ -341,6 +341,8 @@ const Tenants = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">Monthly Rent ($)</label>
                   <input
                     type="number"
+                    step="0.01"
+                    min="0"
                     value={tenantForm.rentAmount}
                     onChange={(e) => setTenantForm({...tenantForm, rentAmount: e.target.value})}
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
@@ -370,6 +372,15 @@ const Tenants = () => {
           </div>
         </div>
       )}
+
+      {/* Footer */}
+      <div className="bg-white bg-opacity-10 backdrop-blur-sm border-t border-white border-opacity-20">
+        <div className="container mx-auto px-6 py-6">
+          <p className="text-white text-center text-sm opacity-75">
+            © 2025 Property Manager. All rights reserved.
+          </p>
+        </div>
+      </div>
     </div>
   );
 };
