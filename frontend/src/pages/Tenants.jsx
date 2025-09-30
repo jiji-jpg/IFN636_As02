@@ -341,8 +341,6 @@ const Tenants = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">Monthly Rent ($)</label>
                   <input
                     type="number"
-                    step="0.01"
-                    min="0"
                     value={tenantForm.rentAmount}
                     onChange={(e) => setTenantForm({...tenantForm, rentAmount: e.target.value})}
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
