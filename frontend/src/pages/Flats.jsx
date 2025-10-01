@@ -219,7 +219,6 @@ const Flats = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header Section */}
       <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="container mx-auto px-6 py-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between">
@@ -241,7 +240,6 @@ const Flats = () => {
       </div>
 
       <div className="container mx-auto px-6 py-8">
-        {/* Search and Filter Bar */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1">
@@ -267,7 +265,6 @@ const Flats = () => {
             </div>
           </div>
           
-          {/* Stats */}
           <div className="mt-6 grid grid-cols-3 gap-4 pt-6 border-t border-gray-200">
             <div className="text-center">
               <div className="text-2xl font-bold text-purple-600">{flats.length}</div>
@@ -284,7 +281,6 @@ const Flats = () => {
           </div>
         </div>
 
-        {/* Properties Grid */}
         {filteredFlats.length === 0 ? (
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-16 text-center">
             <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -326,7 +322,6 @@ const Flats = () => {
         )}
       </div>
 
-      {/* Add/Edit Property Modal */}
       {showAddForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-screen overflow-y-auto">
@@ -356,7 +351,6 @@ const Flats = () => {
                   />
                 </div>
 
-                {/* Property Details Grid */}
                 <div className="grid grid-cols-3 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Bedrooms *</label>
@@ -485,7 +479,6 @@ const Flats = () => {
   );
 };
 
-// Property Card Component
 const PropertyCard = ({ flat, onEdit, onDelete, onImageDelete, getImageUrl }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -503,7 +496,6 @@ const PropertyCard = ({ flat, onEdit, onDelete, onImageDelete, getImageUrl }) =>
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 group">
-      {/* Image Section */}
       <div className="relative h-48 bg-gray-200">
         {flat.images && flat.images.length > 0 ? (
           <>
@@ -572,17 +564,14 @@ const PropertyCard = ({ flat, onEdit, onDelete, onImageDelete, getImageUrl }) =>
         </div>
       </div>
 
-      {/* Content Section */}
       <div className="p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-1">{flat.title}</h3>
         
-        {/* Description */}
         <div className="mb-4">
           <span className="text-sm font-semibold text-gray-700">Description: </span>
           <span className="text-gray-600 text-sm">{flat.description || 'No description available'}</span>
         </div>
         
-        {/* Property Details */}
         <div className="space-y-2 mb-4">
           <div className="flex items-center justify-between text-sm text-gray-600">
             <span>{flat.bedrooms || 0} Bedrooms</span>
@@ -608,7 +597,6 @@ const PropertyCard = ({ flat, onEdit, onDelete, onImageDelete, getImageUrl }) =>
           )}
         </div>
 
-        {/* Action Buttons */}
         <div className="flex gap-2">
           <button
             onClick={() => onEdit(flat)}
