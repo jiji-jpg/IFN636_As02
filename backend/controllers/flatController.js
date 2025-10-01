@@ -107,7 +107,7 @@ class FlatController extends BaseController {
 
     async executeAddFlat(req, res) {
         try {
-            const { title, description, inspectionDate } = req.body;
+            const { title, description, inspectionDate, bedrooms, bathrooms, carpark } = req.body;
             console.log('Add Flat called with:', { title, description, inspectionDate, userId: req.user?.id });
             console.log('Files received:', req.files);
 
@@ -124,6 +124,9 @@ class FlatController extends BaseController {
                 title, 
                 description, 
                 inspectionDate,
+                bedrooms: bedrooms ? Number(bedrooms) : 0,
+                bathrooms: bathrooms ? Number(bathrooms) : 0,
+                carpark: carpark ? Number(carpark) : 0,
                 images 
             });
             
@@ -137,7 +140,7 @@ class FlatController extends BaseController {
 
     async executeUpdateFlat(req, res) {
         try {
-            const { title, description, vacant, inspectionDate, tenantDetails } = req.body;
+            const { title, description, vacant, inspectionDate, tenantDetails, bedrooms, bathrooms, carpark } = req.body;
             console.log('Update Flat called with:', { title, description, vacant, inspectionDate, tenantDetails });
             console.log('Files received for update:', req.files);
             
@@ -152,6 +155,10 @@ class FlatController extends BaseController {
             flat.description = description || flat.description;
             flat.vacant = vacant ?? flat.vacant;
             flat.inspectionDate = inspectionDate || flat.inspectionDate;
+
+            if (bedrooms !== undefined) flat.bedrooms = Number(bedrooms);
+            if (bathrooms !== undefined) flat.bathrooms = Number(bathrooms);
+            if (carpark !== undefined) flat.carpark = Number(carpark);
             
             if (tenantDetails !== undefined) {
                 flat.tenantDetails = tenantDetails;
