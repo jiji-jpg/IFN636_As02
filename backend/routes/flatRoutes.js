@@ -37,7 +37,6 @@ const {
 const { protect } = require('../middleware/authMiddleware');
 const router = express.Router();
 
-// Create uploads directories
 const flatsUploadsDir = path.join(__dirname, '../uploads/flats');
 const maintenanceUploadsDir = path.join(__dirname, '../uploads/maintenance');
 
@@ -48,7 +47,6 @@ if (!fs.existsSync(maintenanceUploadsDir)) {
   fs.mkdirSync(maintenanceUploadsDir, { recursive: true });
 }
 
-// Configure multer for flat images
 const flatStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'uploads/flats/');
@@ -74,7 +72,6 @@ const flatUpload = multer({
   }
 });
 
-// Configure multer for maintenance images
 const maintenanceStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'uploads/maintenance/');
@@ -100,9 +97,7 @@ const maintenanceUpload = multer({
   }
 });
 
-// ============================================
 // FLAT ROUTES
-// ============================================
 router.route('/')
   .get(protect, getFlats)
   .post(protect, flatUpload.array('images', 10), addFlat);
@@ -117,9 +112,7 @@ router.route('/:id')
 router.route('/:id/images/:imageName')
   .delete(protect, deleteImage);
 
-// ============================================
 // TENANT ROUTES
-// ============================================
 router.route('/tenants/all')
   .get(protect, getAllTenants);
 
@@ -129,9 +122,7 @@ router.route('/:flatId/tenants')
   .put(protect, updateTenant)
   .delete(protect, removeTenant);
 
-// ============================================
 // MAINTENANCE ROUTES
-// ============================================
 router.route('/contractors/list')
   .get(protect, getContractors);
 
@@ -146,9 +137,7 @@ router.route('/:flatId/maintenance/:reportId')
   .put(protect, updateMaintenanceStatus)
   .delete(protect, deleteMaintenanceReport);
 
-// ============================================
 // PAYMENT & INVOICE ROUTES
-// ============================================
 router.route('/arrears/tracking')
   .get(protect, getArrearsTracking);
 

@@ -248,7 +248,6 @@ class PaymentController extends BasePaymentController {
             const paymentCommand = new PaymentCommand(flatId, paymentData, req.user.id);
             const result = await paymentCommand.execute();
             
-            // Update invoice status if payment is linked to an invoice
             if (invoiceId && result.flat.invoices) {
                 const invoice = result.flat.invoices.find(inv => inv.id === invoiceId);
                 if (invoice) {
