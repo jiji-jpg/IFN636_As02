@@ -1,4 +1,3 @@
-// test/controller-fixed.test.js
 const { expect } = require('chai');
 const sinon = require('sinon');
 const mongoose = require('mongoose');
@@ -14,7 +13,6 @@ describe('Backend Controllers Test Suite', () => {
   let req, res, stub;
   
   beforeEach(() => {
-    // Simple response mock that matches your controller's separate calls
     res = { 
       status: sinon.stub().returnsThis(), 
       json: sinon.spy() 
@@ -54,7 +52,7 @@ describe('Backend Controllers Test Suite', () => {
     rentAmount: 1500 
   };
 
-  // ================== FLAT CONTROLLER TESTS ==================
+  //flat tests 
   describe('Flat Controller Tests', () => {
     
     describe('addFlat function tests', () => {
@@ -282,7 +280,7 @@ describe('Backend Controllers Test Suite', () => {
     });
   });
 
-  // ================== TENANT MANAGEMENT TESTS ==================
+//tenant tests
   describe('Tenant Management Tests', () => {
     const flatId = new mongoose.Types.ObjectId();
     const userId = new mongoose.Types.ObjectId().toString();
@@ -450,7 +448,7 @@ describe('Backend Controllers Test Suite', () => {
     });
   });
 
-  // ================== ERROR HANDLING TESTS ==================
+  // error handling
   describe('Error Handling Tests', () => {
     it('handles database connection errors gracefully', async () => {
       sinon.stub(Flat, 'find').rejects(new Error('Database connection failed'));
@@ -474,7 +472,7 @@ describe('Backend Controllers Test Suite', () => {
     });
 
     it('handles validation errors correctly', async () => {
-      req = mockReq({}, {}); // Empty body should trigger validation
+      req = mockReq({}, {}); 
       
       await addFlat(req, res);
       
