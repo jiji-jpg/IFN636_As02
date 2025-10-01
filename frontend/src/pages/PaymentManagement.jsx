@@ -202,7 +202,6 @@ const PaymentManagement = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
       <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="container mx-auto px-6 py-8">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
@@ -234,7 +233,6 @@ const PaymentManagement = () => {
       </div>
 
       <div className="container mx-auto px-6 py-8">
-        {/* Statistics Cards */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
           <StatCard
             title="Total Invoices"
@@ -263,7 +261,6 @@ const PaymentManagement = () => {
           />
         </div>
 
-        {/* Property Selection */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 mb-8">
           <h2 className="text-2xl font-bold text-gray-800 mb-6">Select Property</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -304,7 +301,6 @@ const PaymentManagement = () => {
 
         {selectedFlat && (
           <>
-            {/* Search and Filter */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-8">
               <div className="flex flex-col md:flex-row gap-4">
                 <div className="flex-1">
@@ -335,9 +331,7 @@ const PaymentManagement = () => {
               </div>
             </div>
 
-            {/* Invoices and Payments */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Invoices */}
               <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
                 <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
                   Invoices ({filteredInvoices.length})
@@ -363,7 +357,6 @@ const PaymentManagement = () => {
                 )}
               </div>
 
-              {/* Payments */}
               <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
                 <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
                   Recent Payments ({payments.length})
@@ -403,7 +396,6 @@ const PaymentManagement = () => {
         )}
       </div>
 
-      {/* Invoice Form Modal */}
       {showInvoiceForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-screen overflow-y-auto">
@@ -484,7 +476,6 @@ const PaymentManagement = () => {
         </div>
       )}
 
-      {/* Payment Form Modal */}
       {showPaymentForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-screen overflow-y-auto">
@@ -584,7 +575,6 @@ const PaymentManagement = () => {
   );
 };
 
-// Statistics Card Component
 const StatCard = ({ icon, title, value, color, alert = false }) => {
   return (
     <div className={`bg-white rounded-xl shadow-sm border border-gray-200 p-4 ${
@@ -607,7 +597,6 @@ const StatCard = ({ icon, title, value, color, alert = false }) => {
   );
 };
 
-// Invoice Card Component
 const InvoiceCard = ({ invoice }) => {
   const getStatusColor = (invoice) => {
     const status = invoice.status === 'paid' ? 'paid' : 
@@ -646,7 +635,6 @@ const InvoiceCard = ({ invoice }) => {
   );
 };
 
-// Payment Card Component
 const PaymentCard = ({ payment }) => {
   return (
     <div className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">

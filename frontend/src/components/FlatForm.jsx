@@ -15,7 +15,7 @@ const FlatForm = ({ flats, setFlats, editingFlat, setEditingFlat }) => {
         description: editingFlat.description,
         inspectionDate: editingFlat.inspectionDate,
       });
-      setSelectedImages([]); // Clear images when editing
+      setSelectedImages([]);
     } else {
       setFormData({ title: '', description: '', inspectionDate: '' });
       setSelectedImages([]);
@@ -42,13 +42,11 @@ const FlatForm = ({ flats, setFlats, editingFlat, setEditingFlat }) => {
     setUploading(true);
 
     try {
-      // Create FormData for multipart/form-data
       const submitData = new FormData();
       submitData.append('title', formData.title);
       submitData.append('description', formData.description);
       submitData.append('inspectionDate', formData.inspectionDate);
       
-      // Add images to form data
       selectedImages.forEach((image) => {
         submitData.append('images', image);
       });
@@ -71,12 +69,10 @@ const FlatForm = ({ flats, setFlats, editingFlat, setEditingFlat }) => {
         setFlats([...flats, response.data]);
       }
       
-      // Reset form
       setEditingFlat(null);
       setFormData({ title: '', description: '', inspectionDate: '' });
       setSelectedImages([]);
       
-      // Clear file input
       const fileInput = document.getElementById('image-upload-input');
       if (fileInput) fileInput.value = '';
       
@@ -119,7 +115,6 @@ const FlatForm = ({ flats, setFlats, editingFlat, setEditingFlat }) => {
         className="w-full mb-4 p-2 border rounded"
       />
       
-      {/* Image Upload Section */}
       <label className="block mb-1 font-semibold">Property Images</label>
       <input
         id="image-upload-input"
@@ -130,7 +125,6 @@ const FlatForm = ({ flats, setFlats, editingFlat, setEditingFlat }) => {
         className="w-full mb-4 p-2 border rounded file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
       />
       
-      {/* Selected Images Preview */}
       {selectedImages.length > 0 && (
         <div className="mb-4">
           <p className="text-sm font-medium text-gray-700 mb-2">

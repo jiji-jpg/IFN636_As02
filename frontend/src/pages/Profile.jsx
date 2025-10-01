@@ -67,7 +67,6 @@ const Profile = () => {
             Manage your account details and keep your information up to date. Your profile helps us provide you with the best property management experience.
           </p>
           
-          {/* Profile Stats */}
           <div className="mt-8 space-y-4">
             <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-xl p-4">
               <h3 className="text-lg font-semibold mb-2">Account Status</h3>
@@ -91,7 +90,6 @@ const Profile = () => {
         <div className="w-full max-w-md px-8 lg:px-0">
           <div className="bg-white p-8 lg:p-0">
             <div className="text-center lg:text-left mb-8">
-              {/* Profile Avatar */}
               <div className="w-20 h-20 bg-gradient-to-br from-purple-600 to-purple-800 rounded-full flex items-center justify-center mx-auto lg:mx-0 mb-4">
                 <span className="text-white text-2xl font-bold">
                   {formData.name ? formData.name.charAt(0).toUpperCase() : '👤'}

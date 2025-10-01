@@ -225,7 +225,6 @@ const handleUpdateStatus = async (e) => {
   }
 
   try {
-    // Use selectedFlat if flatId is undefined
     const actualFlatId = flatId || selectedFlat;
     
     await axiosInstance.delete(`/api/flats/${actualFlatId}/maintenance/${reportId}`, {
