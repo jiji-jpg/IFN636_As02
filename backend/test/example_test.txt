@@ -186,7 +186,6 @@ describe('Flat Controller Tests', () => {
       req = { query: {} };
       
       await getPublicFlats(req, res);
-      
       expect(res.status.calledWith(500)).to.be.true;
     });
   });
