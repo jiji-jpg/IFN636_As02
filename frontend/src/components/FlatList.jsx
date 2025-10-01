@@ -20,14 +20,14 @@ const FlatList = ({ flats, setFlats, setEditingFlat }) => {
       return;
     }
 
-    console.log('Deleting image:', imageToDelete, 'from flat:', flatId); // Debug log
+    console.log('Deleting image:', imageToDelete, 'from flat:', flatId); 
 
     try {
       const response = await axiosInstance.delete(`/api/flats/${flatId}/images/${imageToDelete}`, {
         headers: { Authorization: `Bearer ${user.token}` },
       });
       
-      console.log('Delete response:', response.data); // Debug log
+      console.log('Delete response:', response.data); 
       
       setFlats(flats.map(flat => 
         flat._id === flatId 
@@ -44,10 +44,9 @@ const FlatList = ({ flats, setFlats, setEditingFlat }) => {
     }
   };
 
-  // Function to get image URL - adjust this based on your backend setup
   const getImageUrl = (imagePath) => {
     const url = `${process.env.REACT_APP_API_URL || 'http://localhost:5001'}/uploads/flats/${imagePath}`;
-    console.log('Generated image URL:', url); // Debug log
+    console.log('Generated image URL:', url); 
     return url;
   };
 

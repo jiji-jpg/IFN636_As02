@@ -186,7 +186,6 @@ class MaintenanceController extends BaseMaintenanceController {
 
             const flat = authResult.flat;
             
-            // Verify contractor exists
             const contractor = this.contractorService.getContractorById(contractorId);
             if (!contractor) {
                 return res.status(400).json({ message: 'Invalid contractor selected' });
@@ -238,14 +237,12 @@ async executeGetMaintenanceReports(req, res) {
         const flat = authResult.flat;
         const maintenanceReports = flat.maintenanceReports || [];
         
-        // ADD THIS TO SEE WHAT IDs ARE IN THE DATABASE
         console.log('Raw maintenance reports:', JSON.stringify(maintenanceReports, null, 2));
         
-        // Enhance reports with contractor details
         const enhancedReports = maintenanceReports.map(report => {
             const contractor = this.contractorService.getContractorById(report.contractorId);
             return {
-                ...report.toObject(), // Convert Mongoose document to plain object
+                ...report.toObject(), 
                 contractorDetails: contractor
             };
         });
@@ -283,7 +280,6 @@ async executeGetMaintenanceReports(req, res) {
         console.log('Looking for report with id:', reportId);
         console.log('Available reports:', flat.maintenanceReports.map(r => ({ id: r.id, _id: r._id })));
         
-        // Try to find by custom id first, then by _id
         const reportIndex = flat.maintenanceReports.findIndex(report => 
             report.id === reportId || report._id.toString() === reportId
         );
@@ -385,7 +381,6 @@ async executeGetMaintenanceReports(req, res) {
         
         console.log('Total reports in flat:', flat.maintenanceReports.length);
         
-        // Log all reports with their IDs
         flat.maintenanceReports.forEach((report, index) => {
             console.log(`Report ${index}:`, {
                 id: report.id,
@@ -394,7 +389,6 @@ async executeGetMaintenanceReports(req, res) {
             });
         });
         
-        // Try to find by custom id first, then by _id
         const reportIndex = flat.maintenanceReports.findIndex(report => {
             const matchById = report.id === reportId;
             const matchBy_id = report._id && report._id.toString() === reportId;
@@ -412,7 +406,6 @@ async executeGetMaintenanceReports(req, res) {
         const report = flat.maintenanceReports[reportIndex];
         console.log('Deleting report:', report.id || report._id);
         
-        // Delete associated images
         if (report.images && report.images.length > 0) {
             this.fileManager.deleteMaintenanceImages(report.images);
         }

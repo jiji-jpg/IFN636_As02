@@ -7,8 +7,10 @@ const flatSchema = new mongoose.Schema({
     vacant: { type: Boolean, default: true },
     inspectionDate: { type: Date },
     images: [String],
+    bedrooms: { type: Number, default: 0 },
+    bathrooms: { type: Number, default: 0 },
+    carpark: { type: Number, default: 0 },
     
-    // Tenant details
     tenantDetails: {
         name: { type: String },
         email: { type: String },
@@ -17,9 +19,8 @@ const flatSchema = new mongoose.Schema({
         rentAmount: { type: Number }
     },
     
-    // Maintenance reports
     maintenanceReports: [{
-        id: String, // Remove required completely, just make it a plain String
+        id: String, 
         issueType: String,
         description: String,
         priority: String,
@@ -37,7 +38,6 @@ const flatSchema = new mongoose.Schema({
         images: [String]
     }],
     
-    // Payment logs
     paymentLogs: [{
         id: String,
         amount: Number,
@@ -48,7 +48,6 @@ const flatSchema = new mongoose.Schema({
         recordedDate: { type: Date, default: Date.now }
     }],
     
-    // Invoices
     invoices: [{
         id: String,
         type: { type: String, enum: ['rental', 'maintenance'] },

@@ -107,7 +107,7 @@ class FlatController extends BaseController {
 
     async executeAddFlat(req, res) {
         try {
-            const { title, description, inspectionDate } = req.body;
+            const { title, description, inspectionDate, bedrooms, bathrooms, carpark } = req.body;
             console.log('Add Flat called with:', { title, description, inspectionDate, userId: req.user?.id });
             console.log('Files received:', req.files);
 
@@ -124,6 +124,9 @@ class FlatController extends BaseController {
                 title, 
                 description, 
                 inspectionDate,
+                bedrooms: bedrooms ? Number(bedrooms) : 0,
+                bathrooms: bathrooms ? Number(bathrooms) : 0,
+                carpark: carpark ? Number(carpark) : 0,
                 images 
             });
             
@@ -137,7 +140,7 @@ class FlatController extends BaseController {
 
     async executeUpdateFlat(req, res) {
         try {
-            const { title, description, vacant, inspectionDate, tenantDetails } = req.body;
+            const { title, description, vacant, inspectionDate, tenantDetails, bedrooms, bathrooms, carpark } = req.body;
             console.log('Update Flat called with:', { title, description, vacant, inspectionDate, tenantDetails });
             console.log('Files received for update:', req.files);
             
@@ -148,18 +151,19 @@ class FlatController extends BaseController {
 
             const flat = authResult.flat;
             
-            // Update text fields
             flat.title = title || flat.title;
             flat.description = description || flat.description;
             flat.vacant = vacant ?? flat.vacant;
             flat.inspectionDate = inspectionDate || flat.inspectionDate;
+
+            if (bedrooms !== undefined) flat.bedrooms = Number(bedrooms);
+            if (bathrooms !== undefined) flat.bathrooms = Number(bathrooms);
+            if (carpark !== undefined) flat.carpark = Number(carpark);
             
-            // Handle tenant details
             if (tenantDetails !== undefined) {
                 flat.tenantDetails = tenantDetails;
             }
             
-            // Handle images
             if (req.files && req.files.length > 0) {
                 const newImages = this.fileManager.processUploadedImages(req.files);
                 console.log('New images to add:', newImages);
@@ -202,7 +206,6 @@ class FlatController extends BaseController {
 
             const flat = authResult.flat;
             
-            // Remove image from flat's images array
             flat.images = flat.images.filter(img => img !== imageName);
             await flat.save();
             
@@ -246,7 +249,6 @@ class FlatController extends BaseController {
 
             const flat = authResult.flat;
             
-            // Check if flat already has a tenant
             if (!flat.vacant && flat.tenantDetails) {
                 return res.status(400).json({ message: 'Flat already has a tenant. Update existing tenant or mark flat as vacant first.' });
             }
