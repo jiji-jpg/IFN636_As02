@@ -7,6 +7,9 @@ const flatSchema = new mongoose.Schema({
     vacant: { type: Boolean, default: true },
     inspectionDate: { type: Date },
     images: [String],
+    bedrooms: { type: Number, default: 0 },
+    bathrooms: { type: Number, default: 0 },
+    carpark: { type: Number, default: 0 },
     
     tenantDetails: {
         name: { type: String },
