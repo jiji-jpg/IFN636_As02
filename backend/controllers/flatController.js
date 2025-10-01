@@ -148,18 +148,15 @@ class FlatController extends BaseController {
 
             const flat = authResult.flat;
             
-            // Update text fields
             flat.title = title || flat.title;
             flat.description = description || flat.description;
             flat.vacant = vacant ?? flat.vacant;
             flat.inspectionDate = inspectionDate || flat.inspectionDate;
             
-            // Handle tenant details
             if (tenantDetails !== undefined) {
                 flat.tenantDetails = tenantDetails;
             }
             
-            // Handle images
             if (req.files && req.files.length > 0) {
                 const newImages = this.fileManager.processUploadedImages(req.files);
                 console.log('New images to add:', newImages);
@@ -202,7 +199,6 @@ class FlatController extends BaseController {
 
             const flat = authResult.flat;
             
-            // Remove image from flat's images array
             flat.images = flat.images.filter(img => img !== imageName);
             await flat.save();
             
@@ -246,7 +242,6 @@ class FlatController extends BaseController {
 
             const flat = authResult.flat;
             
-            // Check if flat already has a tenant
             if (!flat.vacant && flat.tenantDetails) {
                 return res.status(400).json({ message: 'Flat already has a tenant. Update existing tenant or mark flat as vacant first.' });
             }

@@ -371,7 +371,6 @@ const Tenants = () => {
         </div>
       )}
 
-      {/* Footer */}
       <div className="bg-white bg-opacity-10 backdrop-blur-sm border-t border-white border-opacity-20">
         <div className="container mx-auto px-6 py-6">
           <p className="text-white text-center text-sm opacity-75">
