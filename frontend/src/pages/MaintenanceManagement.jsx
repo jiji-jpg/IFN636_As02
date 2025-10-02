@@ -313,13 +313,6 @@ const handleUpdateStatus = async (e) => {
                 Track and manage maintenance issues across your properties. Report issues, coordinate with contractors, and monitor progress.
               </p>
             </div>
-            
-            <button
-              onClick={() => setShowMaintenanceForm(true)}
-              className="bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white font-semibold px-6 py-3 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center space-x-2"
-            >
-              <span>Report Issue</span>
-            </button>
           </div>
         </div>
       </div>
