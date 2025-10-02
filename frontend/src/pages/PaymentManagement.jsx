@@ -214,20 +214,6 @@ const PaymentManagement = () => {
               </p>
             </div>
             
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowInvoiceForm(true)}
-                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold px-6 py-3 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center space-x-2"
-              >
-                <span>Generate Invoice</span>
-              </button>
-              <button
-                onClick={() => setShowPaymentForm(true)}
-                className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-semibold px-6 py-3 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center space-x-2"
-              >
-                <span>Record Payment</span>
-              </button>
-            </div>
           </div>
         </div>
       </div>
