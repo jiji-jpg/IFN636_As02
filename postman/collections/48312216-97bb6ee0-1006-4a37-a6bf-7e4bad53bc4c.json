@@ -238,8 +238,8 @@
 							"pm.test(\"Response data matches sent data\", function () {\r",
 							"    const jsonData = pm.response.json();\r",
 							"    \r",
-							"    pm.expect(jsonData.title).to.equal(\"Modern 2BR Apartment\");\r",
-							"    pm.expect(jsonData.description).to.equal(\"Beautiful apartment in city center\");\r",
+							"    pm.expect(jsonData.title).to.equal(\"Test\");\r",
+							"    pm.expect(jsonData.description).to.equal(\"Test description\");\r",
 							"    \r",
 							"    pm.expect(jsonData.userId).to.not.be.empty;\r",
 							"\r",
@@ -282,7 +282,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"title\": \"Test\",\r\n  \"description\": \"Test description\",\r\n  \"address\": \"Test address\",\r\n  \"bedrooms\": \"2\",\r\n  \"bathrooms\": \"1\",\r\n  \"carpark\": \"true\",\r\n  \"inspectionDate\": \"2025-10-15\"\r\n}"
+					"raw": "{\r\n  \"title\": \"Test\",\r\n  \"description\": \"Test description\",\r\n  \"bedrooms\": \"2\",\r\n  \"bathrooms\": \"1\",\r\n  \"carpark\": \"1\",\r\n  \"inspectionDate\": \"2025-10-15\"\r\n}"
 				},
 				"url": {
 					"raw": "http://localhost:5001/api/flats",

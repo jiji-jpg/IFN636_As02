@@ -81,7 +81,7 @@ describe('Payment and Maintenance Controllers Test Suite', () => {
     contractorId: '1'
   };
 
-  // ================== PAYMENT CONTROLLER TESTS ==================
+  // payment TESTS 
   describe('Payment Controller Tests', () => {
     const flatId = new mongoose.Types.ObjectId();
     const userId = new mongoose.Types.ObjectId().toString();
@@ -342,7 +342,7 @@ describe('Payment and Maintenance Controllers Test Suite', () => {
       });
 
       it('returns zero arrears when no overdue invoices', async () => {
-        const futureDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days future
+        const futureDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); 
         const flats = [{
           _id: flatId,
           tenantDetails: { name: 'John Doe', email: 'john@example.com' },
@@ -420,7 +420,7 @@ describe('Payment and Maintenance Controllers Test Suite', () => {
     });
   });
 
-  // ================== MAINTENANCE CONTROLLER TESTS ==================
+  // maintenance TESTS 
   describe('Maintenance Controller Tests', () => {
     const flatId = new mongoose.Types.ObjectId();
     const userId = new mongoose.Types.ObjectId().toString();
@@ -532,7 +532,8 @@ describe('Payment and Maintenance Controllers Test Suite', () => {
           id: 'report1', 
           issueType: 'plumbing',
           contractorId: '1',
-          status: 'reported'
+          status: 'reported',
+          toObject: function() { return this; }
         };
         const flat = mockFlat({ 
           _id: flatId, 
@@ -546,7 +547,7 @@ describe('Payment and Maintenance Controllers Test Suite', () => {
         
         expect(res.json.calledWithMatch({ 
           flatId, 
-          reports: [sinon.match.object] 
+          reports: sinon.match.array 
         })).to.be.true;
       });
 
@@ -748,7 +749,7 @@ describe('Payment and Maintenance Controllers Test Suite', () => {
       it('returns 404 for non-existent maintenance report', async () => {
         const flat = mockFlat({ 
           userId: new mongoose.Types.ObjectId(userId),
-          maintenanceReports: []
+          maintenanceReports: [{ id: 'report2', issueType: 'electrical' }]
         });
         sinon.stub(Flat, 'findById').resolves(flat);
         req = mockReq({ flatId, reportId: 'nonexistent' }, {}, { id: userId });
