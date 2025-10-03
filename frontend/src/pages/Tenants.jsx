@@ -5,9 +5,11 @@ import axiosInstance from '../axiosConfig';
 const Tenants = () => {
   const { user } = useAuth();
   const [tenants, setTenants] = useState([]);
+  const [flats, setFlats] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [editingTenant, setEditingTenant] = useState(null);
+  const [addingTenant, setAddingTenant] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   
   const [tenantForm, setTenantForm] = useState({
@@ -15,12 +17,14 @@ const Tenants = () => {
     email: '',
     phone: '',
     moveInDate: '',
-    rentAmount: ''
+    rentAmount: '',
+    flatId: ''
   });
 
   useEffect(() => {
     if (user) {
       fetchAllTenants();
+      fetchVacantFlats();
     }
   }, [user]);
 
@@ -40,6 +44,49 @@ const Tenants = () => {
     }
   };
 
+  const fetchVacantFlats = async () => {
+    try {
+      const response = await axiosInstance.get('/api/flats', {
+        headers: { Authorization: `Bearer ${user.token}` }
+      });
+      const vacantFlats = response.data.filter(flat => flat.vacant);
+      setFlats(vacantFlats);
+    } catch (error) {
+      console.error('Error fetching vacant flats:', error);
+    }
+  };
+
+  const handleAddTenant = async (e) => {
+    e.preventDefault();
+    
+    if (!tenantForm.flatId) {
+      alert('Please select a property');
+      return;
+    }
+
+    try {
+      const response = await axiosInstance.post(
+        `/api/flats/${tenantForm.flatId}/tenants`,
+        {
+          name: tenantForm.name,
+          email: tenantForm.email,
+          phone: tenantForm.phone,
+          moveInDate: tenantForm.moveInDate,
+          rentAmount: tenantForm.rentAmount
+        },
+        { headers: { Authorization: `Bearer ${user.token}` } }
+      );
+
+      await fetchAllTenants();
+      await fetchVacantFlats();
+      setAddingTenant(false);
+      setTenantForm({ name: '', email: '', phone: '', moveInDate: '', rentAmount: '', flatId: '' });
+      alert('Tenant added successfully!');
+    } catch (error) {
+      alert('Failed to add tenant: ' + (error.response?.data?.message || error.message));
+    }
+  };
+
   const handleUpdateTenant = async (e) => {
     e.preventDefault();
     if (!editingTenant) return;
@@ -47,7 +94,13 @@ const Tenants = () => {
     try {
       const response = await axiosInstance.put(
         `/api/flats/${editingTenant.flatId}/tenants`,
-        tenantForm,
+        {
+          name: tenantForm.name,
+          email: tenantForm.email,
+          phone: tenantForm.phone,
+          moveInDate: tenantForm.moveInDate,
+          rentAmount: tenantForm.rentAmount
+        },
         { headers: { Authorization: `Bearer ${user.token}` } }
       );
 
@@ -58,7 +111,7 @@ const Tenants = () => {
       ));
 
       setEditingTenant(null);
-      setTenantForm({ name: '', email: '', phone: '', moveInDate: '', rentAmount: '' });
+      setTenantForm({ name: '', email: '', phone: '', moveInDate: '', rentAmount: '', flatId: '' });
       alert('Tenant updated successfully!');
     } catch (error) {
       alert('Failed to update tenant: ' + (error.response?.data?.message || error.message));
@@ -76,6 +129,7 @@ const Tenants = () => {
       });
 
       setTenants(tenants.filter(t => t.flatId !== flatId));
+      await fetchVacantFlats();
       alert('Tenant removed successfully!');
     } catch (error) {
       alert('Failed to remove tenant: ' + (error.response?.data?.message || error.message));
@@ -89,8 +143,19 @@ const Tenants = () => {
       email: tenant.tenant.email || '',
       phone: tenant.tenant.phone || '',
       moveInDate: tenant.tenant.moveInDate ? tenant.tenant.moveInDate.split('T')[0] : '',
-      rentAmount: tenant.tenant.rentAmount || ''
+      rentAmount: tenant.tenant.rentAmount || '',
+      flatId: tenant.flatId
     });
+  };
+
+  const openAddForm = () => {
+    setAddingTenant(true);
+    setTenantForm({ name: '', email: '', phone: '', moveInDate: '', rentAmount: '', flatId: '' });
+  };
+
+  const closeAddForm = () => {
+    setAddingTenant(false);
+    setTenantForm({ name: '', email: '', phone: '', moveInDate: '', rentAmount: '', flatId: '' });
   };
 
   const formatDate = (dateString) => {
@@ -169,8 +234,18 @@ const Tenants = () => {
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="container mx-auto px-6 py-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Tenant Directory</h1>
-          <p className="text-gray-600">View and manage all tenants across your properties</p>
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Tenant Directory</h1>
+              <p className="text-gray-600">View and manage all tenants across your properties</p>
+            </div>
+            <button
+              onClick={openAddForm}
+              className="bg-green-600 hover:bg-green-700 text-white font-medium px-6 py-3 rounded-lg transition-colors flex items-center gap-2"
+            >
+              Add New Tenant
+            </button>
+          </div>
         </div>
       </div>
 
@@ -217,21 +292,25 @@ const Tenants = () => {
           <h2 className="text-xl font-semibold text-gray-900 mb-4">All Tenants ({filteredTenants.length})</h2>
           
           {filteredTenants.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">
+            <div className="text-center py-12">
               <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
-              <p>{searchTerm ? 'No tenants found matching your search.' : 'No tenants found.'}</p>
+              <p className="text-gray-600 text-lg mb-2">No tenants found</p>
+              <p className="text-gray-500 text-sm">Add your first tenant to get started</p>
             </div>
           ) : (
             <div className="space-y-4">
               {filteredTenants.map((tenantData) => (
-                <div key={tenantData.flatId} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                <div 
+                  key={tenantData.flatId} 
+                  className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+                >
                   <div className="flex justify-between items-start mb-3">
                     <div>
-                      <h3 className="font-semibold text-lg">{tenantData.tenant.name}</h3>
-                      <p className="text-sm text-blue-600 font-medium">{tenantData.flatTitle}</p>
-                      <span className={`inline-block mt-1 px-2 py-1 text-xs font-semibold rounded ${
+                      <h3 className="text-lg font-bold text-gray-900">{tenantData.tenant.name}</h3>
+                      <p className="text-sm text-gray-600">{tenantData.flatTitle}</p>
+                      <span className={`inline-block mt-1 px-2 py-1 text-xs rounded-full ${
                         tenantData.vacant ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
                       }`}>
                         {tenantData.vacant ? 'Marked Vacant' : 'Active'}
@@ -286,6 +365,126 @@ const Tenants = () => {
         </div>
       </div>
 
+      {/* Add Tenant Modal */}
+      {addingTenant && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-2xl max-w-md w-full max-h-screen overflow-y-auto p-6">
+            <h3 className="text-xl font-semibold text-gray-900 mb-4">Add New Tenant</h3>
+            
+            {flats.length === 0 ? (
+              <div className="text-center py-8">
+                <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+                <p className="text-gray-600 mb-4">No vacant properties available</p>
+                <p className="text-sm text-gray-500 mb-6">All your properties currently have tenants. Please mark a property as vacant or add a new property first.</p>
+                <button
+                  onClick={closeAddForm}
+                  className="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-6 rounded-lg transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleAddTenant}>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Select Property *</label>
+                    <select
+                      value={tenantForm.flatId}
+                      onChange={(e) => setTenantForm({...tenantForm, flatId: e.target.value})}
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      required
+                    >
+                      <option value="">Choose a vacant property...</option>
+                      {flats.map(flat => (
+                        <option key={flat._id} value={flat._id}>
+                          {flat.title}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Tenant Name *</label>      
+                    <input
+                      type="text"
+                      value={tenantForm.name}
+                      onChange={(e) => setTenantForm({...tenantForm, name: e.target.value})}
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Email *</label>
+                    <input
+                      type="email"
+                      value={tenantForm.email}
+                      onChange={(e) => setTenantForm({...tenantForm, email: e.target.value})}
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Phone *</label>
+                    <input
+                      type="tel"
+                      value={tenantForm.phone}
+                      onChange={(e) => setTenantForm({...tenantForm, phone: e.target.value})}
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Move-in Date *</label>
+                    <input
+                      type="date"
+                      value={tenantForm.moveInDate}
+                      onChange={(e) => setTenantForm({...tenantForm, moveInDate: e.target.value})}
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Monthly Rent ($) *</label>
+                    <input
+                      type="number"
+                      value={tenantForm.rentAmount}
+                      onChange={(e) => setTenantForm({...tenantForm, rentAmount: e.target.value})}
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      min="0"
+                      step="0.01"
+                      required
+                    />
+                  </div>
+                </div>
+                
+                <div className="flex gap-3 mt-6">
+                  <button
+                    type="submit"
+                    className="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg transition-colors"
+                  >
+                    Add Tenant
+                  </button>
+                  <button
+                    type="button"
+                    onClick={closeAddForm}
+                    className="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-medium py-3 px-4 rounded-lg transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Edit Tenant Modal */}
       {editingTenant && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-2xl max-w-md w-full max-h-screen overflow-y-auto p-6">
@@ -370,14 +569,6 @@ const Tenants = () => {
           </div>
         </div>
       )}
-
-      <div className="bg-white bg-opacity-10 backdrop-blur-sm border-t border-white border-opacity-20">
-        <div className="container mx-auto px-6 py-6">
-          <p className="text-white text-center text-sm opacity-75">
-            © 2025 Property Manager. All rights reserved.
-          </p>
-        </div>
-      </div>
     </div>
   );
 };
