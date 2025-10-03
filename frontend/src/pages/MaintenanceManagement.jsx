@@ -306,7 +306,7 @@ const handleUpdateStatus = async (e) => {
         <div className="container mx-auto px-6 py-8">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
             <div className="mb-4 lg:mb-0">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center">
+              <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center"> 
                 Maintenance Management
               </h1>
               <p className="text-gray-600">
@@ -316,7 +316,7 @@ const handleUpdateStatus = async (e) => {
           </div>
         </div>
       </div>
-
+{/* Testing */}
       <div className="container mx-auto px-6 py-8">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
           <StatCard title="Total Reports" value={statistics.totalReports} />
